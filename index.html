@@ -445,19 +445,19 @@
 
             // Genera breadcrumb con onclick inline per ogni segmento
             const breadcrumbItems = currentPath.map((p, i) => {
+                const label = p.replace(/-/g, ' ');
                 if (i === currentPath.length - 1) {
-                    return `<span class="current">${p}</span>`;
+                    return `<span class="current">${label}</span>`;
                 } else {
-                    // Crea array path fino a questo punto e lo serializza
-                    const pathToHere = currentPath.slice(0, i + 1);
-                    return `<a onclick="navigateToPath(${JSON.stringify(pathToHere)})">${p}</a>`;
+                    // Usa indice per navigare - evita problemi con JSON in attributi HTML
+                    return `<a onclick="navigateToIndex(${i})">${label}</a>`;
                 }
             }).join('<span>›</span>');
 
             return `
                 <button class="back-btn" onclick="goBack()">← Indietro</button>
                 <nav class="breadcrumb">
-                    <a onclick="navigateToPath([])">🏠 Home</a>
+                    <a onclick="navigateToHome()">🏠 Home</a>
                     <span>›</span>
                     ${breadcrumbItems}
                 </nav>
@@ -468,7 +468,7 @@
                         const isFolder = item.type === 'dir';
                         const iconType = isFolder ? 'folder' : (ext === 'html' ? 'file-html' : ext === 'pdf' ? 'file-pdf' : 'file-other');
                         const icon = isFolder ? fileIcons.folder : (fileIcons[ext] || fileIcons.default);
-                        const displayName = isFolder ? item.name : item.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' ');
+                        const displayName = isFolder ? item.name.replace(/-/g, ' ') : item.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' ');
 
                         if (isFolder) {
                             // CARTELLA: usa onclick con il nome della cartella
@@ -514,6 +514,16 @@
             navigateTo(pathArray);
         }
 
+        // Funzione per navigare usando l'indice del breadcrumb
+        function navigateToIndex(index) {
+            navigateTo(currentPath.slice(0, index + 1));
+        }
+
+        // Funzione per tornare alla home
+        function navigateToHome() {
+            navigateTo([]);
+        }
+
         // Navigazione
         async function navigateTo(path) {
             currentPath = path;
@@ -533,7 +543,7 @@
             if (path.length === 0) {
                 app.innerHTML = renderHomepage(items);
             } else {
-                const title = path[path.length - 1];
+                const title = path[path.length - 1].replace(/-/g, ' ');
                 app.innerHTML = renderList(items, title);
             }
         }
