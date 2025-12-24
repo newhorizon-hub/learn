@@ -791,6 +791,7 @@
             <div id="quizContainer"></div>
             <div class="button-group">
                 <button class="btn btn-success" onclick="checkAnswers()">✓ Verifica Risposte</button>
+                <button class="btn btn-primary" id="goToReviewBtn" style="display: none;" onclick="goToPhase(5)">Vai al Ripasso →</button>
             </div>
             <div class="nav-buttons">
                 <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
@@ -813,6 +814,7 @@
             </div>
             <div id="reviewContainer"></div>
             <div class="button-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
                 <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
                 <button class="btn btn-secondary" onclick="restart()">🔄 Ricomincia</button>
             </div>
@@ -925,7 +927,9 @@
                 else { opts[ans].classList.add('wrong'); opts[q.correct].classList.add('correct'); fb.className = 'feedback show wrong'; fb.innerHTML = `✗ La risposta corretta è: <strong>${q.options[q.correct]}</strong>`; }
             });
             state.results = { correct, total: questions.length, categories: cats };
-            setTimeout(() => goToPhase(5), 1500);
+            // Mostra il pulsante per andare al ripasso
+            document.getElementById('goToReviewBtn').style.display = 'inline-block';
+            document.getElementById('goToReviewBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function generateReview() {
