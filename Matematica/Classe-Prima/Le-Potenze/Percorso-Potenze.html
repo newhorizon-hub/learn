@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Potenze e le loro Proprietà</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            height: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 20px;
+        }
+
+        .phase {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .phase.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            font-size: 1.5em;
+            color: #5e35b1;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .instruction {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px 16px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+        }
+
+        /* Elementi cliccabili Fase 1 e 2 */
+        .clickable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .clickable-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .clickable-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #5e35b1;
+        }
+
+        .clickable-item.viewed {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .clickable-item.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .clickable-item h3 {
+            color: #5e35b1;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .clickable-item .preview {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .clickable-item .content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            color: #333;
+        }
+
+        .clickable-item.expanded .content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .formula-box {
+            background: #fff3e0;
+            border: 1px solid #ffcc80;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .example-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .example-box strong {
+            color: #1565c0;
+        }
+
+        /* Card espandibili Fase 3 */
+        .concept-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card.viewed {
+            border-color: #4caf50;
+        }
+
+        .concept-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            transition: background 0.3s ease;
+        }
+
+        .concept-header:hover {
+            background: #f0f0f0;
+        }
+
+        .concept-header h3 {
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .concept-header .icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+
+        .concept-body {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .concept-card.expanded .concept-body {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Quiz Fase 4 */
+        .quiz-question {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .quiz-question .category {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #3f51b5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 12px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #5e35b1;
+            background: #f3e5f5;
+        }
+
+        .option.selected {
+            border-color: #5e35b1;
+            background: #ede7f6;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: default;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .feedback.correct {
+            display: block;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        /* Ripasso Fase 5 */
+        .review-section {
+            margin-bottom: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .review-section.needs-review {
+            border: 2px solid #ff9800;
+            background: #fff8e1;
+        }
+
+        .review-section.mastered {
+            border: 2px solid #4caf50;
+            background: #e8f5e9;
+        }
+
+        .review-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .review-section.needs-review .review-header {
+            background: #fff3e0;
+        }
+
+        .review-section.mastered .review-header {
+            background: #c8e6c9;
+        }
+
+        .review-label {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .review-section.needs-review .review-label {
+            background: #ff9800;
+            color: white;
+        }
+
+        .review-section.mastered .review-label {
+            background: #4caf50;
+            color: white;
+        }
+
+        .review-content {
+            padding: 20px;
+            background: white;
+        }
+
+        /* Pulsanti */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5e35b1 0%, #7c4dff 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(94, 53, 177, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        /* Score finale */
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .score-display .score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .score-display .score-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            .phase {
+                padding: 20px;
+            }
+
+            .clickable-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white; }
+            .container { padding: 0; max-width: 100%; }
+            header, .progress-bar, .btn, .btn-group, .nav-buttons { display: none !important; }
+            .phase { display: none !important; }
+            #phase5 { display: block !important; box-shadow: none; }
+            #phase5 .btn-group { display: none !important; }
+            .score-display { box-shadow: none; border: 1px solid #ccc; }
+            .review-card { break-inside: avoid; page-break-inside: avoid; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Le Potenze e le loro Proprietà</h1>
+            <p>Percorso didattico interattivo</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </header>
+
+        <!-- FASE 1: Definizione e componenti -->
+        <div class="phase active" id="phase1">
+            <h2 class="phase-title">📐 Fase 1: Che cos'è una potenza?</h2>
+            <p class="phase-subtitle">Scopri i componenti fondamentali delle potenze</p>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni elemento per scoprire la definizione. Devi esplorare tutti gli elementi per proseguire.
+            </div>
+
+            <div class="clickable-grid" id="phase1Grid">
+                <div class="clickable-item" data-id="potenza">
+                    <h3>La Potenza</h3>
+                    <p class="preview">Clicca per scoprire cos'è...</p>
+                    <div class="content">
+                        <p>La <strong>potenza</strong> è una moltiplicazione ripetuta di fattori uguali.</p>
+                        <div class="formula-box">
+                            \(a^n = \underbrace{a \times a \times a \times \cdots \times a}_{n \text{ volte}}\)
+                        </div>
+                        <p>È un modo compatto per scrivere moltiplicazioni lunghe!</p>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="base">
+                    <h3>La Base</h3>
+                    <p class="preview">Clicca per scoprire cos'è...</p>
+                    <div class="content">
+                        <p>La <strong>base</strong> è il numero che viene moltiplicato per se stesso.</p>
+                        <div class="formula-box">
+                            In \(3^4\), la base è \(3\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong> In \(2^5\), la base è \(2\), cioè il numero che ripetiamo come fattore.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="esponente">
+                    <h3>L'Esponente</h3>
+                    <p class="preview">Clicca per scoprire cos'è...</p>
+                    <div class="content">
+                        <p>L'<strong>esponente</strong> indica quante volte la base compare come fattore nella moltiplicazione.</p>
+                        <div class="formula-box">
+                            In \(3^4\), l'esponente è \(4\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong> \(2^5 = 2 \times 2 \times 2 \times 2 \times 2\)<br>
+                            Il 2 compare 5 volte!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="risultato">
+                    <h3>Il Risultato</h3>
+                    <p class="preview">Clicca per scoprire cos'è...</p>
+                    <div class="content">
+                        <p>Il <strong>risultato</strong> (o valore della potenza) è il numero che si ottiene eseguendo la moltiplicazione.</p>
+                        <div class="formula-box">
+                            \(2^4 = 2 \times 2 \times 2 \times 2 = 16\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong> \(3^3 = 3 \times 3 \times 3 = 27\)<br>
+                            Il risultato è 27.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter1">Elementi esplorati: 0 / 4</p>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Continua →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Le cinque proprietà -->
+        <div class="phase" id="phase2">
+            <h2 class="phase-title">🔢 Fase 2: Le cinque proprietà</h2>
+            <p class="phase-subtitle">Esplora le regole fondamentali per lavorare con le potenze</p>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni proprietà per scoprire la formula e un esempio. Devi esplorare tutte le proprietà per proseguire.
+            </div>
+
+            <div class="clickable-grid" id="phase2Grid">
+                <div class="clickable-item" data-id="prop1" data-category="base">
+                    <h3>1. Prodotto — stessa base</h3>
+                    <p class="preview">Clicca per scoprire la regola...</p>
+                    <div class="content">
+                        <p>Quando moltiplichi potenze con la <strong>stessa base</strong>, sommi gli esponenti.</p>
+                        <div class="formula-box">
+                            \(a^m \times a^n = a^{m+n}\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong><br>
+                            \(3^2 \times 3^4 = 3^{2+4} = 3^6\)<br><br>
+                            <em>Perché? </em> \(3^2 = 3 \times 3\) e \(3^4 = 3 \times 3 \times 3 \times 3\), quindi in totale il 3 compare 6 volte.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="prop2" data-category="base">
+                    <h3>2. Quoziente — stessa base</h3>
+                    <p class="preview">Clicca per scoprire la regola...</p>
+                    <div class="content">
+                        <p>Quando dividi potenze con la <strong>stessa base</strong>, sottrai gli esponenti.</p>
+                        <div class="formula-box">
+                            \(a^m : a^n = a^{m-n}\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong><br>
+                            \(5^7 : 5^3 = 5^{7-3} = 5^4\)<br><br>
+                            <em>Perché?</em> Dividendo si "eliminano" 3 dei 7 fattori uguali a 5.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="prop3" data-category="esponente">
+                    <h3>3. Prodotto — stesso esponente</h3>
+                    <p class="preview">Clicca per scoprire la regola...</p>
+                    <div class="content">
+                        <p>Quando moltiplichi potenze con lo <strong>stesso esponente</strong>, moltiplichi le basi.</p>
+                        <div class="formula-box">
+                            \(a^n \times b^n = (a \times b)^n\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong><br>
+                            \(2^3 \times 5^3 = (2 \times 5)^3 = 10^3\)<br><br>
+                            <em>Verifica:</em> \(8 \times 125 = 1000 = 10^3\) ✓
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="prop4" data-category="esponente">
+                    <h3>4. Quoziente — stesso esponente</h3>
+                    <p class="preview">Clicca per scoprire la regola...</p>
+                    <div class="content">
+                        <p>Quando dividi potenze con lo <strong>stesso esponente</strong>, dividi le basi.</p>
+                        <div class="formula-box">
+                            \(a^n : b^n = (a : b)^n\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong><br>
+                            \(6^4 : 2^4 = (6 : 2)^4 = 3^4\)<br><br>
+                            <em>Verifica:</em> \(1296 : 16 = 81 = 3^4\) ✓
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-id="prop5" data-category="potenza">
+                    <h3>5. Potenza di potenza</h3>
+                    <p class="preview">Clicca per scoprire la regola...</p>
+                    <div class="content">
+                        <p>Quando elevi una potenza a un altro esponente, <strong>moltiplichi</strong> gli esponenti.</p>
+                        <div class="formula-box">
+                            \((a^m)^n = a^{m \times n}\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong><br>
+                            \((2^3)^4 = 2^{3 \times 4} = 2^{12}\)<br><br>
+                            <em>Attenzione!</em> Non sommare: \((2^3)^4 \neq 2^7\)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter2">Elementi esplorati: 0 / 5</p>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Continua →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti chiave -->
+        <div class="phase" id="phase3">
+            <h2 class="phase-title">💡 Fase 3: Casi particolari</h2>
+            <p class="phase-subtitle">Approfondisci i casi speciali e gli errori da evitare</p>
+            
+            <div class="instruction">
+                ➤ Espandi ogni scheda per leggere l'approfondimento. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div id="phase3Cards">
+                <div class="concept-card" data-id="exp0">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Esponente 0</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Qualsiasi numero (diverso da zero) elevato a 0 è uguale a <strong>1</strong>.</p>
+                        <div class="formula-box">
+                            \(a^0 = 1\) &nbsp; (con \(a \neq 0\))
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempi:</strong><br>
+                            • \(5^0 = 1\)<br>
+                            • \(100^0 = 1\)<br>
+                            • \((-3)^0 = 1\)
+                        </div>
+                        <p style="margin-top: 10px; color: #c62828;"><strong>Attenzione:</strong> \(0^0\) non è definito!</p>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="exp1">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Esponente 1</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Qualsiasi numero elevato a 1 è uguale a <strong>se stesso</strong>.</p>
+                        <div class="formula-box">
+                            \(a^1 = a\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempi:</strong><br>
+                            • \(7^1 = 7\)<br>
+                            • \(42^1 = 42\)
+                        </div>
+                        <p style="margin-top: 10px;"><em>Perché?</em> La base compare una sola volta, quindi non c'è moltiplicazione.</p>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="base1">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Base 1</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Il numero 1 elevato a qualsiasi esponente è sempre <strong>1</strong>.</p>
+                        <div class="formula-box">
+                            \(1^n = 1\)
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempi:</strong><br>
+                            • \(1^5 = 1\)<br>
+                            • \(1^{100} = 1\)<br>
+                            • \(1^{1000000} = 1\)
+                        </div>
+                        <p style="margin-top: 10px;"><em>Perché?</em> \(1 \times 1 \times 1 \times \cdots = 1\) sempre!</p>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="base0">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Base 0</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Il numero 0 elevato a qualsiasi esponente positivo è <strong>0</strong>.</p>
+                        <div class="formula-box">
+                            \(0^n = 0\) &nbsp; (con \(n > 0\))
+                        </div>
+                        <div class="example-box">
+                            <strong>Esempi:</strong><br>
+                            • \(0^3 = 0\)<br>
+                            • \(0^{10} = 0\)
+                        </div>
+                        <p style="margin-top: 10px;"><em>Perché?</em> \(0 \times 0 \times 0 \times \cdots = 0\) sempre!</p>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="errori">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>⚠️ Errori comuni da evitare</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p><strong>1. Sommare potenze:</strong></p>
+                        <p style="color: #c62828;">\(2^3 + 2^4 \neq 2^7\) ✗</p>
+                        <p>Non esiste una proprietà per la somma! Si deve calcolare: \(8 + 16 = 24\)</p>
+                        
+                        <p style="margin-top: 15px;"><strong>2. Basi e esponenti diversi:</strong></p>
+                        <p style="color: #c62828;">\(2^3 \times 3^2 \neq 6^5\) ✗</p>
+                        <p>Se base ed esponente sono entrambi diversi, non si applica nessuna proprietà.</p>
+                        
+                        <p style="margin-top: 15px;"><strong>3. Confondere le operazioni:</strong></p>
+                        <p style="color: #c62828;">\((3^2)^4 = 3^6\) ✗</p>
+                        <p style="color: #2e7d32;">\((3^2)^4 = 3^8\) ✓ (si moltiplicano, non si sommano!)</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter3">Schede aperte: 0 / 5</p>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Vai alla verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Quiz -->
+        <div class="phase" id="phase4">
+            <h2 class="phase-title">✏️ Fase 4: Verifica</h2>
+            <p class="phase-subtitle">Metti alla prova quello che hai imparato</p>
+            
+            <div class="instruction" id="quizInstruction">
+                ➤ Rispondi a tutte le domande, poi clicca su "Verifica Risposte".
+            </div>
+
+            <div id="quizContainer"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-primary" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <h2 class="phase-title">📋 Fase 5: Ripasso personalizzato</h2>
+            <p class="phase-subtitle">Ecco un riepilogo basato sulle tue risposte</p>
+
+            <div class="score-display" id="scoreDisplay">
+                <div class="score" id="finalScore">0/0</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div id="reviewContainer"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-primary" onclick="restart()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stato dell'applicazione
+        const state = {
+            currentPhase: 1,
+            phase1Viewed: new Set(),
+            phase2Viewed: new Set(),
+            phase3Viewed: new Set(),
+            quizAnswers: {},
+            quizResults: {}
+        };
+
+        // Domande del quiz
+        const quizQuestions = [
+            {
+                id: 1,
+                category: 'definizione',
+                categoryLabel: 'Definizione',
+                question: 'In una potenza, cosa indica l\'esponente?',
+                options: [
+                    'Il risultato della potenza',
+                    'Il numero da moltiplicare',
+                    'Quante volte la base compare come fattore',
+                    'La somma dei fattori'
+                ],
+                correct: 2,
+                explanation: 'L\'esponente indica quante volte la base viene moltiplicata per se stessa.'
+            },
+            {
+                id: 2,
+                category: 'definizione',
+                categoryLabel: 'Definizione',
+                question: 'Quanto vale \\(2^4\\)?',
+                options: ['6', '8', '16', '32'],
+                correct: 2,
+                explanation: '\\(2^4 = 2 \\times 2 \\times 2 \\times 2 = 16\\)'
+            },
+            {
+                id: 3,
+                category: 'stessa-base',
+                categoryLabel: 'Stessa base',
+                question: 'Quale proprietà si applica a \\(5^3 \\times 5^2\\)?',
+                options: [
+                    'Si moltiplicano le basi',
+                    'Si sommano gli esponenti',
+                    'Si moltiplicano gli esponenti',
+                    'Si sottraggono gli esponenti'
+                ],
+                correct: 1,
+                explanation: 'Nel prodotto di potenze con la stessa base, si sommano gli esponenti: \\(5^3 \\times 5^2 = 5^{3+2} = 5^5\\)'
+            },
+            {
+                id: 4,
+                category: 'stessa-base',
+                categoryLabel: 'Stessa base',
+                question: 'Quanto vale \\(7^8 : 7^5\\)?',
+                options: ['\\(7^{40}\\)', '\\(7^{13}\\)', '\\(7^3\\)', '\\(1^3\\)'],
+                correct: 2,
+                explanation: 'Nel quoziente di potenze con la stessa base, si sottraggono gli esponenti: \\(7^8 : 7^5 = 7^{8-5} = 7^3\\)'
+            },
+            {
+                id: 5,
+                category: 'stesso-esponente',
+                categoryLabel: 'Stesso esponente',
+                question: 'Come si semplifica \\(3^4 \\times 2^4\\)?',
+                options: ['\\(6^8\\)', '\\(5^4\\)', '\\(6^4\\)', '\\(6^{16}\\)'],
+                correct: 2,
+                explanation: 'Nel prodotto di potenze con lo stesso esponente, si moltiplicano le basi: \\(3^4 \\times 2^4 = (3 \\times 2)^4 = 6^4\\)'
+            },
+            {
+                id: 6,
+                category: 'stesso-esponente',
+                categoryLabel: 'Stesso esponente',
+                question: 'Come si semplifica \\(12^5 : 4^5\\)?',
+                options: ['\\(8^5\\)', '\\(3^5\\)', '\\(12^1\\)', '\\(3^0\\)'],
+                correct: 1,
+                explanation: 'Nel quoziente di potenze con lo stesso esponente, si dividono le basi: \\(12^5 : 4^5 = (12 : 4)^5 = 3^5\\)'
+            },
+            {
+                id: 7,
+                category: 'potenza-potenza',
+                categoryLabel: 'Potenza di potenza',
+                question: 'Quanto vale \\((4^2)^3\\)?',
+                options: ['\\(4^5\\)', '\\(4^6\\)', '\\(4^8\\)', '\\(4^9\\)'],
+                correct: 1,
+                explanation: 'Nella potenza di potenza, si moltiplicano gli esponenti: \\((4^2)^3 = 4^{2 \\times 3} = 4^6\\)'
+            },
+            {
+                id: 8,
+                category: 'casi-particolari',
+                categoryLabel: 'Casi particolari',
+                question: 'Quanto vale \\(15^0\\)?',
+                options: ['0', '1', '15', 'Non definito'],
+                correct: 1,
+                explanation: 'Qualsiasi numero diverso da zero elevato a 0 è uguale a 1: \\(15^0 = 1\\)'
+            },
+            {
+                id: 9,
+                category: 'casi-particolari',
+                categoryLabel: 'Casi particolari',
+                question: 'Quanto vale \\(1^{50}\\)?',
+                options: ['0', '1', '50', '100'],
+                correct: 1,
+                explanation: 'Il numero 1 elevato a qualsiasi esponente è sempre 1: \\(1^{50} = 1\\)'
+            },
+            {
+                id: 10,
+                category: 'errori',
+                categoryLabel: 'Errori comuni',
+                question: 'Quale delle seguenti uguaglianze è CORRETTA?',
+                options: [
+                    '\\(2^3 + 2^4 = 2^7\\)',
+                    '\\(2^3 \\times 3^2 = 6^5\\)',
+                    '\\((5^2)^3 = 5^6\\)',
+                    '\\(4^0 = 0\\)'
+                ],
+                correct: 2,
+                explanation: '\\((5^2)^3 = 5^{2 \\times 3} = 5^6\\) è corretta. Le altre sono errori comuni!'
+            }
+        ];
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMath();
+            setupPhase1();
+            setupPhase2();
+            setupPhase3();
+            renderQuiz();
+            updateProgress();
+        });
+
+        function renderMath() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ]
+                });
+            }
+        }
+
+        // Setup Fase 1
+        function setupPhase1() {
+            const items = document.querySelectorAll('#phase1Grid .clickable-item');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    const id = this.dataset.id;
+                    if (!state.phase1Viewed.has(id)) {
+                        state.phase1Viewed.add(id);
+                        this.classList.add('viewed');
+                        updateCounter1();
+                        renderMath();
+                    }
+                });
+            });
+        }
+
+        function updateCounter1() {
+            const count = state.phase1Viewed.size;
+            document.getElementById('counter1').textContent = `Elementi esplorati: ${count} / 4`;
+            document.getElementById('next1').disabled = count < 4;
+        }
+
+        // Setup Fase 2
+        function setupPhase2() {
+            const items = document.querySelectorAll('#phase2Grid .clickable-item');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    const id = this.dataset.id;
+                    if (!state.phase2Viewed.has(id)) {
+                        state.phase2Viewed.add(id);
+                        this.classList.add('viewed');
+                        updateCounter2();
+                        renderMath();
+                    }
+                });
+            });
+        }
+
+        function updateCounter2() {
+            const count = state.phase2Viewed.size;
+            document.getElementById('counter2').textContent = `Elementi esplorati: ${count} / 5`;
+            document.getElementById('next2').disabled = count < 5;
+        }
+
+        // Setup Fase 3
+        function setupPhase3() {
+            // Le card vengono gestite da toggleCard()
+        }
+
+        function toggleCard(header) {
+            const card = header.parentElement;
+            card.classList.toggle('expanded');
+            const id = card.dataset.id;
+            if (!state.phase3Viewed.has(id)) {
+                state.phase3Viewed.add(id);
+                card.classList.add('viewed');
+                updateCounter3();
+                renderMath();
+            }
+        }
+
+        function updateCounter3() {
+            const count = state.phase3Viewed.size;
+            document.getElementById('counter3').textContent = `Schede aperte: ${count} / 5`;
+            document.getElementById('next3').disabled = count < 5;
+        }
+
+        // Render Quiz
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = quizQuestions.map((q, index) => `
+                <div class="quiz-question" data-id="${q.id}">
+                    <span class="category">${q.categoryLabel}</span>
+                    <h4>${index + 1}. ${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" data-question="${q.id}" data-option="${i}" onclick="selectOption(${q.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${q.id}"></div>
+                </div>
+            `).join('');
+            renderMath();
+        }
+
+        function selectOption(questionId, optionIndex) {
+            const options = document.querySelectorAll(`.option[data-question="${questionId}"]`);
+            if (options[0].classList.contains('disabled')) return;
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[optionIndex].classList.add('selected');
+            state.quizAnswers[questionId] = optionIndex;
+        }
+
+        function verifyQuiz() {
+            // Controlla risposte mancanti
+            const unanswered = quizQuestions.filter(q => state.quizAnswers[q.id] === undefined);
+            if (unanswered.length > 0) {
+                const firstUnanswered = document.querySelector(`.quiz-question[data-id="${unanswered[0].id}"]`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstUnanswered.style.animation = 'none';
+                firstUnanswered.offsetHeight;
+                firstUnanswered.style.animation = 'shake 0.5s ease';
+                document.getElementById('quizInstruction').innerHTML = 
+                    `<span style="color: #c62828;">⚠️ Rispondi a tutte le domande! Mancano ${unanswered.length} risposte.</span>`;
+                return;
+            }
+
+            // Verifica risposte
+            let correct = 0;
+            const categoryResults = {};
+
+            quizQuestions.forEach(q => {
+                const isCorrect = state.quizAnswers[q.id] === q.correct;
+                state.quizResults[q.id] = isCorrect;
+                if (isCorrect) correct++;
+
+                if (!categoryResults[q.category]) {
+                    categoryResults[q.category] = { correct: 0, total: 0, label: q.categoryLabel };
+                }
+                categoryResults[q.category].total++;
+                if (isCorrect) categoryResults[q.category].correct++;
+
+                // Mostra feedback
+                const options = document.querySelectorAll(`.option[data-question="${q.id}"]`);
+                options.forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === q.correct) opt.classList.add('correct');
+                    if (i === state.quizAnswers[q.id] && !isCorrect) opt.classList.add('incorrect');
+                });
+
+                const feedback = document.getElementById(`feedback-${q.id}`);
+                feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+                feedback.innerHTML = isCorrect 
+                    ? `✓ Corretto! ${q.explanation}`
+                    : `✗ Non corretto. ${q.explanation}`;
+                renderMath();
+            });
+
+            // Prepara ripasso
+            state.categoryResults = categoryResults;
+            state.totalCorrect = correct;
+
+            // Cambia pulsante
+            document.getElementById('verifyBtn').textContent = 'Vai al ripasso →';
+            document.getElementById('verifyBtn').onclick = () => goToPhase(5);
+        }
+
+        // Genera ripasso
+        function generateReview() {
+            const container = document.getElementById('reviewContainer');
+            document.getElementById('finalScore').textContent = `${state.totalCorrect}/${quizQuestions.length}`;
+
+            const reviewContent = {
+                'definizione': {
+                    title: 'Definizione di potenza',
+                    content: `
+                        <p>La <strong>potenza</strong> è una moltiplicazione ripetuta di fattori uguali.</p>
+                        <div class="formula-box">\\(a^n = a \\times a \\times \\cdots \\times a\\) (n volte)</div>
+                        <p><strong>Base:</strong> il numero che si moltiplica<br>
+                        <strong>Esponente:</strong> quante volte compare la base<br>
+                        <strong>Risultato:</strong> il valore ottenuto</p>
+                    `
+                },
+                'stessa-base': {
+                    title: 'Proprietà — Stessa base',
+                    content: `
+                        <p><strong>Prodotto:</strong> si sommano gli esponenti</p>
+                        <div class="formula-box">\\(a^m \\times a^n = a^{m+n}\\)</div>
+                        <p><strong>Quoziente:</strong> si sottraggono gli esponenti</p>
+                        <div class="formula-box">\\(a^m : a^n = a^{m-n}\\)</div>
+                    `
+                },
+                'stesso-esponente': {
+                    title: 'Proprietà — Stesso esponente',
+                    content: `
+                        <p><strong>Prodotto:</strong> si moltiplicano le basi</p>
+                        <div class="formula-box">\\(a^n \\times b^n = (a \\times b)^n\\)</div>
+                        <p><strong>Quoziente:</strong> si dividono le basi</p>
+                        <div class="formula-box">\\(a^n : b^n = (a : b)^n\\)</div>
+                    `
+                },
+                'potenza-potenza': {
+                    title: 'Potenza di potenza',
+                    content: `
+                        <p>Si <strong>moltiplicano</strong> gli esponenti (non sommare!).</p>
+                        <div class="formula-box">\\((a^m)^n = a^{m \\times n}\\)</div>
+                        <p>Esempio: \\((2^3)^4 = 2^{12}\\), non \\(2^7\\)</p>
+                    `
+                },
+                'casi-particolari': {
+                    title: 'Casi particolari',
+                    content: `
+                        <div class="formula-box">
+                            \\(a^0 = 1\\) &nbsp;&nbsp; \\(a^1 = a\\) &nbsp;&nbsp; \\(1^n = 1\\) &nbsp;&nbsp; \\(0^n = 0\\)
+                        </div>
+                    `
+                },
+                'errori': {
+                    title: 'Errori da evitare',
+                    content: `
+                        <p>• Non esiste proprietà per la <strong>somma</strong>: \\(2^3 + 2^4 \\neq 2^7\\)</p>
+                        <p>• Se base e esponente sono <strong>entrambi diversi</strong>, nessuna proprietà si applica</p>
+                        <p>• Potenza di potenza: si <strong>moltiplicano</strong> (non sommano) gli esponenti</p>
+                    `
+                }
+            };
+
+            let html = '';
+            for (const [category, data] of Object.entries(state.categoryResults)) {
+                const needsReview = data.correct < data.total;
+                const sectionClass = needsReview ? 'needs-review' : 'mastered';
+                const label = needsReview ? 'Da rivedere' : 'Hai capito bene';
+                
+                html += `
+                    <div class="review-section ${sectionClass}">
+                        <div class="review-header">
+                            <h3>${reviewContent[category].title}</h3>
+                            <span class="review-label">${label}</span>
+                        </div>
+                        <div class="review-content">
+                            ${needsReview ? reviewContent[category].content : `<p>Hai risposto correttamente a ${data.correct}/${data.total} domande su questo argomento.</p>`}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            renderMath();
+        }
+
+        // Navigazione
+        function goToPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${n}`).classList.add('active');
+            state.currentPhase = n;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (n === 5) {
+                generateReview();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((state.currentPhase - 1) / 4) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function restart() {
+            state.currentPhase = 1;
+            state.phase1Viewed.clear();
+            state.phase2Viewed.clear();
+            state.phase3Viewed.clear();
+            state.quizAnswers = {};
+            state.quizResults = {};
+
+            // Reset UI
+            document.querySelectorAll('.clickable-item').forEach(item => {
+                item.classList.remove('viewed', 'expanded');
+            });
+            document.querySelectorAll('.concept-card').forEach(card => {
+                card.classList.remove('viewed', 'expanded');
+            });
+
+            updateCounter1();
+            updateCounter2();
+            updateCounter3();
+            renderQuiz();
+            document.getElementById('verifyBtn').textContent = 'Verifica Risposte';
+            document.getElementById('verifyBtn').onclick = verifyQuiz;
+            document.getElementById('quizInstruction').innerHTML = '➤ Rispondi a tutte le domande, poi clicca su "Verifica Risposte".';
+
+            goToPhase(1);
+        }
+
+        // Animazione shake
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

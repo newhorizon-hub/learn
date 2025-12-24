@@ -61,6 +61,7 @@
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s;
+            cursor: pointer;
         }
 
         .breadcrumb a:hover {
@@ -331,9 +332,6 @@
         // CONFIGURAZIONE - MODIFICARE QUESTI VALORI
         // =====================================================
         const CONFIG = {
-            // Inserire qui il proprio username GitHub e nome repository
-            // Esempio: se il repo è github.com/mariorossi/didattica
-            // owner: 'mariorossi', repo: 'didattica'
             owner: 'newhorizon-hub',
             repo: 'learn',
             branch: 'main'
@@ -375,7 +373,7 @@
             app.innerHTML = `
                 <div class="setup-notice">
                     <h3>⚙️ Configurazione necessaria</h3>
-                    <p>Per attivare il portale, aprire il file <code>index.html</code> e modificare le righe 180-181:</p>
+                    <p>Per attivare il portale, aprire il file <code>index.html</code> e modificare le righe di configurazione:</p>
                     <p><code>owner: 'TUO_USERNAME_GITHUB'</code></p>
                     <p><code>repo: 'NOME_DEL_REPOSITORY'</code></p>
                 </div>
@@ -414,7 +412,7 @@
             return `
                 <div class="subjects-grid">
                     ${subjects.map(subject => `
-                        <div class="subject-card ${subjectColors[subject.name] || ''}" data-path="${subject.name}" ${isDemo ? 'data-demo="true"' : ''}>
+                        <div class="subject-card ${subjectColors[subject.name] || ''}" onclick="${isDemo ? "alert('Configurare owner e repo')" : `handleNavigate('${subject.name}')`}">
                             <h2><span class="icon">${subject.name === 'Matematica' ? '🔢' : subject.name === 'Geometria' ? '📐' : '🔬'}</span>${subject.name}</h2>
                             <p>${subjectDescriptions[subject.name] || ''}</p>
                         </div>
@@ -445,17 +443,23 @@
                 `;
             }
 
+            // Genera breadcrumb con onclick inline per ogni segmento
+            const breadcrumbItems = currentPath.map((p, i) => {
+                if (i === currentPath.length - 1) {
+                    return `<span class="current">${p}</span>`;
+                } else {
+                    // Crea array path fino a questo punto e lo serializza
+                    const pathToHere = currentPath.slice(0, i + 1);
+                    return `<a onclick="navigateToPath(${JSON.stringify(pathToHere)})">${p}</a>`;
+                }
+            }).join('<span>›</span>');
+
             return `
                 <button class="back-btn" onclick="goBack()">← Indietro</button>
                 <nav class="breadcrumb">
-                    <a href="#" onclick="navigateTo([]); return false;">🏠 Home</a>
-                    ${currentPath.map((p, i) => `
-                        <span>›</span>
-                        ${i === currentPath.length - 1 
-                            ? `<span class="current">${p}</span>`
-                            : `<a href="#" onclick="navigateTo(${JSON.stringify(currentPath.slice(0, i + 1))}); return false;">${p}</a>`
-                        }
-                    `).join('')}
+                    <a onclick="navigateToPath([])">🏠 Home</a>
+                    <span>›</span>
+                    ${breadcrumbItems}
                 </nav>
                 <div class="items-list">
                     <h3>${title}</h3>
@@ -467,8 +471,9 @@
                         const displayName = isFolder ? item.name : item.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' ');
 
                         if (isFolder) {
+                            // CARTELLA: usa onclick con il nome della cartella
                             return `
-                                <div class="item" data-path="${item.name}">
+                                <div class="item" onclick="handleNavigate('${item.name}')">
                                     <div class="item-icon ${iconType}">${icon}</div>
                                     <div class="item-info">
                                         <h4>${displayName}</h4>
@@ -478,7 +483,7 @@
                                 </div>
                             `;
                         } else {
-                            // Usa path relativo per file HTML, download_url per altri file (PDF ecc.)
+                            // FILE: usa path relativo per HTML, download_url per altri
                             const fileUrl = (ext === 'html') 
                                 ? `${item.path}` 
                                 : (item.download_url || item.html_url);
@@ -497,6 +502,16 @@
                     }).join('')}
                 </div>
             `;
+        }
+
+        // Funzione globale per navigare (usata dagli onclick inline)
+        function handleNavigate(folderName) {
+            navigateTo([...currentPath, folderName]);
+        }
+
+        // Funzione globale per navigare a un path specifico (usata dal breadcrumb)
+        function navigateToPath(pathArray) {
+            navigateTo(pathArray);
         }
 
         // Navigazione
@@ -521,8 +536,6 @@
                 const title = path[path.length - 1];
                 app.innerHTML = renderList(items, title);
             }
-
-            attachListeners();
         }
 
         // Torna indietro
@@ -531,23 +544,9 @@
             navigateTo([...currentPath]);
         }
 
-        // Event listeners
-        function attachListeners() {
-            document.querySelectorAll('.subject-card:not([data-demo]), .item[data-path]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const path = el.dataset.path;
-                    navigateTo([...currentPath, path]);
-                });
-            });
-        }
-
         // Demo listeners (quando non configurato)
         function attachDemoListeners() {
-            document.querySelectorAll('.subject-card[data-demo]').forEach(el => {
-                el.addEventListener('click', () => {
-                    alert('Configurare owner e repo in index.html per attivare la navigazione');
-                });
-            });
+            // Non serve più perché usiamo onclick inline
         }
 
         // Inizializzazione
