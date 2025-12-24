@@ -376,8 +376,8 @@
                 <div class="setup-notice">
                     <h3>⚙️ Configurazione necessaria</h3>
                     <p>Per attivare il portale, aprire il file <code>index.html</code> e modificare le righe 180-181:</p>
-                    <p><code>owner: 'newhorizon-hub'</code></p>
-                    <p><code>repo: 'learn'</code></p>
+                    <p><code>owner: 'TUO_USERNAME_GITHUB'</code></p>
+                    <p><code>repo: 'NOME_DEL_REPOSITORY'</code></p>
                 </div>
                 ${renderHomepage([
                     { name: 'Matematica', type: 'dir' },
@@ -478,14 +478,19 @@
                                 </div>
                             `;
                         } else {
+                            // Usa path relativo per file HTML, download_url per altri file (PDF ecc.)
+                            const fileUrl = (ext === 'html') 
+                                ? `${item.path}` 
+                                : (item.download_url || item.html_url);
+                            const target = (ext === 'html') ? '_self' : '_blank';
                             return `
-                                <a class="item" href="${item.download_url || item.html_url}" target="_blank">
+                                <a class="item" href="${fileUrl}" target="${target}">
                                     <div class="item-icon ${iconType}">${icon}</div>
                                     <div class="item-info">
                                         <h4>${displayName}</h4>
                                         <span>${ext.toUpperCase()}</span>
                                     </div>
-                                    <span class="item-arrow">↗</span>
+                                    <span class="item-arrow">${ext === 'html' ? '›' : '↗'}</span>
                                 </a>
                             `;
                         }
