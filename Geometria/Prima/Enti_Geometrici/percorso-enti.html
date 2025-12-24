@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gli Enti Geometrici Fondamentali</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.25);
+            border-radius: 20px;
+            height: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00e676, #69f0ae);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 20px;
+        }
+
+        .phase {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            margin-bottom: 20px;
+        }
+
+        .phase.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            font-size: 1.5em;
+            color: #1a237e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 12px 16px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+        }
+
+        /* Griglia dimensioni */
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dimension-card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            border: 3px solid #ddd;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dimension-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .dimension-card.viewed {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .dimension-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .dimension-card .dim-label {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 5px;
+        }
+
+        .dimension-card .dim-name {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .dimension-card .dim-visual {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .dimension-card .dim-content {
+            display: none;
+            text-align: left;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #ccc;
+            font-size: 0.9em;
+            color: #444;
+        }
+
+        .dimension-card.expanded .dim-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* SVG per le visualizzazioni */
+        .dim-visual svg {
+            max-width: 100%;
+            max-height: 60px;
+        }
+
+        /* Enti geometrici */
+        .enti-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ente-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .ente-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-color: #1a237e;
+        }
+
+        .ente-card.viewed {
+            border-color: #4caf50;
+        }
+
+        .ente-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .ente-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ente-header .ente-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ente-header h3 {
+            color: #1a237e;
+            font-size: 1.15em;
+        }
+
+        .ente-header .ente-dim {
+            margin-left: auto;
+            background: #1a237e;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .ente-preview {
+            padding: 12px 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .ente-content {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .ente-card.expanded .ente-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .property-box {
+            background: #fff8e1;
+            border: 1px solid #ffcc80;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .symbol-box {
+            background: #e8eaf6;
+            border: 1px solid #9fa8da;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        /* Card espandibili Fase 3 */
+        .concept-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card.viewed {
+            border-color: #4caf50;
+        }
+
+        .concept-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            transition: background 0.3s ease;
+        }
+
+        .concept-header:hover {
+            background: #f0f0f0;
+        }
+
+        .concept-header h3 {
+            color: #333;
+            font-size: 1em;
+        }
+
+        .concept-header .icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #666;
+        }
+
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+
+        .concept-body {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .concept-card.expanded .concept-body {
+            display: block;
+        }
+
+        /* Figure SVG interattive */
+        .figure-container {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .figure-container svg {
+            max-width: 100%;
+        }
+
+        /* Quiz */
+        .quiz-question {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.02em;
+        }
+
+        .quiz-question .category {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #3f51b5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 12px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #1a237e;
+            background: #e8eaf6;
+        }
+
+        .option.selected {
+            border-color: #1a237e;
+            background: #c5cae9;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: default;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.92em;
+        }
+
+        .feedback.correct {
+            display: block;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        /* Ripasso */
+        .review-section {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .review-section.needs-review {
+            border: 2px solid #ff9800;
+            background: #fff8e1;
+        }
+
+        .review-section.mastered {
+            border: 2px solid #4caf50;
+            background: #e8f5e9;
+        }
+
+        .review-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .review-section.needs-review .review-header {
+            background: #fff3e0;
+        }
+
+        .review-section.mastered .review-header {
+            background: #c8e6c9;
+        }
+
+        .review-label {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .review-section.needs-review .review-label {
+            background: #ff9800;
+            color: white;
+        }
+
+        .review-section.mastered .review-label {
+            background: #4caf50;
+            color: white;
+        }
+
+        .review-content {
+            padding: 20px;
+            background: white;
+        }
+
+        /* Score */
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .score-display .score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .score-display .score-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Pulsanti */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(26, 35, 126, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .phase {
+                padding: 20px;
+            }
+
+            .dimension-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .enti-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Print */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .btn, .progress-bar {
+                display: none;
+            }
+
+            .phase {
+                display: block !important;
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gli Enti Geometrici Fondamentali</h1>
+            <p>e il concetto di Dimensionalità</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </header>
+
+        <!-- FASE 1: Dimensionalità -->
+        <div class="phase active" id="phase1">
+            <h2 class="phase-title">📐 Fase 1: La Dimensionalità</h2>
+            <p class="phase-subtitle">Scopri cosa significa "dimensione" in geometria</p>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni card per scoprire le caratteristiche di ciascuna dimensione.
+            </div>
+
+            <div class="dimension-grid" id="phase1Grid">
+                <div class="dimension-card" data-id="0d">
+                    <div class="dim-label">0D</div>
+                    <div class="dim-name">Zero dimensioni</div>
+                    <div class="dim-visual">
+                        <svg width="60" height="60" viewBox="0 0 60 60">
+                            <circle cx="30" cy="30" r="6" fill="#1a237e"/>
+                        </svg>
+                    </div>
+                    <div class="dim-content">
+                        <p><strong>Nessuna dimensione</strong></p>
+                        <p>Un oggetto 0D non ha lunghezza, larghezza né altezza. Indica solo una <em>posizione</em>.</p>
+                        <div class="property-box">
+                            <strong>Esempio:</strong> Il punto
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dimension-card" data-id="1d">
+                    <div class="dim-label">1D</div>
+                    <div class="dim-name">Una dimensione</div>
+                    <div class="dim-visual">
+                        <svg width="80" height="60" viewBox="0 0 80 60">
+                            <line x1="10" y1="30" x2="70" y2="30" stroke="#1a237e" stroke-width="4" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="dim-content">
+                        <p><strong>Solo lunghezza</strong></p>
+                        <p>Un oggetto 1D si sviluppa in una sola direzione. Ha solo la lunghezza.</p>
+                        <div class="property-box">
+                            <strong>Esempi:</strong> Retta, semiretta, segmento
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dimension-card" data-id="2d">
+                    <div class="dim-label">2D</div>
+                    <div class="dim-name">Due dimensioni</div>
+                    <div class="dim-visual">
+                        <svg width="80" height="60" viewBox="0 0 80 60">
+                            <polygon points="10,50 70,50 60,10 20,10" fill="#c5cae9" stroke="#1a237e" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="dim-content">
+                        <p><strong>Lunghezza e larghezza</strong></p>
+                        <p>Un oggetto 2D si sviluppa in due direzioni. Ha lunghezza e larghezza, ma non spessore.</p>
+                        <div class="property-box">
+                            <strong>Esempi:</strong> Piano, figure piane (quadrato, triangolo...)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dimension-card" data-id="3d">
+                    <div class="dim-label">3D</div>
+                    <div class="dim-name">Tre dimensioni</div>
+                    <div class="dim-visual">
+                        <svg width="70" height="60" viewBox="0 0 70 60">
+                            <polygon points="15,45 45,45 45,15 15,15" fill="#c5cae9" stroke="#1a237e" stroke-width="2"/>
+                            <polygon points="45,45 60,35 60,5 45,15" fill="#9fa8da" stroke="#1a237e" stroke-width="2"/>
+                            <polygon points="15,15 30,5 60,5 45,15" fill="#7986cb" stroke="#1a237e" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="dim-content">
+                        <p><strong>Lunghezza, larghezza e altezza</strong></p>
+                        <p>Un oggetto 3D si sviluppa in tre direzioni. È lo spazio in cui viviamo!</p>
+                        <div class="property-box">
+                            <strong>Esempi:</strong> Lo spazio, i solidi (cubo, sfera...)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter1">Elementi esplorati: 0 / 4</p>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Continua →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Enti geometrici -->
+        <div class="phase" id="phase2">
+            <h2 class="phase-title">📍 Fase 2: Gli Enti Fondamentali</h2>
+            <p class="phase-subtitle">Conosci i mattoni della geometria</p>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni ente per scoprire definizione, proprietà e simbolo.
+            </div>
+
+            <div class="enti-grid" id="phase2Grid">
+                <!-- Punto -->
+                <div class="ente-card" data-id="punto">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="6" fill="#1a237e"/>
+                            </svg>
+                        </div>
+                        <h3>Il Punto</h3>
+                        <span class="ente-dim">0D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>Il punto è un ente geometrico <strong>privo di dimensioni</strong>.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Non ha lunghezza, larghezza né altezza<br>
+                            • Indica solo una posizione<br>
+                            • È il più semplice ente geometrico
+                        </div>
+                        <div class="symbol-box">
+                            Si indica con una lettera maiuscola: \(A\), \(B\), \(P\)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Retta -->
+                <div class="ente-card" data-id="retta">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="50" height="40" viewBox="0 0 50 40">
+                                <defs>
+                                    <marker id="arrow1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                                        <path d="M0,0 L8,4 L0,8 Z" fill="#1a237e"/>
+                                    </marker>
+                                    <marker id="arrow2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                                        <path d="M8,0 L0,4 L8,8 Z" fill="#1a237e"/>
+                                    </marker>
+                                </defs>
+                                <line x1="5" y1="20" x2="45" y2="20" stroke="#1a237e" stroke-width="3" marker-start="url(#arrow2)" marker-end="url(#arrow1)"/>
+                            </svg>
+                        </div>
+                        <h3>La Retta</h3>
+                        <span class="ente-dim">1D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>La retta è un ente geometrico a <strong>una dimensione</strong>.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Si estende all'infinito in entrambe le direzioni<br>
+                            • Non ha né inizio né fine<br>
+                            • Ha solo lunghezza (niente larghezza)
+                        </div>
+                        <div class="symbol-box">
+                            Si indica con una lettera minuscola: \(r\), \(s\), \(t\)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Semiretta -->
+                <div class="ente-card" data-id="semiretta">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="50" height="40" viewBox="0 0 50 40">
+                                <circle cx="8" cy="20" r="4" fill="#1a237e"/>
+                                <line x1="8" y1="20" x2="45" y2="20" stroke="#1a237e" stroke-width="3" marker-end="url(#arrow1)"/>
+                            </svg>
+                        </div>
+                        <h3>La Semiretta</h3>
+                        <span class="ente-dim">1D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>La semiretta è una <strong>porzione di retta</strong> con un punto di origine.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Ha un punto di origine (inizio)<br>
+                            • Si estende all'infinito in una sola direzione<br>
+                            • Ha un inizio ma non ha fine
+                        </div>
+                        <div class="symbol-box">
+                            Origine \(O\) → si estende verso l'infinito
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segmento -->
+                <div class="ente-card" data-id="segmento">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="50" height="40" viewBox="0 0 50 40">
+                                <circle cx="8" cy="20" r="4" fill="#1a237e"/>
+                                <circle cx="42" cy="20" r="4" fill="#1a237e"/>
+                                <line x1="8" y1="20" x2="42" y2="20" stroke="#1a237e" stroke-width="3"/>
+                            </svg>
+                        </div>
+                        <h3>Il Segmento</h3>
+                        <span class="ente-dim">1D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>Il segmento è una <strong>porzione di retta</strong> delimitata da due punti.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Ha due estremi (inizio e fine)<br>
+                            • Ha una lunghezza misurabile<br>
+                            • È la "distanza" tra due punti
+                        </div>
+                        <div class="symbol-box">
+                            Si indica con le lettere degli estremi: \(\overline{AB}\)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Piano -->
+                <div class="ente-card" data-id="piano">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="50" height="40" viewBox="0 0 50 40">
+                                <polygon points="5,32 45,32 40,8 10,8" fill="#c5cae9" stroke="#1a237e" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Il Piano</h3>
+                        <span class="ente-dim">2D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>Il piano è un ente geometrico a <strong>due dimensioni</strong>.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Si estende all'infinito in tutte le direzioni<br>
+                            • Ha lunghezza e larghezza<br>
+                            • Non ha spessore
+                        </div>
+                        <div class="symbol-box">
+                            Si indica con una lettera greca: \(\alpha\), \(\beta\), \(\gamma\)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spazio -->
+                <div class="ente-card" data-id="spazio">
+                    <div class="ente-header">
+                        <div class="ente-icon">
+                            <svg width="50" height="40" viewBox="0 0 50 40">
+                                <polygon points="10,32 30,32 30,12 10,12" fill="#c5cae9" stroke="#1a237e" stroke-width="2"/>
+                                <polygon points="30,32 42,24 42,4 30,12" fill="#9fa8da" stroke="#1a237e" stroke-width="2"/>
+                                <polygon points="10,12 22,4 42,4 30,12" fill="#7986cb" stroke="#1a237e" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Lo Spazio</h3>
+                        <span class="ente-dim">3D</span>
+                    </div>
+                    <div class="ente-preview">Clicca per scoprire...</div>
+                    <div class="ente-content">
+                        <p>Lo spazio è l'ente geometrico a <strong>tre dimensioni</strong>.</p>
+                        <div class="property-box">
+                            <strong>Proprietà:</strong><br>
+                            • Si estende all'infinito in tutte le direzioni<br>
+                            • Ha lunghezza, larghezza e altezza<br>
+                            • Contiene tutti gli altri enti geometrici
+                        </div>
+                        <div class="symbol-box">
+                            È il "contenitore" di tutta la geometria
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter2">Elementi esplorati: 0 / 6</p>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Continua →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti chiave -->
+        <div class="phase" id="phase3">
+            <h2 class="phase-title">💡 Fase 3: Concetti chiave</h2>
+            <p class="phase-subtitle">Approfondimenti e relazioni tra gli enti</p>
+            
+            <div class="instruction">
+                ➤ Espandi ogni scheda per leggere l'approfondimento.
+            </div>
+
+            <div id="phase3Cards">
+                <div class="concept-card" data-id="primitivi">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Perché si chiamano "enti fondamentali"?</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Gli enti geometrici fondamentali sono <strong>concetti primitivi</strong>: non si possono definire usando altri concetti più semplici.</p>
+                        <p style="margin-top: 10px;">Non diciamo "il punto <em>è</em>..." ma "il punto <em>ha queste proprietà</em>..."</p>
+                        <div class="property-box">
+                            Sono il punto di partenza della <strong>Geometria Euclidea</strong>, dal matematico greco Euclide (300 a.C. circa).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="consecutivi">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Segmenti consecutivi e adiacenti</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p><strong>Segmenti consecutivi:</strong> hanno un estremo in comune.</p>
+                        <div class="figure-container">
+                            <svg width="280" height="80" viewBox="0 0 280 80">
+                                <circle cx="30" cy="40" r="5" fill="#1a237e"/>
+                                <circle cx="130" cy="40" r="5" fill="#4caf50"/>
+                                <circle cx="200" cy="20" r="5" fill="#1a237e"/>
+                                <line x1="30" y1="40" x2="130" y2="40" stroke="#1a237e" stroke-width="3"/>
+                                <line x1="130" y1="40" x2="200" y2="20" stroke="#ff9800" stroke-width="3"/>
+                                <text x="30" y="65" font-size="14" fill="#333">A</text>
+                                <text x="125" y="65" font-size="14" fill="#4caf50" font-weight="bold">B</text>
+                                <text x="200" y="15" font-size="14" fill="#333">C</text>
+                            </svg>
+                        </div>
+                        <p style="margin-top: 15px;"><strong>Segmenti adiacenti:</strong> consecutivi E sulla stessa retta.</p>
+                        <div class="figure-container">
+                            <svg width="280" height="80" viewBox="0 0 280 80">
+                                <circle cx="30" cy="40" r="5" fill="#1a237e"/>
+                                <circle cx="130" cy="40" r="5" fill="#4caf50"/>
+                                <circle cx="230" cy="40" r="5" fill="#1a237e"/>
+                                <line x1="30" y1="40" x2="130" y2="40" stroke="#1a237e" stroke-width="3"/>
+                                <line x1="130" y1="40" x2="230" y2="40" stroke="#ff9800" stroke-width="3"/>
+                                <text x="30" y="65" font-size="14" fill="#333">A</text>
+                                <text x="125" y="65" font-size="14" fill="#4caf50" font-weight="bold">B</text>
+                                <text x="225" y="65" font-size="14" fill="#333">C</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="assiomi">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Gli assiomi fondamentali</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Gli <strong>assiomi</strong> sono affermazioni che si accettano come vere senza dimostrazione.</p>
+                        <div class="property-box" style="margin-top: 15px;">
+                            <strong>1.</strong> Per due punti passa una e una sola retta.
+                        </div>
+                        <div class="property-box">
+                            <strong>2.</strong> Per tre punti non allineati passa uno e un solo piano.
+                        </div>
+                        <div class="property-box">
+                            <strong>3.</strong> Una retta divide il piano in due semipiani.
+                        </div>
+                        <div class="property-box">
+                            <strong>4.</strong> Un piano divide lo spazio in due semispazi.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="notazione">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>Come si indicano gli enti geometrici</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background: #e8eaf6;">
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Ente</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Simbolo</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Esempio</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Punto</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Lettera maiuscola</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">\(A\), \(B\), \(P\)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Retta</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Lettera minuscola</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">\(r\), \(s\), \(t\)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Segmento</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Estremi con linea sopra</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">\(\overline{AB}\)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Piano</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Lettera greca</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">\(\alpha\), \(\beta\), \(\gamma\)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-id="gerarchia">
+                    <div class="concept-header" onclick="toggleCard(this)">
+                        <h3>La gerarchia degli enti</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Gli enti geometrici sono "contenuti" uno nell'altro:</p>
+                        <div class="figure-container">
+                            <svg width="300" height="120" viewBox="0 0 300 120">
+                                <!-- Spazio -->
+                                <rect x="10" y="10" width="280" height="100" rx="10" fill="#e8eaf6" stroke="#1a237e" stroke-width="2"/>
+                                <text x="20" y="30" font-size="12" fill="#1a237e" font-weight="bold">SPAZIO (3D)</text>
+                                
+                                <!-- Piano -->
+                                <rect x="30" y="40" width="240" height="60" rx="8" fill="#c5cae9" stroke="#3949ab" stroke-width="2"/>
+                                <text x="40" y="58" font-size="11" fill="#3949ab" font-weight="bold">PIANO (2D)</text>
+                                
+                                <!-- Retta -->
+                                <rect x="50" y="65" width="200" height="28" rx="5" fill="#9fa8da" stroke="#5c6bc0" stroke-width="2"/>
+                                <text x="60" y="83" font-size="10" fill="#303f9f" font-weight="bold">RETTA (1D)</text>
+                                
+                                <!-- Punto -->
+                                <circle cx="230" cy="79" r="8" fill="#1a237e"/>
+                                <text x="242" y="83" font-size="10" fill="#1a237e" font-weight="bold">PUNTO (0D)</text>
+                            </svg>
+                        </div>
+                        <p style="margin-top: 10px;">I punti formano le rette, le rette formano i piani, i piani formano lo spazio.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="counter" id="counter3">Schede aperte: 0 / 5</p>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Vai alla verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Quiz -->
+        <div class="phase" id="phase4">
+            <h2 class="phase-title">✏️ Fase 4: Verifica</h2>
+            <p class="phase-subtitle">Metti alla prova quello che hai imparato</p>
+            
+            <div class="instruction" id="quizInstruction">
+                ➤ Rispondi a tutte le domande, poi clicca su "Verifica Risposte".
+            </div>
+
+            <div id="quizContainer"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-primary" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <h2 class="phase-title">📋 Fase 5: Ripasso personalizzato</h2>
+            <p class="phase-subtitle">Ecco un riepilogo basato sulle tue risposte</p>
+
+            <div class="score-display" id="scoreDisplay">
+                <div class="score" id="finalScore">0/0</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div id="reviewContainer"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-primary" onclick="restart()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stato dell'applicazione
+        const state = {
+            currentPhase: 1,
+            phase1Viewed: new Set(),
+            phase2Viewed: new Set(),
+            phase3Viewed: new Set(),
+            quizAnswers: {},
+            quizResults: {}
+        };
+
+        // Quiz
+        const quizQuestions = [
+            {
+                id: 1,
+                category: 'dimensionalita',
+                categoryLabel: 'Dimensionalità',
+                question: 'Quante dimensioni ha un punto?',
+                options: ['0 (zero)', '1 (una)', '2 (due)', '3 (tre)'],
+                correct: 0,
+                explanation: 'Il punto ha 0 dimensioni: non ha lunghezza, larghezza né altezza. Indica solo una posizione.'
+            },
+            {
+                id: 2,
+                category: 'dimensionalita',
+                categoryLabel: 'Dimensionalità',
+                question: 'Quale ente geometrico ha solo la lunghezza?',
+                options: ['Il punto', 'La retta', 'Il piano', 'Lo spazio'],
+                correct: 1,
+                explanation: 'La retta (e anche semiretta e segmento) ha una sola dimensione: la lunghezza.'
+            },
+            {
+                id: 3,
+                category: 'enti',
+                categoryLabel: 'Enti geometrici',
+                question: 'Come si indica un punto in geometria?',
+                options: ['Con una lettera minuscola', 'Con una lettera greca', 'Con una lettera maiuscola', 'Con un numero'],
+                correct: 2,
+                explanation: 'I punti si indicano con lettere maiuscole: A, B, P, ecc.'
+            },
+            {
+                id: 4,
+                category: 'enti',
+                categoryLabel: 'Enti geometrici',
+                question: 'Qual è la differenza tra retta e segmento?',
+                options: [
+                    'La retta è più lunga',
+                    'La retta è infinita, il segmento ha due estremi',
+                    'Non c\'è differenza',
+                    'Il segmento è infinito, la retta ha due estremi'
+                ],
+                correct: 1,
+                explanation: 'La retta si estende all\'infinito in entrambe le direzioni, mentre il segmento è delimitato da due punti (estremi).'
+            },
+            {
+                id: 5,
+                category: 'enti',
+                categoryLabel: 'Enti geometrici',
+                question: 'Cosa caratterizza una semiretta?',
+                options: [
+                    'Ha due estremi',
+                    'Ha un punto di origine e si estende all\'infinito in una direzione',
+                    'È infinita in entrambe le direzioni',
+                    'Ha lunghezza e larghezza'
+                ],
+                correct: 1,
+                explanation: 'La semiretta ha un punto di origine (inizio) e si estende all\'infinito in una sola direzione.'
+            },
+            {
+                id: 6,
+                category: 'enti',
+                categoryLabel: 'Enti geometrici',
+                question: 'Come si indica il piano in geometria?',
+                options: ['Con lettere maiuscole', 'Con lettere minuscole', 'Con lettere greche', 'Con numeri'],
+                correct: 2,
+                explanation: 'Il piano si indica con lettere greche: α (alfa), β (beta), γ (gamma), ecc.'
+            },
+            {
+                id: 7,
+                category: 'relazioni',
+                categoryLabel: 'Relazioni tra enti',
+                question: 'Quando due segmenti si dicono "consecutivi"?',
+                options: [
+                    'Quando hanno la stessa lunghezza',
+                    'Quando hanno un estremo in comune',
+                    'Quando sono paralleli',
+                    'Quando sono perpendicolari'
+                ],
+                correct: 1,
+                explanation: 'Due segmenti sono consecutivi quando hanno un estremo in comune.'
+            },
+            {
+                id: 8,
+                category: 'relazioni',
+                categoryLabel: 'Relazioni tra enti',
+                question: 'Quando due segmenti consecutivi si dicono "adiacenti"?',
+                options: [
+                    'Sempre',
+                    'Mai',
+                    'Quando giacciono sulla stessa retta',
+                    'Quando formano un angolo retto'
+                ],
+                correct: 2,
+                explanation: 'I segmenti adiacenti sono consecutivi E giacciono sulla stessa retta.'
+            },
+            {
+                id: 9,
+                category: 'assiomi',
+                categoryLabel: 'Assiomi',
+                question: 'Quante rette passano per due punti?',
+                options: ['Nessuna', 'Una sola', 'Due', 'Infinite'],
+                correct: 1,
+                explanation: 'Per due punti passa una e una sola retta. È uno degli assiomi fondamentali della geometria.'
+            },
+            {
+                id: 10,
+                category: 'assiomi',
+                categoryLabel: 'Assiomi',
+                question: 'Quanti punti servono per individuare un piano?',
+                options: ['1 punto', '2 punti', '3 punti non allineati', '4 punti'],
+                correct: 2,
+                explanation: 'Per tre punti non allineati passa uno e un solo piano.'
+            }
+        ];
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMath();
+            setupPhase1();
+            setupPhase2();
+            renderQuiz();
+            updateProgress();
+        });
+
+        function renderMath() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ]
+                });
+            }
+        }
+
+        // Setup Fase 1
+        function setupPhase1() {
+            const items = document.querySelectorAll('#phase1Grid .dimension-card');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    const id = this.dataset.id;
+                    if (!state.phase1Viewed.has(id)) {
+                        state.phase1Viewed.add(id);
+                        this.classList.add('viewed');
+                        updateCounter1();
+                    }
+                });
+            });
+        }
+
+        function updateCounter1() {
+            const count = state.phase1Viewed.size;
+            document.getElementById('counter1').textContent = `Elementi esplorati: ${count} / 4`;
+            document.getElementById('next1').disabled = count < 4;
+        }
+
+        // Setup Fase 2
+        function setupPhase2() {
+            const items = document.querySelectorAll('#phase2Grid .ente-card');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    const id = this.dataset.id;
+                    if (!state.phase2Viewed.has(id)) {
+                        state.phase2Viewed.add(id);
+                        this.classList.add('viewed');
+                        updateCounter2();
+                        renderMath();
+                    }
+                });
+            });
+        }
+
+        function updateCounter2() {
+            const count = state.phase2Viewed.size;
+            document.getElementById('counter2').textContent = `Elementi esplorati: ${count} / 6`;
+            document.getElementById('next2').disabled = count < 6;
+        }
+
+        // Toggle card Fase 3
+        function toggleCard(header) {
+            const card = header.parentElement;
+            card.classList.toggle('expanded');
+            const id = card.dataset.id;
+            if (!state.phase3Viewed.has(id)) {
+                state.phase3Viewed.add(id);
+                card.classList.add('viewed');
+                updateCounter3();
+                renderMath();
+            }
+        }
+
+        function updateCounter3() {
+            const count = state.phase3Viewed.size;
+            document.getElementById('counter3').textContent = `Schede aperte: ${count} / 5`;
+            document.getElementById('next3').disabled = count < 5;
+        }
+
+        // Render Quiz
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = quizQuestions.map((q, index) => `
+                <div class="quiz-question" data-id="${q.id}">
+                    <span class="category">${q.categoryLabel}</span>
+                    <h4>${index + 1}. ${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" data-question="${q.id}" data-option="${i}" onclick="selectOption(${q.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${q.id}"></div>
+                </div>
+            `).join('');
+            renderMath();
+        }
+
+        function selectOption(questionId, optionIndex) {
+            const options = document.querySelectorAll(`.option[data-question="${questionId}"]`);
+            if (options[0].classList.contains('disabled')) return;
+            
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[optionIndex].classList.add('selected');
+            state.quizAnswers[questionId] = optionIndex;
+        }
+
+        function verifyQuiz() {
+            const unanswered = quizQuestions.filter(q => state.quizAnswers[q.id] === undefined);
+            if (unanswered.length > 0) {
+                const firstUnanswered = document.querySelector(`.quiz-question[data-id="${unanswered[0].id}"]`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.getElementById('quizInstruction').innerHTML = 
+                    `<span style="color: #c62828;">⚠️ Rispondi a tutte le domande! Mancano ${unanswered.length} risposte.</span>`;
+                return;
+            }
+
+            let correct = 0;
+            const categoryResults = {};
+
+            quizQuestions.forEach(q => {
+                const isCorrect = state.quizAnswers[q.id] === q.correct;
+                state.quizResults[q.id] = isCorrect;
+                if (isCorrect) correct++;
+
+                if (!categoryResults[q.category]) {
+                    categoryResults[q.category] = { correct: 0, total: 0, label: q.categoryLabel };
+                }
+                categoryResults[q.category].total++;
+                if (isCorrect) categoryResults[q.category].correct++;
+
+                const options = document.querySelectorAll(`.option[data-question="${q.id}"]`);
+                options.forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === q.correct) opt.classList.add('correct');
+                    if (i === state.quizAnswers[q.id] && !isCorrect) opt.classList.add('incorrect');
+                });
+
+                const feedback = document.getElementById(`feedback-${q.id}`);
+                feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+                feedback.innerHTML = isCorrect 
+                    ? `✓ Corretto! ${q.explanation}`
+                    : `✗ Non corretto. ${q.explanation}`;
+            });
+
+            state.categoryResults = categoryResults;
+            state.totalCorrect = correct;
+
+            document.getElementById('verifyBtn').textContent = 'Vai al ripasso →';
+            document.getElementById('verifyBtn').onclick = () => goToPhase(5);
+        }
+
+        function generateReview() {
+            const container = document.getElementById('reviewContainer');
+            document.getElementById('finalScore').textContent = `${state.totalCorrect}/${quizQuestions.length}`;
+
+            const reviewContent = {
+                'dimensionalita': {
+                    title: 'Dimensionalità',
+                    content: `
+                        <p><strong>0D</strong> = Punto (nessuna dimensione, solo posizione)</p>
+                        <p><strong>1D</strong> = Retta, semiretta, segmento (solo lunghezza)</p>
+                        <p><strong>2D</strong> = Piano (lunghezza e larghezza)</p>
+                        <p><strong>3D</strong> = Spazio (lunghezza, larghezza, altezza)</p>
+                    `
+                },
+                'enti': {
+                    title: 'Enti geometrici',
+                    content: `
+                        <p><strong>Punto:</strong> 0D, si indica con lettera maiuscola (A, B, P)</p>
+                        <p><strong>Retta:</strong> 1D, infinita, si indica con lettera minuscola (r, s)</p>
+                        <p><strong>Semiretta:</strong> 1D, ha origine, infinita in una direzione</p>
+                        <p><strong>Segmento:</strong> 1D, due estremi, si indica \\(\\overline{AB}\\)</p>
+                        <p><strong>Piano:</strong> 2D, si indica con lettera greca (α, β)</p>
+                        <p><strong>Spazio:</strong> 3D, contiene tutti gli altri enti</p>
+                    `
+                },
+                'relazioni': {
+                    title: 'Relazioni tra enti',
+                    content: `
+                        <p><strong>Consecutivi:</strong> hanno un estremo in comune</p>
+                        <p><strong>Adiacenti:</strong> consecutivi + sulla stessa retta</p>
+                    `
+                },
+                'assiomi': {
+                    title: 'Assiomi fondamentali',
+                    content: `
+                        <p>• Per <strong>2 punti</strong> passa una sola retta</p>
+                        <p>• Per <strong>3 punti non allineati</strong> passa un solo piano</p>
+                        <p>• Una retta divide il piano in 2 semipiani</p>
+                        <p>• Un piano divide lo spazio in 2 semispazi</p>
+                    `
+                }
+            };
+
+            let html = '';
+            for (const [category, data] of Object.entries(state.categoryResults)) {
+                const needsReview = data.correct < data.total;
+                const sectionClass = needsReview ? 'needs-review' : 'mastered';
+                const label = needsReview ? 'Da rivedere' : 'Hai capito bene';
+                
+                html += `
+                    <div class="review-section ${sectionClass}">
+                        <div class="review-header">
+                            <h3>${reviewContent[category].title}</h3>
+                            <span class="review-label">${label}</span>
+                        </div>
+                        <div class="review-content">
+                            ${needsReview ? reviewContent[category].content : `<p>Hai risposto correttamente a ${data.correct}/${data.total} domande.</p>`}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            renderMath();
+        }
+
+        // Navigazione
+        function goToPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${n}`).classList.add('active');
+            state.currentPhase = n;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (n === 5) generateReview();
+        }
+
+        function updateProgress() {
+            const progress = ((state.currentPhase - 1) / 4) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function restart() {
+            state.currentPhase = 1;
+            state.phase1Viewed.clear();
+            state.phase2Viewed.clear();
+            state.phase3Viewed.clear();
+            state.quizAnswers = {};
+            state.quizResults = {};
+
+            document.querySelectorAll('.dimension-card, .ente-card').forEach(item => {
+                item.classList.remove('viewed', 'expanded');
+            });
+            document.querySelectorAll('.concept-card').forEach(card => {
+                card.classList.remove('viewed', 'expanded');
+            });
+
+            updateCounter1();
+            updateCounter2();
+            updateCounter3();
+            renderQuiz();
+            document.getElementById('verifyBtn').textContent = 'Verifica Risposte';
+            document.getElementById('verifyBtn').onclick = verifyQuiz;
+            document.getElementById('quizInstruction').innerHTML = '➤ Rispondi a tutte le domande, poi clicca su "Verifica Risposte".';
+
+            goToPhase(1);
+        }
+    </script>
+</body>
+</html>
