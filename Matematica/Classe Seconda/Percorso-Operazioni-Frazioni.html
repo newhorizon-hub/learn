@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Quattro Operazioni con le Frazioni</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #1976d2;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: #1976d2;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .progress-step.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .phase {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .phase.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1976d2;
+        }
+
+        .instruction {
+            background: #e3f2fd;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #1565c0;
+            font-size: 0.95em;
+        }
+
+        /* Schede cliccabili per Fase 1 e 2 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: #1976d2;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .card.viewed {
+            border-color: #4caf50;
+        }
+
+        .card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .card-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            color: #555;
+        }
+
+        .card.expanded .card-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .card-add { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); }
+        .card-sub { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+        .card-mul { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        .card-div { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); }
+
+        /* Fase 3 - Concetti chiave */
+        .concept-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card.viewed {
+            border-color: #4caf50;
+        }
+
+        .concept-header {
+            padding: 15px 20px;
+            background: #f5f5f5;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .concept-header:hover {
+            background: #eeeeee;
+        }
+
+        .concept-header .icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+
+        .concept-card.viewed .concept-header::before {
+            content: '✓ ';
+            color: #4caf50;
+        }
+
+        .concept-body {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .concept-card.expanded .concept-body {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Quiz - Fase 4 */
+        .quiz-question {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .quiz-question.correct {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .quiz-question.incorrect {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .question-category {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .option.selected {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .option.disabled {
+            cursor: default;
+        }
+
+        .option.correct-answer {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.wrong-answer {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option-marker {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-marker {
+            border-color: #1976d2;
+            background: #1976d2;
+            color: white;
+        }
+
+        .option.correct-answer .option-marker {
+            border-color: #4caf50;
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.wrong-answer .option-marker {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        /* Fase 5 - Ripasso */
+        .review-section {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .review-header {
+            padding: 15px 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .review-header.needs-review {
+            background: #ff9800;
+        }
+
+        .review-header.understood {
+            background: #4caf50;
+        }
+
+        .review-content {
+            padding: 20px;
+            background: white;
+            border: 2px solid;
+        }
+
+        .review-content.needs-review {
+            border-color: #ff9800;
+        }
+
+        .review-content.understood {
+            border-color: #4caf50;
+        }
+
+        /* Bottoni */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #43a047;
+        }
+
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            text-align: center;
+            margin: 15px 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* Formula styling */
+        .formula-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+
+        .example-box {
+            background: #fff8e1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .warning-box {
+            background: #ffebee;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        .tip-box {
+            background: #e8f5e9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            .phase {
+                padding: 15px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            header, .progress-bar, .btn-group, .instruction {
+                display: none !important;
+            }
+
+            [id^="phase"] {
+                display: none !important;
+            }
+
+            #phase5 {
+                display: block !important;
+                box-shadow: none;
+            }
+
+            .review-section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Le Quattro Operazioni con le Frazioni</h1>
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">1</div>
+                <div class="progress-step" data-step="2">2</div>
+                <div class="progress-step" data-step="3">3</div>
+                <div class="progress-step" data-step="4">4</div>
+                <div class="progress-step" data-step="5">5</div>
+            </div>
+        </header>
+
+        <!-- FASE 1: Addizione e Sottrazione -->
+        <div id="phase1" class="phase active">
+            <h2 class="phase-title">Fase 1: Addizione e Sottrazione</h2>
+            <p class="instruction">👆 Clicca su ogni scheda per scoprire le regole. Devi aprirle tutte per proseguire.</p>
+            
+            <div class="cards-grid">
+                <div class="card card-add" data-card="add-same" onclick="toggleCard(this)">
+                    <div class="card-title">➕ Addizione - Stesso denominatore</div>
+                    <div class="card-content">
+                        <p>Si sommano i <strong>numeratori</strong>, il denominatore resta uguale.</p>
+                        <div class="formula-box" id="formula-add-same"></div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-add-same"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-add" data-card="add-diff" onclick="toggleCard(this)">
+                    <div class="card-title">➕ Addizione - Denominatore diverso</div>
+                    <div class="card-content">
+                        <p>Si calcola il <strong>mcm</strong> dei denominatori, si trasformano le frazioni in <strong>frazioni equivalenti</strong> (moltiplicando ogni numeratore per il fattore che porta il suo denominatore al mcm), poi si sommano i <strong>numeratori</strong>.</p>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-add-diff"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-sub" data-card="sub-same" onclick="toggleCard(this)">
+                    <div class="card-title">➖ Sottrazione - Stesso denominatore</div>
+                    <div class="card-content">
+                        <p>Si sottraggono i <strong>numeratori</strong>, il denominatore resta uguale.</p>
+                        <div class="formula-box" id="formula-sub-same"></div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-sub-same"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-sub" data-card="sub-diff" onclick="toggleCard(this)">
+                    <div class="card-title">➖ Sottrazione - Denominatore diverso</div>
+                    <div class="card-content">
+                        <p>Si calcola il <strong>mcm</strong> dei denominatori, si trasformano le frazioni in <strong>frazioni equivalenti</strong> (moltiplicando ogni numeratore per il fattore che porta il suo denominatore al mcm), poi si sottraggono i <strong>numeratori</strong>.</p>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-sub-diff"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="counter" id="counter1">Schede visualizzate: 0 / 4</div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btn-next1" onclick="goToPhase(2)" disabled>Avanti →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Moltiplicazione e Divisione -->
+        <div id="phase2" class="phase">
+            <h2 class="phase-title">Fase 2: Moltiplicazione e Divisione</h2>
+            <p class="instruction">👆 Clicca su ogni scheda per scoprire le regole. Devi aprirle tutte per proseguire.</p>
+            
+            <div class="cards-grid">
+                <div class="card card-mul" data-card="mul" onclick="toggleCard(this)">
+                    <div class="card-title">✖️ Moltiplicazione</div>
+                    <div class="card-content">
+                        <p>Si moltiplicano <strong>numeratore × numeratore</strong> e <strong>denominatore × denominatore</strong>.</p>
+                        <div class="formula-box" id="formula-mul"></div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-mul"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-mul" data-card="mul-cross" onclick="toggleCard(this)">
+                    <div class="card-title">✖️ Moltiplicazione - Semplificazione in croce</div>
+                    <div class="card-content">
+                        <p>Prima di moltiplicare, conviene <strong>semplificare in croce</strong> se possibile: si dividono un numeratore e un denominatore opposti per un divisore comune.</p>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-mul-cross"></span>
+                        </div>
+                        <div class="tip-box">
+                            <strong>✎ Suggerimento:</strong> Semplificare prima rende i calcoli più semplici!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-div" data-card="div" onclick="toggleCard(this)">
+                    <div class="card-title">➗ Divisione</div>
+                    <div class="card-content">
+                        <p>Si moltiplica la prima frazione per il <strong>reciproco</strong> della seconda (si inverte la seconda frazione).</p>
+                        <div class="formula-box" id="formula-div"></div>
+                        <div class="example-box">
+                            <strong>Esempio:</strong>
+                            <span id="ex-div"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-div" data-card="div-rec" onclick="toggleCard(this)">
+                    <div class="card-title">➗ Divisione - Il reciproco</div>
+                    <div class="card-content">
+                        <p>Il <strong>reciproco</strong> di una frazione si ottiene scambiando numeratore e denominatore.</p>
+                        <div class="formula-box" id="formula-rec"></div>
+                        <div class="tip-box">
+                            <strong>✎ Ricorda:</strong> Nella divisione si inverte sempre la SECONDA frazione, mai la prima!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="counter" id="counter2">Schede visualizzate: 0 / 4</div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="btn-next2" onclick="goToPhase(3)" disabled>Avanti →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti Chiave -->
+        <div id="phase3" class="phase">
+            <h2 class="phase-title">Fase 3: Concetti Chiave</h2>
+            <p class="instruction">👆 Espandi ogni sezione per approfondire. Devi aprirle tutte per proseguire.</p>
+
+            <div class="concept-card" data-concept="mcm" onclick="toggleConcept(this)">
+                <div class="concept-header">
+                    <span>📌 Il minimo comune multiplo (mcm)</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="concept-body">
+                    <p>Il <strong>mcm</strong> è il più piccolo multiplo comune a due o più numeri. Serve per trovare il denominatore comune nelle addizioni e sottrazioni.</p>
+                    <div class="example-box">
+                        <strong>Come si trova:</strong><br>
+                        Per trovare il mcm di 4 e 6:<br>
+                        • Multipli di 4: 4, 8, <strong>12</strong>, 16, 20...<br>
+                        • Multipli di 6: 6, <strong>12</strong>, 18, 24...<br>
+                        • mcm(4, 6) = 12
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card" data-concept="equiv" onclick="toggleConcept(this)">
+                <div class="concept-header">
+                    <span>📌 Le frazioni equivalenti</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="concept-body">
+                    <p>Due frazioni sono <strong>equivalenti</strong> se rappresentano la stessa quantità. Si ottengono moltiplicando (o dividendo) numeratore e denominatore per lo stesso numero.</p>
+                    <div class="example-box" id="ex-equiv"></div>
+                </div>
+            </div>
+
+            <div class="concept-card" data-concept="minimi" onclick="toggleConcept(this)">
+                <div class="concept-header">
+                    <span>⭐ Riduzione ai minimi termini</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="concept-body">
+                    <p>Il risultato di ogni operazione con le frazioni deve <strong>sempre</strong> essere ridotto ai <strong>minimi termini</strong>. Una frazione è ai minimi termini quando numeratore e denominatore non hanno divisori comuni (tranne 1).</p>
+                    <div class="example-box" id="ex-minimi"></div>
+                    <div class="warning-box">
+                        <strong>⚠ Attenzione:</strong> Solo la frazione ridotta ai minimi termini è nella sua forma definitiva!
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card" data-concept="errori" onclick="toggleConcept(this)">
+                <div class="concept-header">
+                    <span>⚠ Errori comuni da evitare</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="concept-body">
+                    <div class="warning-box">
+                        <p><strong>✗ Sommare i denominatori:</strong></p>
+                        <span id="err1"></span>
+                        <p style="margin-top:8px">Serve il mcm!</p>
+                    </div>
+                    <div class="warning-box">
+                        <p><strong>✗ Invertire la frazione sbagliata:</strong></p>
+                        <p>Nella divisione si inverte sempre la <em>seconda</em> frazione.</p>
+                    </div>
+                    <div class="warning-box">
+                        <p><strong>✗ Usare il mcm nella moltiplicazione:</strong></p>
+                        <p>Nella moltiplicazione si moltiplica direttamente, senza mcm!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="counter" id="counter3">Sezioni visualizzate: 0 / 4</div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="btn-next3" onclick="goToPhase(4)" disabled>Vai alla Verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <h2 class="phase-title">Fase 4: Verifica</h2>
+            <p class="instruction">📝 Rispondi a tutte le domande, poi clicca su "Verifica Risposte".</p>
+
+            <div id="quiz-container"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-success" id="btn-verify" onclick="verifyQuiz()">Verifica Risposte ✓</button>
+                <button class="btn btn-primary" id="btn-to-review" onclick="goToPhase(5)" style="display:none;">Vai al Ripasso →</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <h2 class="phase-title">Fase 5: Il Tuo Ripasso Personalizzato</h2>
+            
+            <div id="review-container"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-success" onclick="restart()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stato dell'applicazione
+        const state = {
+            phase: 1,
+            viewedCards: { 1: new Set(), 2: new Set(), 3: new Set() },
+            quizAnswers: {},
+            quizResults: {},
+            quizVerified: false
+        };
+
+        // Dati del quiz
+        const quizData = [
+            {
+                id: 1,
+                category: "Addizione e Sottrazione",
+                question: "Come si sommano due frazioni con lo STESSO denominatore?",
+                options: [
+                    "Si sommano i numeratori e i denominatori",
+                    "Si sommano i numeratori, il denominatore resta uguale",
+                    "Si trova il mcm e poi si sommano",
+                    "Si moltiplicano i numeratori"
+                ],
+                correct: 1,
+                explanation: "Con lo stesso denominatore, basta sommare i numeratori mentre il denominatore resta invariato."
+            },
+            {
+                id: 2,
+                category: "Addizione e Sottrazione",
+                question: "Per sommare ½ + ⅓ devo prima:",
+                options: [
+                    "Moltiplicare i denominatori",
+                    "Invertire una delle frazioni",
+                    "Trovare il mcm e trasformare in frazioni equivalenti",
+                    "Sommare direttamente i numeratori"
+                ],
+                correct: 2,
+                explanation: "Con denominatori diversi, bisogna trovare il mcm (6) e trasformare le frazioni in equivalenti: 3/6 + 2/6."
+            },
+            {
+                id: 3,
+                category: "Addizione e Sottrazione",
+                question: "Qual è il risultato di 5/9 − 2/9?",
+                options: [
+                    "3/18",
+                    "3/9 = 1/3",
+                    "7/9",
+                    "3/0"
+                ],
+                correct: 1,
+                explanation: "5/9 − 2/9 = 3/9, che ridotto ai minimi termini diventa 1/3."
+            },
+            {
+                id: 4,
+                category: "Moltiplicazione e Divisione",
+                question: "Come si moltiplicano due frazioni?",
+                options: [
+                    "Si trova il mcm dei denominatori",
+                    "Si invertisce la seconda e si moltiplica",
+                    "Si moltiplicano numeratore × numeratore e denominatore × denominatore",
+                    "Si sommano i numeratori e i denominatori"
+                ],
+                correct: 2,
+                explanation: "Nella moltiplicazione si moltiplica numeratore per numeratore e denominatore per denominatore, senza bisogno del mcm."
+            },
+            {
+                id: 5,
+                category: "Moltiplicazione e Divisione",
+                question: "Qual è il risultato di 2/3 × 4/5?",
+                options: [
+                    "6/8",
+                    "8/15",
+                    "8/8 = 1",
+                    "2/15"
+                ],
+                correct: 1,
+                explanation: "2/3 × 4/5 = (2×4)/(3×5) = 8/15."
+            },
+            {
+                id: 6,
+                category: "Moltiplicazione e Divisione",
+                question: "Per dividere ¾ : ⅖ devo:",
+                options: [
+                    "Trovare il mcm di 4 e 5",
+                    "Moltiplicare ¾ per il reciproco di ⅖, cioè per 5/2",
+                    "Invertire la prima frazione",
+                    "Dividere i numeratori e i denominatori"
+                ],
+                correct: 1,
+                explanation: "Nella divisione si moltiplica la prima frazione per il reciproco della seconda: 3/4 × 5/2."
+            },
+            {
+                id: 7,
+                category: "Moltiplicazione e Divisione",
+                question: "Qual è il reciproco di 5/7?",
+                options: [
+                    "5/7",
+                    "7/5",
+                    "−5/7",
+                    "1"
+                ],
+                correct: 1,
+                explanation: "Il reciproco si ottiene scambiando numeratore e denominatore: il reciproco di 5/7 è 7/5."
+            },
+            {
+                id: 8,
+                category: "Concetti chiave",
+                question: "Qual è il mcm di 4 e 6?",
+                options: [
+                    "24",
+                    "10",
+                    "12",
+                    "2"
+                ],
+                correct: 2,
+                explanation: "I multipli di 4 sono 4, 8, 12... I multipli di 6 sono 6, 12... Il più piccolo comune è 12."
+            },
+            {
+                id: 9,
+                category: "Concetti chiave",
+                question: "La frazione 6/9 ridotta ai minimi termini è:",
+                options: [
+                    "6/9",
+                    "2/3",
+                    "3/4",
+                    "1/3"
+                ],
+                correct: 1,
+                explanation: "6/9 si divide per 3 sia al numeratore che al denominatore, ottenendo 2/3."
+            },
+            {
+                id: 10,
+                category: "Concetti chiave",
+                question: "Quale di questi è un errore comune?",
+                options: [
+                    "Usare il mcm nelle addizioni",
+                    "Ridurre ai minimi termini",
+                    "Sommare i denominatori: ½ + ⅓ = 2/5",
+                    "Invertire la seconda frazione nella divisione"
+                ],
+                correct: 2,
+                explanation: "Sommare i denominatori è un errore grave: ½ + ⅓ NON fa 2/5! Bisogna usare il mcm."
+            }
+        ];
+
+        // Contenuti per il ripasso
+        const reviewContent = {
+            "Addizione e Sottrazione": {
+                full: `
+                    <p><strong>Stesso denominatore:</strong> si sommano/sottraggono i numeratori, il denominatore resta uguale.</p>
+                    <div class="formula-box" id="review-formula-add"></div>
+                    <p><strong>Denominatore diverso:</strong> si calcola il mcm dei denominatori, si trasformano le frazioni in frazioni equivalenti, poi si opera sui numeratori.</p>
+                    <div class="example-box">
+                        <strong>Esempio:</strong> 1/4 + 2/3 → mcm = 12 → 3/12 + 8/12 = 11/12
+                    </div>
+                `,
+                short: `<p>Hai capito bene come funzionano addizione e sottrazione di frazioni. Ricorda sempre di usare il mcm quando i denominatori sono diversi!</p>`
+            },
+            "Moltiplicazione e Divisione": {
+                full: `
+                    <p><strong>Moltiplicazione:</strong> numeratore × numeratore, denominatore × denominatore. Non serve il mcm!</p>
+                    <div class="formula-box" id="review-formula-mul"></div>
+                    <p><strong>Divisione:</strong> si moltiplica per il reciproco della seconda frazione.</p>
+                    <div class="formula-box" id="review-formula-div"></div>
+                    <div class="tip-box">
+                        <strong>✎ Suggerimento:</strong> Prima di moltiplicare, semplifica in croce!
+                    </div>
+                `,
+                short: `<p>Hai capito bene moltiplicazione e divisione. Ricorda: nella divisione si inverte sempre la seconda frazione!</p>`
+            },
+            "Concetti chiave": {
+                full: `
+                    <p><strong>mcm:</strong> il più piccolo multiplo comune, necessario per addizioni e sottrazioni con denominatori diversi.</p>
+                    <p><strong>Riduzione ai minimi termini:</strong> OBBLIGATORIA! Il risultato deve sempre essere ridotto ai minimi termini.</p>
+                    <div class="warning-box">
+                        <strong>⚠ Errori da evitare:</strong>
+                        <ul style="margin-top:8px; margin-left:20px;">
+                            <li>NON sommare i denominatori</li>
+                            <li>NON usare il mcm nella moltiplicazione</li>
+                            <li>NON invertire la prima frazione nella divisione</li>
+                        </ul>
+                    </div>
+                `,
+                short: `<p>Hai capito bene i concetti chiave. Ricorda sempre di ridurre ai minimi termini!</p>`
+            }
+        };
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            renderFormulas();
+            renderQuiz();
+        });
+
+        function renderFormulas() {
+            // Fase 1
+            katex.render("\\frac{a}{c} + \\frac{b}{c} = \\frac{a + b}{c}", document.getElementById('formula-add-same'));
+            katex.render("\\frac{2}{7} + \\frac{3}{7} = \\frac{2+3}{7} = \\frac{5}{7}", document.getElementById('ex-add-same'));
+            katex.render("\\frac{1}{4} + \\frac{2}{3} = \\frac{1 \\times 3}{12} + \\frac{2 \\times 4}{12} = \\frac{3}{12} + \\frac{8}{12} = \\frac{11}{12}", document.getElementById('ex-add-diff'));
+            
+            katex.render("\\frac{a}{c} - \\frac{b}{c} = \\frac{a - b}{c}", document.getElementById('formula-sub-same'));
+            katex.render("\\frac{5}{9} - \\frac{2}{9} = \\frac{5-2}{9} = \\frac{3}{9} = \\frac{1}{3}", document.getElementById('ex-sub-same'));
+            katex.render("\\frac{3}{4} - \\frac{1}{6} = \\frac{3 \\times 3}{12} - \\frac{1 \\times 2}{12} = \\frac{9}{12} - \\frac{2}{12} = \\frac{7}{12}", document.getElementById('ex-sub-diff'));
+
+            // Fase 2
+            katex.render("\\frac{a}{b} \\times \\frac{c}{d} = \\frac{a \\times c}{b \\times d}", document.getElementById('formula-mul'));
+            katex.render("\\frac{2}{3} \\times \\frac{4}{5} = \\frac{8}{15}", document.getElementById('ex-mul'));
+            katex.render("\\frac{3}{8} \\times \\frac{4}{9} = \\frac{1}{2} \\times \\frac{1}{3} = \\frac{1}{6}", document.getElementById('ex-mul-cross'));
+            
+            katex.render("\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b} \\times \\frac{d}{c}", document.getElementById('formula-div'));
+            katex.render("\\frac{3}{4} : \\frac{2}{5} = \\frac{3}{4} \\times \\frac{5}{2} = \\frac{15}{8}", document.getElementById('ex-div'));
+            katex.render("\\text{Reciproco di } \\frac{c}{d} = \\frac{d}{c}", document.getElementById('formula-rec'));
+
+            // Fase 3
+            katex.render("\\frac{1}{4} = \\frac{1 \\times 3}{4 \\times 3} = \\frac{3}{12} \\quad \\text{(equivalenti)}", document.getElementById('ex-equiv'));
+            katex.render("\\frac{6}{9} = \\frac{6:3}{9:3} = \\frac{2}{3} \\quad \\text{(minimi termini)}", document.getElementById('ex-minimi'));
+            katex.render("\\frac{1}{2} + \\frac{1}{3} \\neq \\frac{2}{5}", document.getElementById('err1'));
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((q, idx) => `
+                <div class="quiz-question" id="question-${q.id}">
+                    <div class="question-category">${q.category}</div>
+                    <div class="question-text">${idx + 1}. ${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <label class="option" data-question="${q.id}" data-option="${i}" onclick="selectOption(${q.id}, ${i})">
+                                <input type="radio" name="q${q.id}" value="${i}">
+                                <span class="option-marker">${String.fromCharCode(65 + i)}</span>
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback-${q.id}"></div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCard(card) {
+            const wasExpanded = card.classList.contains('expanded');
+            card.classList.toggle('expanded');
+            
+            if (!wasExpanded) {
+                card.classList.add('viewed');
+                const cardId = card.dataset.card;
+                state.viewedCards[state.phase].add(cardId);
+                updateCounter();
+            }
+        }
+
+        function toggleConcept(concept) {
+            const wasExpanded = concept.classList.contains('expanded');
+            concept.classList.toggle('expanded');
+            
+            if (!wasExpanded) {
+                concept.classList.add('viewed');
+                const conceptId = concept.dataset.concept;
+                state.viewedCards[3].add(conceptId);
+                updateCounter();
+            }
+        }
+
+        function updateCounter() {
+            const phase = state.phase;
+            const totalCards = phase === 3 ? 4 : 4;
+            const viewedCount = state.viewedCards[phase].size;
+            
+            const counterEl = document.getElementById(`counter${phase}`);
+            if (counterEl) {
+                const label = phase === 3 ? 'Sezioni' : 'Schede';
+                counterEl.textContent = `${label} visualizzate: ${viewedCount} / ${totalCards}`;
+            }
+
+            const btnNext = document.getElementById(`btn-next${phase}`);
+            if (btnNext) {
+                btnNext.disabled = viewedCount < totalCards;
+            }
+        }
+
+        function selectOption(questionId, optionIndex) {
+            if (state.quizVerified) return;
+            
+            state.quizAnswers[questionId] = optionIndex;
+            
+            // Aggiorna UI
+            document.querySelectorAll(`[data-question="${questionId}"]`).forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-question="${questionId}"][data-option="${optionIndex}"]`).classList.add('selected');
+        }
+
+        function verifyQuiz() {
+            // Controlla risposte mancanti
+            const unanswered = quizData.filter(q => state.quizAnswers[q.id] === undefined);
+            if (unanswered.length > 0) {
+                alert(`Devi rispondere a tutte le domande! Mancano ${unanswered.length} risposte.`);
+                const firstUnanswered = document.getElementById(`question-${unanswered[0].id}`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            state.quizVerified = true;
+            state.quizResults = { correct: 0, byCategory: {} };
+
+            // Inizializza categorie
+            const categories = [...new Set(quizData.map(q => q.category))];
+            categories.forEach(cat => {
+                state.quizResults.byCategory[cat] = { correct: 0, total: 0 };
+            });
+
+            // Valuta risposte
+            quizData.forEach(q => {
+                const userAnswer = state.quizAnswers[q.id];
+                const isCorrect = userAnswer === q.correct;
+                
+                state.quizResults.byCategory[q.category].total++;
+                if (isCorrect) {
+                    state.quizResults.correct++;
+                    state.quizResults.byCategory[q.category].correct++;
+                }
+
+                // Aggiorna UI domanda
+                const questionEl = document.getElementById(`question-${q.id}`);
+                questionEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+                // Disabilita opzioni e mostra feedback
+                document.querySelectorAll(`[data-question="${q.id}"]`).forEach((opt, i) => {
+                    opt.classList.add('disabled');
+                    if (i === q.correct) {
+                        opt.classList.add('correct-answer');
+                    } else if (i === userAnswer && !isCorrect) {
+                        opt.classList.add('wrong-answer');
+                    }
+                });
+
+                // Mostra feedback
+                const feedbackEl = document.getElementById(`feedback-${q.id}`);
+                feedbackEl.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+                feedbackEl.innerHTML = isCorrect 
+                    ? `<strong>✓ Corretto!</strong> ${q.explanation}`
+                    : `<strong>✗ Sbagliato.</strong> ${q.explanation}`;
+            });
+
+            // Mostra pulsante ripasso
+            document.getElementById('btn-verify').style.display = 'none';
+            document.getElementById('btn-to-review').style.display = 'inline-flex';
+
+            // Genera ripasso
+            generateReview();
+        }
+
+        function generateReview() {
+            const container = document.getElementById('review-container');
+            let html = '';
+
+            Object.entries(state.quizResults.byCategory).forEach(([category, results]) => {
+                const ratio = results.correct / results.total;
+                const needsReview = ratio < 0.7;
+                
+                html += `
+                    <div class="review-section">
+                        <div class="review-header ${needsReview ? 'needs-review' : 'understood'}">
+                            ${needsReview ? '📝 Da rivedere' : '✓ Hai capito bene'}: ${category}
+                            <span style="float:right">${results.correct}/${results.total}</span>
+                        </div>
+                        <div class="review-content ${needsReview ? 'needs-review' : 'understood'}" id="review-${category.replace(/\s+/g, '-')}">
+                            ${needsReview ? reviewContent[category].full : reviewContent[category].short}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Render formule nel ripasso se necessario
+            setTimeout(() => {
+                const reviewAdd = document.getElementById('review-formula-add');
+                const reviewMul = document.getElementById('review-formula-mul');
+                const reviewDiv = document.getElementById('review-formula-div');
+                
+                if (reviewAdd) katex.render("\\frac{a}{c} \\pm \\frac{b}{c} = \\frac{a \\pm b}{c}", reviewAdd);
+                if (reviewMul) katex.render("\\frac{a}{b} \\times \\frac{c}{d} = \\frac{a \\times c}{b \\times d}", reviewMul);
+                if (reviewDiv) katex.render("\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b} \\times \\frac{d}{c}", reviewDiv);
+            }, 100);
+        }
+
+        function goToPhase(phase) {
+            // Nascondi fase corrente
+            document.getElementById(`phase${state.phase}`).classList.remove('active');
+            
+            // Aggiorna progress bar
+            document.querySelector(`.progress-step[data-step="${state.phase}"]`).classList.remove('active');
+            document.querySelector(`.progress-step[data-step="${state.phase}"]`).classList.add('completed');
+            
+            // Mostra nuova fase
+            state.phase = phase;
+            document.getElementById(`phase${phase}`).classList.add('active');
+            document.querySelector(`.progress-step[data-step="${phase}"]`).classList.add('active');
+            
+            // Aggiorna counter se necessario
+            if (phase <= 3) {
+                updateCounter();
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restart() {
+            if (confirm('Vuoi ricominciare il percorso? I tuoi progressi verranno azzerati.')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
