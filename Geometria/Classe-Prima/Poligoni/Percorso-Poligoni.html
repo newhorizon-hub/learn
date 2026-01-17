@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Poligoni - Percorso Didattico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #38a169;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.2em;
+            color: #276749;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 20px;
+            height: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #38a169, #68d391);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 20px;
+        }
+        
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase-title {
+            background: linear-gradient(135deg, #38a169, #276749);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
+        }
+        
+        .phase-title h2 {
+            font-size: 1.4em;
+        }
+        
+        .phase-number {
+            background: rgba(255,255,255,0.25);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .instruction {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+            color: #2b6cb0;
+        }
+        
+        .counter {
+            text-align: center;
+            font-size: 1.1em;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .clickable-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .clickable-card:hover {
+            border-color: #38a169;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(56, 161, 105, 0.15);
+        }
+        
+        .clickable-card.viewed {
+            border-color: #38a169;
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+        }
+        
+        .clickable-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #38a169;
+            font-weight: bold;
+        }
+        
+        .clickable-card {
+            position: relative;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .card-header .icon {
+            font-size: 1.8em;
+        }
+        
+        .card-header h3 {
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+        
+        .card-content {
+            display: none;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 10px;
+        }
+        
+        .card-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .card-content p {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .formula-box {
+            background: #f0fff4;
+            border: 2px solid #38a169;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            text-align: center;
+            color: #276749;
+        }
+        
+        .example {
+            background: #fffbeb;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-left: 3px solid #f59e0b;
+            color: #92400e;
+        }
+        
+        .warning {
+            background: #fef2f2;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-left: 3px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .concept-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card.viewed {
+            border-color: #38a169;
+        }
+        
+        .concept-header {
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f7fafc;
+            transition: background 0.3s ease;
+        }
+        
+        .concept-header:hover {
+            background: #edf2f7;
+        }
+        
+        .concept-card.open .concept-header {
+            background: #f0fff4;
+        }
+        
+        .concept-header h3 {
+            color: #2d3748;
+            font-size: 1.05em;
+        }
+        
+        .concept-arrow {
+            transition: transform 0.3s ease;
+            color: #718096;
+        }
+        
+        .concept-card.open .concept-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .concept-body {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card.open .concept-body {
+            padding: 20px;
+            max-height: 500px;
+        }
+        
+        /* Quiz Styles */
+        .quiz-question {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .question-number {
+            background: #38a169;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .question-category {
+            background: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #4a5568;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+        
+        .option.selected {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+        
+        .option.correct {
+            border-color: #38a169;
+            background: #c6f6d5;
+        }
+        
+        .option.wrong {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+        
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .option-letter {
+            background: #e2e8f0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        
+        .option.selected .option-letter {
+            background: #38a169;
+            color: white;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #276749;
+        }
+        
+        .feedback.wrong {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        
+        /* Results */
+        .results-box {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#38a169 var(--score-percent, 0%), #e2e8f0 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .score-inner {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #276749;
+        }
+        
+        .score-label {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        
+        .review-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e2e8f0;
+        }
+        
+        .review-section.needs-review {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .review-section.mastered {
+            border-left-color: #38a169;
+            background: #f0fff4;
+        }
+        
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .review-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        
+        .review-badge.needs-review {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .review-badge.mastered {
+            background: #c6f6d5;
+            color: #276749;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #38a169, #276749);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.4);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.6em; }
+            .grid { grid-template-columns: 1fr; }
+            .phase-title { flex-direction: column; text-align: center; }
+            .nav-buttons { flex-direction: column; gap: 10px; }
+            .button-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+        
+        @media print {
+            body { background: white; }
+            .container { padding: 0; max-width: 100%; }
+            header, .progress-bar, .nav-buttons, .button-group { display: none !important; }
+            .phase { display: none !important; }
+            #phase5 { display: block !important; }
+            #phase5 .button-group { display: none !important; }
+            .results-box { box-shadow: none; border: 1px solid #ccc; }
+            .review-section { break-inside: avoid; page-break-inside: avoid; box-shadow: none; }
+            footer { display: none; }
+        }
+
+        /* Tabella classificazione */
+        .classification-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .classification-table th,
+        .classification-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .classification-table th {
+            background: #f0fff4;
+            color: #276749;
+            font-weight: 600;
+        }
+
+        .classification-table tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Figura poligono */
+        .polygon-figure {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .polygon-figure svg {
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 I Poligoni</h1>
+            <p>Classe Prima • Geometria</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </header>
+
+        <!-- FASE 1: Definizione e Elementi -->
+        <div class="phase active" id="phase1">
+            <div class="phase-title">
+                <div class="phase-number">1</div>
+                <h2>Definizione e Elementi del Poligono</h2>
+            </div>
+            <div class="instruction">👆 Clicca su ogni card per scoprirne il contenuto. Aprile tutte per proseguire.</div>
+            <div class="counter">Elementi esplorati: <strong><span id="viewed1">0</span>/6</strong></div>
+            <div class="grid" id="grid1">
+                <div class="clickable-card" data-card="definizione">
+                    <div class="card-header">
+                        <span class="icon">📐</span>
+                        <h3>Definizione di Poligono</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Un poligono è una <span class="highlight">figura piana</span> delimitata da una <span class="highlight">linea spezzata chiusa</span>.</p>
+                        <p>Il termine deriva dal greco:</p>
+                        <div class="formula-box">poly (molti) + gonos (angoli)</div>
+                        <div class="example">💡 La parola stessa ci dice che un poligono ha "molti angoli"!</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="lati">
+                    <div class="card-header">
+                        <span class="icon">📏</span>
+                        <h3>I Lati</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>I <span class="highlight">lati</span> sono i segmenti che delimitano il poligono.</p>
+                        <p>Ogni lato congiunge due vertici consecutivi.</p>
+                        <div class="example">💡 Un triangolo ha 3 lati, un quadrilatero ne ha 4, un pentagono ne ha 5...</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="vertici">
+                    <div class="card-header">
+                        <span class="icon">📍</span>
+                        <h3>I Vertici</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>I <span class="highlight">vertici</span> sono i punti di incontro tra due lati consecutivi.</p>
+                        <p>Il numero di vertici è sempre uguale al numero di lati.</p>
+                        <div class="example">💡 Si indicano con lettere maiuscole: A, B, C, D...</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="angoli-interni">
+                    <div class="card-header">
+                        <span class="icon">📐</span>
+                        <h3>Angoli Interni</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Gli <span class="highlight">angoli interni</span> sono gli angoli formati all'interno del poligono tra due lati consecutivi.</p>
+                        <p>Ogni vertice corrisponde a un angolo interno.</p>
+                        <div class="example">💡 Un triangolo ha 3 angoli interni, un quadrilatero ne ha 4...</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="angoli-esterni">
+                    <div class="card-header">
+                        <span class="icon">↗️</span>
+                        <h3>Angoli Esterni</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Gli <span class="highlight">angoli esterni</span> sono gli angoli formati all'esterno del poligono, tra un lato e il prolungamento del lato adiacente.</p>
+                        <p>Ogni angolo interno ha un angolo esterno adiacente.</p>
+                        <div class="formula-box">Angolo interno + Angolo esterno = 180°</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="diagonali">
+                    <div class="card-header">
+                        <span class="icon">↔️</span>
+                        <h3>Le Diagonali</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Le <span class="highlight">diagonali</span> sono i segmenti che congiungono due vertici <strong>non consecutivi</strong>.</p>
+                        <div class="warning">⚠️ Non confondere: il lato unisce vertici consecutivi, la diagonale unisce vertici non consecutivi!</div>
+                        <div class="example">💡 Un triangolo non ha diagonali (ogni vertice è consecutivo agli altri due). Un quadrilatero ha 2 diagonali.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Perimetro, Convessi e Concavi -->
+        <div class="phase" id="phase2">
+            <div class="phase-title">
+                <div class="phase-number">2</div>
+                <h2>Perimetro, Convessi e Concavi</h2>
+            </div>
+            <div class="instruction">👆 Clicca su ogni card per scoprirne il contenuto. Aprile tutte per proseguire.</div>
+            <div class="counter">Concetti esplorati: <strong><span id="viewed2">0</span>/3</strong></div>
+            <div class="grid" id="grid2">
+                <div class="clickable-card" data-card="perimetro">
+                    <div class="card-header">
+                        <span class="icon">📏</span>
+                        <h3>Il Perimetro</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Il <span class="highlight">perimetro</span> di un poligono è la <strong>somma delle lunghezze di tutti i suoi lati</strong>.</p>
+                        <div class="formula-box">P = lato₁ + lato₂ + lato₃ + ...</div>
+                        <p>Si misura in unità di lunghezza: cm, m, km.</p>
+                        <div class="warning">⚠️ Non confondere perimetro (contorno) con area (superficie interna)!</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="convesso">
+                    <div class="card-header">
+                        <span class="icon">✓</span>
+                        <h3>Poligoni Convessi</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Un poligono è <span class="highlight">convesso</span> quando ogni diagonale giace <strong>interamente all'interno</strong> del poligono.</p>
+                        <p>In altre parole: non presenta rientranze.</p>
+                        <div class="example">💡 Un quadrato, un rettangolo, un triangolo sono sempre convessi.</div>
+                    </div>
+                </div>
+                <div class="clickable-card" data-card="concavo">
+                    <div class="card-header">
+                        <span class="icon">✗</span>
+                        <h3>Poligoni Concavi</h3>
+                    </div>
+                    <div class="card-content">
+                        <p>Un poligono è <span class="highlight">concavo</span> quando almeno una diagonale giace <strong>esternamente</strong> o quando presenta almeno una rientranza.</p>
+                        <p>Ha almeno un angolo interno maggiore di 180°.</p>
+                        <div class="warning">⚠️ Non confondere convesso con regolare: un poligono può essere convesso senza essere regolare (es. rettangolo)!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Classificazione e Poligoni Regolari -->
+        <div class="phase" id="phase3">
+            <div class="phase-title">
+                <div class="phase-number">3</div>
+                <h2>Classificazione e Poligoni Regolari</h2>
+            </div>
+            <div class="instruction">👆 Espandi ogni concetto cliccando sulla barra. Aprili tutti per proseguire.</div>
+            <div class="counter">Concetti esplorati: <strong><span id="viewed3">0</span>/2</strong></div>
+            <div id="concepts">
+                <div class="concept-card" data-concept="classificazione">
+                    <div class="concept-header" onclick="toggleConcept(this)">
+                        <h3>📋 Classificazione per Numero di Lati</h3>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>I poligoni prendono il nome dal numero di lati che possiedono:</p>
+                        <table class="classification-table">
+                            <tr><th>Nome</th><th>Numero di Lati</th></tr>
+                            <tr><td>Triangolo</td><td>3</td></tr>
+                            <tr><td>Quadrilatero</td><td>4</td></tr>
+                            <tr><td>Pentagono</td><td>5</td></tr>
+                            <tr><td>Esagono</td><td>6</td></tr>
+                            <tr><td>Ettagono</td><td>7</td></tr>
+                            <tr><td>Ottagono</td><td>8</td></tr>
+                            <tr><td>Ennagono</td><td>9</td></tr>
+                            <tr><td>Decagono</td><td>10</td></tr>
+                        </table>
+                        <div class="example">💡 Ricorda: il numero di lati = numero di vertici = numero di angoli!</div>
+                    </div>
+                </div>
+                <div class="concept-card" data-concept="regolari">
+                    <div class="concept-header" onclick="toggleConcept(this)">
+                        <h3>⭐ Poligoni Regolari</h3>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Un poligono è <span class="highlight">regolare</span> quando ha:</p>
+                        <ul style="margin: 10px 0 10px 20px;">
+                            <li>Tutti i <strong>lati congruenti</strong> (della stessa lunghezza)</li>
+                            <li>Tutti gli <strong>angoli congruenti</strong> (della stessa ampiezza)</li>
+                        </ul>
+                        <div class="formula-box">Regolare = Lati congruenti + Angoli congruenti</div>
+                        <p><strong>Esempi di poligoni regolari:</strong></p>
+                        <ul style="margin: 10px 0 10px 20px;">
+                            <li><strong>Triangolo equilatero:</strong> poligono regolare a 3 lati</li>
+                            <li><strong>Quadrato:</strong> poligono regolare a 4 lati</li>
+                            <li><strong>Pentagono regolare:</strong> poligono regolare a 5 lati</li>
+                            <li><strong>Esagono regolare:</strong> poligono regolare a 6 lati</li>
+                        </ul>
+                        <div class="warning">⚠️ Solo il quadrato è un quadrilatero regolare! Il rettangolo ha angoli uguali ma lati diversi.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Vai alla Verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div class="phase" id="phase4">
+            <div class="phase-title">
+                <div class="phase-number">4</div>
+                <h2>Verifica le tue Conoscenze</h2>
+            </div>
+            <div class="instruction">📝 Rispondi a tutte le domande, poi clicca "Verifica Risposte" per vedere il risultato.</div>
+            <div id="quizContainer"></div>
+            <div class="button-group">
+                <button class="btn btn-success" onclick="checkAnswers()">✓ Verifica Risposte</button>
+                <button class="btn btn-primary" id="goToReviewBtn" style="display: none;" onclick="goToPhase(5)">Vai al Ripasso →</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <div class="phase-title">
+                <div class="phase-number">5</div>
+                <h2>Il Tuo Ripasso Personalizzato</h2>
+            </div>
+            <div class="results-box">
+                <div class="score-circle" id="scoreCircle">
+                    <div class="score-inner">
+                        <span class="score-value" id="scoreValue">0</span>
+                        <span class="score-label">su 10</span>
+                    </div>
+                </div>
+                <p id="scoreMessage"></p>
+            </div>
+            <div id="reviewContainer"></div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-secondary" onclick="restart()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = { phase1Viewed: new Set(), phase2Viewed: new Set(), phase3Viewed: new Set(), answers: {}, results: {} };
+        const questions = [
+            { id: 1, category: "Definizione", text: "Un poligono è una figura piana delimitata da:", options: ["Una linea curva chiusa", "Una linea spezzata chiusa", "Una linea retta", "Un cerchio"], correct: 1 },
+            { id: 2, category: "Elementi", text: "I vertici di un poligono sono:", options: ["I segmenti che delimitano il poligono", "I punti di incontro tra due lati consecutivi", "Gli angoli interni", "Le diagonali"], correct: 1 },
+            { id: 3, category: "Elementi", text: "Una diagonale congiunge:", options: ["Due lati consecutivi", "Due vertici consecutivi", "Due vertici non consecutivi", "Un vertice con il lato opposto"], correct: 2 },
+            { id: 4, category: "Elementi", text: "Quante diagonali ha un triangolo?", options: ["0", "1", "2", "3"], correct: 0 },
+            { id: 5, category: "Perimetro", text: "Il perimetro di un poligono è:", options: ["La superficie interna", "La somma delle lunghezze dei lati", "Il numero di vertici", "La lunghezza delle diagonali"], correct: 1 },
+            { id: 6, category: "Convessi", text: "Un poligono è convesso quando:", options: ["Ha tutti i lati uguali", "Ogni diagonale giace interamente all'interno", "Ha almeno una rientranza", "Ha tutti gli angoli retti"], correct: 1 },
+            { id: 7, category: "Classificazione", text: "Come si chiama un poligono con 5 lati?", options: ["Esagono", "Ettagono", "Pentagono", "Ottagono"], correct: 2 },
+            { id: 8, category: "Classificazione", text: "Quanti lati ha un ottagono?", options: ["6", "7", "8", "9"], correct: 2 },
+            { id: 9, category: "Regolari", text: "Un poligono regolare ha:", options: ["Solo lati congruenti", "Solo angoli congruenti", "Lati e angoli congruenti", "Almeno una diagonale interna"], correct: 2 },
+            { id: 10, category: "Regolari", text: "Quale tra questi è un quadrilatero regolare?", options: ["Rettangolo", "Rombo", "Quadrato", "Parallelogramma"], correct: 2 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initPhase1(); initPhase2(); initQuiz(); updateProgress();
+        });
+
+        function initPhase1() {
+            document.querySelectorAll('#grid1 .clickable-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    this.querySelector('.card-content').classList.toggle('show');
+                    if (!state.phase1Viewed.has(this.dataset.card)) {
+                        state.phase1Viewed.add(this.dataset.card);
+                        this.classList.add('viewed');
+                        updateCounter(1);
+                    }
+                });
+            });
+        }
+
+        function initPhase2() {
+            document.querySelectorAll('#grid2 .clickable-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    this.querySelector('.card-content').classList.toggle('show');
+                    if (!state.phase2Viewed.has(this.dataset.card)) {
+                        state.phase2Viewed.add(this.dataset.card);
+                        this.classList.add('viewed');
+                        updateCounter(2);
+                    }
+                });
+            });
+        }
+
+        function toggleConcept(header) {
+            const card = header.parentElement;
+            card.classList.toggle('open');
+            const concept = card.dataset.concept;
+            if (!state.phase3Viewed.has(concept)) {
+                state.phase3Viewed.add(concept);
+                card.classList.add('viewed');
+                updateCounter(3);
+            }
+        }
+
+        const totals = { 1: 6, 2: 3, 3: 2 };
+        function updateCounter(phase) {
+            const viewed = phase === 1 ? state.phase1Viewed.size : phase === 2 ? state.phase2Viewed.size : state.phase3Viewed.size;
+            document.getElementById(`viewed${phase}`).textContent = viewed;
+            if (viewed >= totals[phase]) document.getElementById(`next${phase}`).disabled = false;
+            updateProgress();
+        }
+
+        function initQuiz() {
+            const container = document.getElementById('quizContainer');
+            questions.forEach((q, i) => {
+                container.innerHTML += `
+                    <div class="quiz-question" id="question${q.id}">
+                        <div class="question-header">
+                            <div class="question-number">${i + 1}</div>
+                            <span class="question-category">${q.category}</span>
+                        </div>
+                        <div class="question-text">${q.text}</div>
+                        <div class="options">
+                            ${q.options.map((opt, j) => `<div class="option" onclick="selectOption(${q.id}, ${j})"><div class="option-letter">${String.fromCharCode(65 + j)}</div><span>${opt}</span></div>`).join('')}
+                        </div>
+                        <div class="feedback" id="feedback${q.id}"></div>
+                    </div>`;
+            });
+        }
+
+        function selectOption(qId, idx) {
+            const el = document.getElementById(`question${qId}`);
+            if (el.querySelector('.option').classList.contains('disabled')) return;
+            el.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            el.querySelectorAll('.option')[idx].classList.add('selected');
+            state.answers[qId] = idx;
+        }
+
+        function checkAnswers() {
+            const unanswered = questions.filter(q => state.answers[q.id] === undefined);
+            if (unanswered.length > 0) {
+                alert(`Devi rispondere a tutte le domande! Mancano ${unanswered.length} risposte.`);
+                document.getElementById(`question${unanswered[0].id}`).scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            let correct = 0;
+            const cats = { "Definizione": { correct: 0, total: 0 }, "Elementi": { correct: 0, total: 0 }, "Perimetro": { correct: 0, total: 0 }, "Convessi": { correct: 0, total: 0 }, "Classificazione": { correct: 0, total: 0 }, "Regolari": { correct: 0, total: 0 } };
+            questions.forEach(q => {
+                const el = document.getElementById(`question${q.id}`), opts = el.querySelectorAll('.option'), fb = document.getElementById(`feedback${q.id}`), ans = state.answers[q.id], ok = ans === q.correct;
+                cats[q.category].total++;
+                opts.forEach(o => o.classList.add('disabled'));
+                if (ok) { correct++; cats[q.category].correct++; opts[ans].classList.add('correct'); fb.className = 'feedback show correct'; fb.innerHTML = '✓ Esatto!'; }
+                else { opts[ans].classList.add('wrong'); opts[q.correct].classList.add('correct'); fb.className = 'feedback show wrong'; fb.innerHTML = `✗ La risposta corretta è: <strong>${q.options[q.correct]}</strong>`; }
+            });
+            state.results = { correct, total: questions.length, categories: cats };
+            // Mostra il pulsante per andare al ripasso
+            document.getElementById('goToReviewBtn').style.display = 'inline-block';
+            document.getElementById('goToReviewBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function generateReview() {
+            const { correct, total, categories } = state.results, pct = Math.round((correct / total) * 100);
+            document.getElementById('scoreValue').textContent = correct;
+            document.getElementById('scoreCircle').style.setProperty('--score-percent', `${pct}%`);
+            document.getElementById('scoreMessage').textContent = pct >= 80 ? 'Ottimo lavoro! Hai capito bene i poligoni.' : pct >= 60 ? 'Buon risultato! Ripassa gli argomenti evidenziati.' : 'Continua a esercitarti! Rivedi con attenzione i concetti.';
+            const container = document.getElementById('reviewContainer');
+            container.innerHTML = '';
+            const data = {
+                "Definizione": `<p><strong>Il poligono</strong> è una figura piana delimitata da una linea spezzata chiusa.</p><p>Dal greco: poly (molti) + gonos (angoli).</p>`,
+                "Elementi": `<p><strong>Lati:</strong> segmenti che delimitano il poligono.</p><p><strong>Vertici:</strong> punti di incontro tra due lati consecutivi.</p><p><strong>Angoli interni:</strong> formati all'interno tra due lati consecutivi.</p><p><strong>Diagonali:</strong> segmenti che uniscono vertici NON consecutivi.</p><p>⚡ Un triangolo non ha diagonali!</p>`,
+                "Perimetro": `<p><strong>Perimetro</strong> = somma delle lunghezze di tutti i lati.</p><p>Si misura in unità di lunghezza (cm, m, km).</p><p>⚡ Non confondere con l'area (superficie interna)!</p>`,
+                "Convessi": `<p><strong>Convesso:</strong> ogni diagonale giace interamente all'interno.</p><p><strong>Concavo:</strong> almeno una diagonale giace esternamente.</p><p>⚡ Non confondere convesso con regolare!</p>`,
+                "Classificazione": `<p>Triangolo (3), Quadrilatero (4), Pentagono (5), Esagono (6), Ettagono (7), Ottagono (8), Ennagono (9), Decagono (10).</p><p>⚡ N° lati = N° vertici = N° angoli</p>`,
+                "Regolari": `<p><strong>Poligono regolare:</strong> tutti i lati congruenti + tutti gli angoli congruenti.</p><p>Esempi: triangolo equilatero, quadrato, pentagono regolare.</p><p>⚡ Solo il quadrato è un quadrilatero regolare!</p>`
+            };
+            Object.entries(categories).forEach(([cat, d]) => {
+                if (d.total > 0) {
+                    const ok = d.correct === d.total;
+                    container.innerHTML += `<div class="review-section ${ok ? 'mastered' : 'needs-review'}"><div class="review-header"><h3>${cat}</h3><span class="review-badge ${ok ? 'mastered' : 'needs-review'}">${ok ? '✓ Hai capito bene' : '⚠ Da rivedere'}</span><span style="margin-left:auto;color:#718096">${d.correct}/${d.total}</span></div><div>${ok ? '<p>Ottimo lavoro su questa sezione!</p>' : data[cat]}</div></div>`;
+                }
+            });
+        }
+
+        function goToPhase(p) {
+            document.querySelectorAll('.phase').forEach(el => el.classList.remove('active'));
+            document.getElementById(`phase${p}`).classList.add('active');
+            if (p === 5) generateReview();
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateProgress() {
+            const p = parseInt(document.querySelector('.phase.active').id.replace('phase', ''));
+            document.getElementById('progressFill').style.width = `${(p / 5) * 100}%`;
+        }
+
+        function restart() {
+            state.phase1Viewed.clear(); state.phase2Viewed.clear(); state.phase3Viewed.clear(); state.answers = {}; state.results = {};
+            document.querySelectorAll('.clickable-card, .concept-card').forEach(el => el.classList.remove('viewed', 'open'));
+            document.querySelectorAll('.card-content').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.option').forEach(el => el.classList.remove('selected', 'correct', 'wrong', 'disabled'));
+            document.querySelectorAll('.feedback').forEach(el => el.classList.remove('show'));
+            document.getElementById('goToReviewBtn').style.display = 'none';
+            ['next1', 'next2', 'next3'].forEach(id => document.getElementById(id).disabled = true);
+            ['viewed1', 'viewed2', 'viewed3'].forEach(id => document.getElementById(id).textContent = '0');
+            goToPhase(1);
+        }
+    </script>
+</body>
+</html>
