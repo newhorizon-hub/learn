@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Corpo Umano - Apparati e Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .phase {
+            display: none;
+        }
+
+        .phase.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        /* FASE 1 & 2: Elementi cliccabili */
+        .clickable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .clickable-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .clickable-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .clickable-item.opened {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .clickable-item.opened .item-title {
+            color: white;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .item-content {
+            display: none;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .clickable-item.opened .item-content {
+            display: block;
+        }
+
+        .check-mark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #4CAF50;
+            font-size: 1.5em;
+            display: none;
+        }
+
+        .clickable-item.opened .check-mark {
+            display: block;
+            color: white;
+        }
+
+        /* FASE 3: Card espandibili */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: #f5f7fa;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+        }
+
+        .card.expanded .card-body {
+            max-height: 500px;
+            padding: 20px;
+        }
+
+        .card.opened {
+            border-color: #4CAF50;
+        }
+
+        /* FASE 4: Quiz */
+        .question {
+            background: #f5f7fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            border: 2px solid #4CAF50;
+            color: #155724;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            border: 2px solid #f44336;
+            color: #721c24;
+        }
+
+        /* FASE 5: Punteggio e Ripasso */
+        .score-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .score-summary h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .score-numbers {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .score-percentage {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .review-section {
+            background: #fff9c4;
+            border: 3px solid #fbc02d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-section.good {
+            background: #d4edda;
+            border-color: #4CAF50;
+        }
+
+        .review-label {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Bottoni */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        /* Stampa */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            .phase {
+                display: none !important;
+            }
+            #phase5 {
+                display: block !important;
+            }
+            .progress-bar, .btn, .phase-title {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .clickable-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Il Corpo Umano</h1>
+        <div class="subtitle">Apparati e Sistemi — Percorso Interattivo</div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <!-- FASE 1: Livelli di Organizzazione -->
+        <div id="phase1" class="phase active">
+            <div class="phase-title">📊 Fase 1: I Livelli di Organizzazione</div>
+            <div class="instruction">
+                ✨ Clicca su ogni box per scoprire i livelli di organizzazione del corpo umano
+            </div>
+            
+            <div class="clickable-grid">
+                <div class="clickable-item" data-item="1">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">CELLULA</div>
+                    <div class="item-content">
+                        È l'<strong>unità base</strong> di tutti gli organismi viventi. Ogni cellula svolge una funzione specifica. Nel corpo umano ci sono miliardi di cellule diverse.
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="2">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">TESSUTO</div>
+                    <div class="item-content">
+                        È un insieme di <strong>cellule simili</strong> per forma e funzione che lavorano insieme. Esempi: tessuto muscolare, tessuto nervoso, tessuto epiteliale.
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="3">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">ORGANO</div>
+                    <div class="item-content">
+                        È formato da <strong>uno o più tessuti</strong> che cooperano per svolgere una funzione specifica. Esempi: cuore, stomaco, polmoni, cervello.
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="4">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">SISTEMA/APPARATO</div>
+                    <div class="item-content">
+                        È un insieme di <strong>organi collegati</strong> che cooperano per svolgere una certa funzione. Il nostro corpo ha 11 apparati e sistemi diversi.
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="nextPhase1" disabled>Continua alla Fase 2 →</button>
+        </div>
+
+        <!-- FASE 2: Sistema vs Apparato -->
+        <div id="phase2" class="phase">
+            <div class="phase-title">🔍 Fase 2: Sistema o Apparato?</div>
+            <div class="instruction">
+                ✨ Clicca su ogni box per capire la differenza tra Sistema e Apparato
+            </div>
+            
+            <div class="clickable-grid">
+                <div class="clickable-item" data-item="5">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">SISTEMA</div>
+                    <div class="item-content">
+                        Un <strong>sistema</strong> è formato da organi <strong>simili</strong> tra loro.<br><br>
+                        <strong>Esempio:</strong> Il Sistema Muscolare è formato da oltre 600 muscoli, tutti organi simili che permettono il movimento del corpo.
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="6">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">APPARATO</div>
+                    <div class="item-content">
+                        Un <strong>apparato</strong> è formato da organi <strong>diversi</strong> tra loro.<br><br>
+                        <strong>Esempio:</strong> L'Apparato Digerente è formato da bocca, denti, esofago, stomaco, intestino, fegato e pancreas — tutti organi diversi che cooperano per digerire il cibo.
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="7">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">SISTEMI nel Corpo Umano</div>
+                    <div class="item-content">
+                        Nel nostro corpo ci sono <strong>5 sistemi</strong>:<br>
+                        • Sistema Scheletrico<br>
+                        • Sistema Muscolare<br>
+                        • Sistema Linfatico<br>
+                        • Sistema Nervoso<br>
+                        • Sistema Endocrino
+                    </div>
+                </div>
+
+                <div class="clickable-item" data-item="8">
+                    <span class="check-mark">✓</span>
+                    <div class="item-title">APPARATI nel Corpo Umano</div>
+                    <div class="item-content">
+                        Nel nostro corpo ci sono <strong>6 apparati</strong>:<br>
+                        • Apparato Tegumentario<br>
+                        • Apparato Circolatorio<br>
+                        • Apparato Escretore<br>
+                        • Apparato Respiratorio<br>
+                        • Apparato Digerente<br>
+                        • Apparato Riproduttore
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="nextPhase2" disabled>Continua alla Fase 3 →</button>
+        </div>
+
+        <!-- FASE 3: Concetti Chiave -->
+        <div id="phase3" class="phase">
+            <div class="phase-title">📚 Fase 3: Gli Apparati e Sistemi in Dettaglio</div>
+            <div class="instruction">
+                ✨ Clicca su ogni card per espandere e scoprire organi e funzioni
+            </div>
+
+            <div class="card-container">
+                <div class="card" data-card="1">
+                    <div class="card-header">
+                        1. Apparato Tegumentario 🛡️
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> pelle, unghie, capelli<br><br>
+                        <strong>Funzioni:</strong> Riveste e protegge tutto il corpo dall'esterno. La pelle è l'organo più grande del corpo umano.
+                    </div>
+                </div>
+
+                <div class="card" data-card="2">
+                    <div class="card-header">
+                        2. Sistema Scheletrico 🦴
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> ossa (206 nell'adulto)<br><br>
+                        <strong>Funzioni:</strong> Sostegno del corpo, protezione degli organi interni, produzione delle cellule del sangue nel midollo osseo.
+                    </div>
+                </div>
+
+                <div class="card" data-card="3">
+                    <div class="card-header">
+                        3. Sistema Muscolare 💪
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> oltre 600 muscoli<br><br>
+                        <strong>Funzioni:</strong> Permette il movimento del corpo e produce calore. I muscoli lavorano insieme alle ossa per farci muovere.
+                    </div>
+                </div>
+
+                <div class="card" data-card="4">
+                    <div class="card-header">
+                        4. Apparato Circolatorio ❤️
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> cuore, arterie, vene, capillari<br><br>
+                        <strong>Funzioni:</strong> Trasporta ossigeno, anidride carbonica e sostanze nutritive attraverso il flusso del sangue. Il cuore pompa il sangue in tutto il corpo.
+                    </div>
+                </div>
+
+                <div class="card" data-card="5">
+                    <div class="card-header">
+                        5. Sistema Linfatico 🔬
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> vasi linfatici, linfonodi, tonsille, milza<br><br>
+                        <strong>Funzioni:</strong> Trasporta i liquidi interni e difende il corpo dalle malattie (difesa immunitaria).
+                    </div>
+                </div>
+
+                <div class="card" data-card="6">
+                    <div class="card-header">
+                        6. Sistema Nervoso 🧠
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> cervello, cervelletto, midollo spinale, nervi, organi di senso<br><br>
+                        <strong>Funzioni:</strong> Coordina e controlla tutte le funzioni del corpo. È il "computer" che gestisce tutto.
+                    </div>
+                </div>
+
+                <div class="card" data-card="7">
+                    <div class="card-header">
+                        7. Apparato Escretore 🚰
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> reni, vescica, ureteri, uretra<br><br>
+                        <strong>Funzioni:</strong> Elimina i prodotti di rifiuto trasportati dal sangue attraverso l'urina.
+                    </div>
+                </div>
+
+                <div class="card" data-card="8">
+                    <div class="card-header">
+                        8. Apparato Respiratorio 🫁
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> cavità nasali, faringe, laringe, trachea, bronchi, polmoni<br><br>
+                        <strong>Funzioni:</strong> Fornisce ossigeno al sangue ed elimina l'anidride carbonica. Respiriamo circa 20.000 volte al giorno!
+                    </div>
+                </div>
+
+                <div class="card" data-card="9">
+                    <div class="card-header">
+                        9. Apparato Digerente 🍽️
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> bocca, denti, esofago, stomaco, intestino, fegato, pancreas<br><br>
+                        <strong>Funzioni:</strong> Digerisce il cibo e assorbe le sostanze nutritive necessarie al corpo.
+                    </div>
+                </div>
+
+                <div class="card" data-card="10">
+                    <div class="card-header">
+                        10. Sistema Endocrino 💉
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi:</strong> ghiandole endocrine (ipofisi, tiroide, pancreas endocrino...)<br><br>
+                        <strong>Funzioni:</strong> Produce ormoni che regolano molte attività del corpo (crescita, metabolismo, umore...).
+                    </div>
+                </div>
+
+                <div class="card" data-card="11">
+                    <div class="card-header">
+                        11. Apparato Riproduttore 👶
+                        <span class="toggle">▼</span>
+                    </div>
+                    <div class="card-body">
+                        <strong>Organi femmina:</strong> ovaie, utero<br>
+                        <strong>Organi maschio:</strong> testicoli, pene<br><br>
+                        <strong>Funzioni:</strong> Nella femmina: produzione degli ovuli e gestazione del feto. Nel maschio: produzione degli spermatozoi.
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="nextPhase3" disabled>Continua alla Verifica →</button>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <div class="phase-title">✅ Fase 4: Verifica le tue Conoscenze</div>
+            <div class="instruction">
+                📝 Rispondi a tutte le domande, poi clicca su "Verifica Risposte"
+            </div>
+
+            <!-- Domanda 1 -->
+            <div class="question" data-question="1">
+                <div class="question-title">1. Qual è l'unità base di tutti gli organismi viventi?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Il tessuto</div>
+                    <div class="option" data-answer="correct">La cellula</div>
+                    <div class="option" data-answer="wrong">L'organo</div>
+                    <div class="option" data-answer="wrong">Il sistema</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> La cellula è l'unità fondamentale della vita. Tutti gli organismi sono formati da cellule.
+                </div>
+            </div>
+
+            <!-- Domanda 2 -->
+            <div class="question" data-question="2">
+                <div class="question-title">2. Qual è la differenza principale tra sistema e apparato?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Il sistema è più importante dell'apparato</div>
+                    <div class="option" data-answer="correct">Il sistema ha organi simili, l'apparato ha organi diversi</div>
+                    <div class="option" data-answer="wrong">L'apparato ha organi simili, il sistema ha organi diversi</div>
+                    <div class="option" data-answer="wrong">Non c'è differenza</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> Sistema = organi SIMILI (es. muscoli). Apparato = organi DIVERSI (es. bocca, stomaco, intestino).
+                </div>
+            </div>
+
+            <!-- Domanda 3 -->
+            <div class="question" data-question="3">
+                <div class="question-title">3. Quale apparato fornisce ossigeno al sangue?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Apparato Circolatorio</div>
+                    <div class="option" data-answer="correct">Apparato Respiratorio</div>
+                    <div class="option" data-answer="wrong">Apparato Digerente</div>
+                    <div class="option" data-answer="wrong">Apparato Escretore</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> L'Apparato Respiratorio (polmoni) fornisce ossigeno e elimina anidride carbonica attraverso la respirazione.
+                </div>
+            </div>
+
+            <!-- Domanda 4 -->
+            <div class="question" data-question="4">
+                <div class="question-title">4. Quante ossa ha uno scheletro adulto?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">150</div>
+                    <div class="option" data-answer="correct">206</div>
+                    <div class="option" data-answer="wrong">300</div>
+                    <div class="option" data-answer="wrong">600</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> Lo scheletro di un adulto è formato da 206 ossa. I bambini ne hanno di più perché alcune si fondono crescendo.
+                </div>
+            </div>
+
+            <!-- Domanda 5 -->
+            <div class="question" data-question="5">
+                <div class="question-title">5. Quale sistema coordina tutte le funzioni del corpo?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Sistema Muscolare</div>
+                    <div class="option" data-answer="correct">Sistema Nervoso</div>
+                    <div class="option" data-answer="wrong">Sistema Endocrino</div>
+                    <div class="option" data-answer="wrong">Sistema Linfatico</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> Il Sistema Nervoso (cervello, nervi) coordina e controlla tutte le attività del corpo come un computer centrale.
+                </div>
+            </div>
+
+            <!-- Domanda 6 -->
+            <div class="question" data-question="6">
+                <div class="question-title">6. Quali organi fanno parte dell'Apparato Digerente?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Cuore, arterie, vene</div>
+                    <div class="option" data-answer="correct">Bocca, stomaco, intestino, fegato</div>
+                    <div class="option" data-answer="wrong">Polmoni, trachea, bronchi</div>
+                    <div class="option" data-answer="wrong">Reni, vescica, ureteri</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> L'Apparato Digerente comprende tutti gli organi che trasformano e assorbono il cibo: bocca, stomaco, intestino, fegato, pancreas.
+                </div>
+            </div>
+
+            <!-- Domanda 7 -->
+            <div class="question" data-question="7">
+                <div class="question-title">7. Quale apparato elimina i prodotti di rifiuto attraverso l'urina?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Apparato Respiratorio</div>
+                    <div class="option" data-answer="wrong">Apparato Digerente</div>
+                    <div class="option" data-answer="correct">Apparato Escretore</div>
+                    <div class="option" data-answer="wrong">Apparato Circolatorio</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> L'Apparato Escretore (reni, vescica) filtra il sangue e elimina le sostanze di scarto attraverso l'urina.
+                </div>
+            </div>
+
+            <!-- Domanda 8 -->
+            <div class="question" data-question="8">
+                <div class="question-title">8. Quanti muscoli ci sono nel corpo umano?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong">Circa 200</div>
+                    <div class="option" data-answer="wrong">Circa 400</div>
+                    <div class="option" data-answer="correct">Oltre 600</div>
+                    <div class="option" data-answer="wrong">Oltre 1000</div>
+                </div>
+                <div class="feedback">
+                    <strong>Spiegazione:</strong> Il Sistema Muscolare è formato da oltre 600 muscoli che permettono tutti i movimenti del corpo.
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn" id="checkAnswers">Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <div class="phase-title">📖 Fase 5: Ripasso Personalizzato</div>
+            
+            <div class="score-summary" id="scoreSummary">
+                <h3>Risultato della Verifica</h3>
+                <div class="score-numbers" id="scoreNumbers"></div>
+                <div class="score-percentage" id="scorePercentage"></div>
+            </div>
+
+            <div id="reviewContent"></div>
+            
+            <div class="btn-container">
+                <button class="btn" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn" id="backToQuiz">← Rivedi Errori</button>
+                <button class="btn" id="restart">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentPhase = 1;
+        let openedItems = {
+            phase1: new Set(),
+            phase2: new Set(),
+            phase3: new Set()
+        };
+        let answers = {};
+        let quizResults = {};
+
+        // Progress bar update
+        function updateProgress() {
+            const progress = (currentPhase / 5) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Phase navigation
+        function showPhase(phaseNum) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
+            currentPhase = phaseNum;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // FASE 1 & 2: Clickable items
+        document.querySelectorAll('.clickable-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (!this.classList.contains('opened')) {
+                    this.classList.add('opened');
+                    const itemId = this.getAttribute('data-item');
+                    const phase = currentPhase === 1 ? 'phase1' : 'phase2';
+                    openedItems[phase].add(itemId);
+                    checkPhaseCompletion(phase);
+                }
+            });
+        });
+
+        function checkPhaseCompletion(phase) {
+            if (phase === 'phase1' && openedItems.phase1.size === 4) {
+                document.getElementById('nextPhase1').disabled = false;
+            } else if (phase === 'phase2' && openedItems.phase2.size === 4) {
+                document.getElementById('nextPhase2').disabled = false;
+            } else if (phase === 'phase3' && openedItems.phase3.size === 11) {
+                document.getElementById('nextPhase3').disabled = false;
+            }
+        }
+
+        document.getElementById('nextPhase1').addEventListener('click', () => showPhase(2));
+        document.getElementById('nextPhase2').addEventListener('click', () => showPhase(3));
+        document.getElementById('nextPhase3').addEventListener('click', () => showPhase(4));
+
+        // FASE 3: Cards
+        document.querySelectorAll('.card').forEach(card => {
+            const header = card.querySelector('.card-header');
+            header.addEventListener('click', function() {
+                const wasExpanded = card.classList.contains('expanded');
+                card.classList.toggle('expanded');
+                const toggle = this.querySelector('.toggle');
+                toggle.textContent = wasExpanded ? '▼' : '▲';
+                
+                if (!card.classList.contains('opened')) {
+                    card.classList.add('opened');
+                    const cardId = card.getAttribute('data-card');
+                    openedItems.phase3.add(cardId);
+                    checkPhaseCompletion('phase3');
+                }
+            });
+        });
+
+        // FASE 4: Quiz
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const question = this.closest('.question');
+                const questionNum = question.getAttribute('data-question');
+                
+                // Deselect other options in same question
+                question.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Select this option
+                this.classList.add('selected');
+                answers[questionNum] = this.getAttribute('data-answer');
+            });
+        });
+
+        document.getElementById('checkAnswers').addEventListener('click', function() {
+            const totalQuestions = document.querySelectorAll('.question').length;
+            
+            // Check if all questions answered
+            if (Object.keys(answers).length < totalQuestions) {
+                const unanswered = [];
+                for (let i = 1; i <= totalQuestions; i++) {
+                    if (!answers[i.toString()]) {
+                        unanswered.push(i);
+                    }
+                }
+                alert('Per favore rispondi a tutte le domande! Mancano: ' + unanswered.join(', '));
+                
+                // Scroll to first unanswered
+                const firstUnanswered = document.querySelector(`.question[data-question="${unanswered[0]}"]`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Check answers and show feedback
+            let correct = 0;
+            document.querySelectorAll('.question').forEach(question => {
+                const questionNum = question.getAttribute('data-question');
+                const selectedOption = question.querySelector('.option.selected');
+                const feedback = question.querySelector('.feedback');
+                const isCorrect = answers[questionNum] === 'correct';
+                
+                quizResults[questionNum] = isCorrect;
+                
+                if (isCorrect) {
+                    correct++;
+                    selectedOption.classList.add('correct');
+                    feedback.classList.add('show', 'correct');
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    feedback.classList.add('show', 'incorrect');
+                    // Show correct answer
+                    const correctOption = question.querySelector('.option[data-answer="correct"]');
+                    correctOption.style.border = '2px solid #4CAF50';
+                    correctOption.style.fontWeight = 'bold';
+                }
+            });
+
+            // Store score for Phase 5
+            window.quizScore = {
+                correct: correct,
+                total: totalQuestions,
+                percentage: Math.round((correct / totalQuestions) * 100)
+            };
+
+            // Change button to go to review
+            this.textContent = 'Vai al Ripasso →';
+            this.onclick = () => {
+                generateReview();
+                showPhase(5);
+            };
+        });
+
+        // FASE 5: Generate review with score
+        function generateReview() {
+            // Display score
+            document.getElementById('scoreNumbers').textContent = 
+                window.quizScore.correct + '/' + window.quizScore.total;
+            document.getElementById('scorePercentage').textContent = 
+                window.quizScore.percentage + '%';
+
+            const reviewContent = document.getElementById('reviewContent');
+            let html = '';
+
+            // Topic areas mapping
+            const topicAreas = {
+                '1': 'Livelli di Organizzazione',
+                '2': 'Sistema vs Apparato',
+                '3': 'Apparato Respiratorio',
+                '4': 'Sistema Scheletrico',
+                '5': 'Sistema Nervoso',
+                '6': 'Apparato Digerente',
+                '7': 'Apparato Escretore',
+                '8': 'Sistema Muscolare'
+            };
+
+            const areaResults = {};
+            for (let q in quizResults) {
+                const area = topicAreas[q];
+                if (!areaResults[area]) {
+                    areaResults[area] = { correct: 0, total: 0 };
+                }
+                areaResults[area].total++;
+                if (quizResults[q]) areaResults[area].correct++;
+            }
+
+            for (let area in areaResults) {
+                const result = areaResults[area];
+                const isGood = result.correct === result.total;
+                
+                html += `<div class="review-section ${isGood ? 'good' : ''}">`;
+                html += `<div class="review-label">${isGood ? '✅ Hai capito bene' : '⚠️ Da rivedere'}: ${area}</div>`;
+                
+                if (!isGood) {
+                    // Add review content based on area
+                    if (area === 'Livelli di Organizzazione') {
+                        html += `<p><strong>Ricorda:</strong> CELLULA → TESSUTO → ORGANO → SISTEMA/APPARATO. La cellula è l'unità base, i tessuti sono cellule simili, gli organi sono formati da tessuti, i sistemi/apparati sono organi che cooperano.</p>`;
+                    } else if (area === 'Sistema vs Apparato') {
+                        html += `<p><strong>Ricorda:</strong> SISTEMA = organi SIMILI (es. Sistema Muscolare con 600 muscoli). APPARATO = organi DIVERSI (es. Apparato Digerente con bocca, stomaco, intestino...).</p>`;
+                    } else if (area === 'Apparato Respiratorio') {
+                        html += `<p><strong>Ricorda:</strong> L'Apparato Respiratorio fornisce OSSIGENO ed elimina ANIDRIDE CARBONICA. Organi: naso, trachea, bronchi, polmoni.</p>`;
+                    } else if (area === 'Sistema Scheletrico') {
+                        html += `<p><strong>Ricorda:</strong> Il Sistema Scheletrico è formato da 206 ossa negli adulti. Funzioni: sostegno, protezione, produzione del sangue.</p>`;
+                    } else if (area === 'Sistema Nervoso') {
+                        html += `<p><strong>Ricorda:</strong> Il Sistema Nervoso coordina TUTTE le funzioni del corpo. È formato da cervello, cervelletto, midollo spinale, nervi.</p>`;
+                    } else if (area === 'Apparato Digerente') {
+                        html += `<p><strong>Ricorda:</strong> L'Apparato Digerente digerisce il cibo e assorbe le sostanze nutritive. Organi: bocca, stomaco, intestino, fegato, pancreas.</p>`;
+                    } else if (area === 'Apparato Escretore') {
+                        html += `<p><strong>Ricorda:</strong> L'Apparato Escretore elimina i rifiuti attraverso l'URINA. Organi: reni, vescica, ureteri, uretra.</p>`;
+                    } else if (area === 'Sistema Muscolare') {
+                        html += `<p><strong>Ricorda:</strong> Il Sistema Muscolare ha oltre 600 muscoli. Funzioni: movimento e produzione di calore.</p>`;
+                    }
+                } else {
+                    html += `<p>Hai capito bene questi concetti. Continua a esercitarti!</p>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            reviewContent.innerHTML = html;
+        }
+
+        // Back to quiz
+        document.getElementById('backToQuiz').addEventListener('click', () => showPhase(4));
+
+        // Restart
+        document.getElementById('restart').addEventListener('click', () => {
+            location.reload();
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
