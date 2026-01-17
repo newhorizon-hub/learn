@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Quadrilateri - Percorso Didattico</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 25px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    header h1 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+    
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      right: 40px;
+      height: 4px;
+      background: #e0e0e0;
+      z-index: 1;
+    }
+    
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .progress-step:hover {
+      transform: scale(1.05);
+    }
+    
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+      transition: all 0.3s;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .progress-step.active .step-circle {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .progress-step.completed .step-circle {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .step-label {
+      margin-top: 8px;
+      font-size: 0.75em;
+      color: #666;
+      text-align: center;
+      max-width: 70px;
+    }
+    
+    /* Phases */
+    .phase {
+      display: none;
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .phase.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .phase-title {
+      font-size: 1.4em;
+      color: #333;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .phase-instruction {
+      color: #666;
+      margin-bottom: 20px;
+      padding: 12px 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    
+    /* Interactive Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .interactive-card {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid #e0e0e0;
+      position: relative;
+    }
+    
+    .interactive-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .interactive-card.explored {
+      border-color: #4CAF50;
+    }
+    
+    .interactive-card.explored::after {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #4CAF50;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .card-icon {
+      font-size: 2em;
+    }
+    
+    .card-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .card-preview {
+      color: #666;
+      font-size: 0.95em;
+    }
+    
+    .card-content {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed #ddd;
+      animation: slideDown 0.3s ease;
+    }
+    
+    .card-content.visible {
+      display: block;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 500px; }
+    }
+    
+    .card-content h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 1em;
+    }
+    
+    .card-content ul {
+      margin-left: 20px;
+      color: #555;
+    }
+    
+    .card-content li {
+      margin-bottom: 6px;
+    }
+    
+    .formula-box {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 12px 0;
+      text-align: center;
+      border: 1px solid #dee2e6;
+    }
+    
+    .formula-box .katex {
+      font-size: 1.2em;
+    }
+    
+    /* Figure geometriche */
+    .figure-container {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    
+    .figure-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Color coding per tipi */
+    .card-quadrilatero { border-left: 5px solid #4285f4; }
+    .card-trapezio { border-left: 5px solid #34a853; }
+    .card-parallelogramma { border-left: 5px solid #ff9800; }
+    .card-rettangolo { border-left: 5px solid #00bcd4; }
+    .card-rombo { border-left: 5px solid #e57373; }
+    .card-quadrato { border-left: 5px solid #ffd54f; }
+    
+    /* Tipi trapezio */
+    .trapezio-types {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .trapezio-type {
+      text-align: center;
+      padding: 15px 10px;
+      background: #f0f7f0;
+      border-radius: 10px;
+      border: 2px solid #c8e6c9;
+    }
+    
+    .trapezio-type h5 {
+      color: #2e7d32;
+      margin-bottom: 5px;
+    }
+    
+    .trapezio-type p {
+      font-size: 0.85em;
+      color: #555;
+    }
+    
+    /* Quiz Section */
+    .quiz-question {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .question-number {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    
+    .question-text {
+      font-size: 1.05em;
+      color: #333;
+      flex: 1;
+    }
+    
+    .question-category {
+      font-size: 0.75em;
+      padding: 4px 10px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 20px;
+    }
+    
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-size: 1em;
+    }
+    
+    .option-btn:hover:not(.disabled) {
+      border-color: #667eea;
+      background: #f5f7ff;
+    }
+    
+    .option-btn.selected {
+      border-color: #667eea;
+      background: #ede7f6;
+    }
+    
+    .option-btn.correct {
+      border-color: #4CAF50;
+      background: #e8f5e9;
+    }
+    
+    .option-btn.incorrect {
+      border-color: #f44336;
+      background: #ffebee;
+    }
+    
+    .option-btn.disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+    
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #666;
+      flex-shrink: 0;
+    }
+    
+    .option-btn.selected .option-letter {
+      background: #667eea;
+      color: white;
+    }
+    
+    .option-btn.correct .option-letter {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .option-btn.incorrect .option-letter {
+      background: #f44336;
+      color: white;
+    }
+    
+    .feedback {
+      margin-top: 12px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+    
+    .feedback.visible {
+      display: block;
+    }
+    
+    .feedback.correct {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      color: #2e7d32;
+    }
+    
+    .feedback.incorrect {
+      background: #ffebee;
+      border: 1px solid #ef9a9a;
+      color: #c62828;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+      background: #ccc;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .btn-secondary:hover {
+      background: #eeeeee;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+    }
+    
+    .buttons-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    
+    /* Review Section */
+    .review-section {
+      margin-bottom: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .review-header {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+    
+    .review-section.needs-review .review-header {
+      background: linear-gradient(135deg, #fff8e1, #ffecb3);
+      color: #f57c00;
+    }
+    
+    .review-section.understood .review-header {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      color: #2e7d32;
+    }
+    
+    .review-content {
+      padding: 20px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-top: none;
+    }
+    
+    .review-section.needs-review .review-content {
+      border-color: #ffcc80;
+    }
+    
+    .review-section.understood .review-content {
+      border-color: #a5d6a7;
+    }
+    
+    /* Score display */
+    .score-display {
+      text-align: center;
+      padding: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      color: white;
+      margin-bottom: 25px;
+    }
+    
+    .score-number {
+      font-size: 3em;
+      font-weight: bold;
+    }
+    
+    .score-label {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    
+    /* Hierarchy diagram */
+    .hierarchy-container {
+      padding: 20px;
+      background: #fafafa;
+      border-radius: 12px;
+      margin: 15px 0;
+      text-align: center;
+    }
+    
+    .hierarchy-box {
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      margin: 8px auto;
+      max-width: fit-content;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .arrow-svg {
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .hier-quadrilateri { background: #e3f2fd; color: #1565c0; border: 2px solid #90caf9; }
+    .hier-trapezi { background: #e8f5e9; color: #2e7d32; border: 2px solid #a5d6a7; }
+    .hier-parallelogrammi { background: #fff3e0; color: #e65100; border: 2px solid #ffcc80; }
+    .hier-row { display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap; margin: 5px 0; }
+    .hier-rettangoli { background: #e0f7fa; color: #00838f; border: 2px solid #80deea; }
+    .hier-rombi { background: #ffebee; color: #c62828; border: 2px solid #ef9a9a; }
+    .hier-quadrato { background: #fffde7; color: #f57f17; border: 2px solid #fff59d; }
+    
+    .arrow-down {
+      text-align: center;
+      color: #999;
+      font-size: 1.5em;
+    }
+    
+    /* Counter */
+    .counter-badge {
+      background: #667eea;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      margin-left: auto;
+    }
+    
+    /* Missing answer warning */
+    .missing-warning {
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      color: #e65100;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      animation: shake 0.5s;
+    }
+    
+    .missing-warning.visible {
+      display: block;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    /* Print styles */
+    @media print {
+      body { background: white; }
+      .progress-container, .buttons-row, header { display: none !important; }
+      .phase { display: none !important; }
+      #phase5 { display: block !important; }
+      .review-section { break-inside: avoid; }
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      header { padding: 20px 15px; }
+      header h1 { font-size: 1.4em; }
+      .phase { padding: 18px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .trapezio-types { grid-template-columns: 1fr; }
+      .step-label { font-size: 0.65em; max-width: 55px; }
+      .btn { padding: 12px 20px; font-size: 0.95em; }
+      .progress-bar::before { left: 20px; right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📐 I Quadrilateri</h1>
+      <p>Classificazione Gerarchica — Percorso Didattico</p>
+    </header>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-step active" data-phase="1">
+          <div class="step-circle">1</div>
+          <span class="step-label">Definizioni Base</span>
+        </div>
+        <div class="progress-step" data-phase="2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Figure Derivate</span>
+        </div>
+        <div class="progress-step" data-phase="3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Concetti Chiave</span>
+        </div>
+        <div class="progress-step" data-phase="4">
+          <div class="step-circle">4</div>
+          <span class="step-label">Verifica</span>
+        </div>
+        <div class="progress-step" data-phase="5">
+          <div class="step-circle">5</div>
+          <span class="step-label">Ripasso</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- FASE 1: Definizioni Base -->
+    <div id="phase1" class="phase active">
+      <h2 class="phase-title">📘 Fase 1: Definizioni Base</h2>
+      <div class="phase-instruction">
+        Clicca su ogni scheda per scoprire definizioni e proprietà. Esplora tutte le schede per procedere.
+        <span class="counter-badge" id="counter1">0/2</span>
+      </div>
+      
+      <div class="cards-grid">
+        <!-- Quadrilatero -->
+        <div class="interactive-card card-quadrilatero" data-card="quadrilatero">
+          <div class="card-header">
+            <span class="card-icon">🔷</span>
+            <span class="card-title">Quadrilatero</span>
+          </div>
+          <p class="card-preview">La figura base con 4 lati e 4 angoli...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un quadrilatero è un poligono con <strong>4 lati</strong> e <strong>4 angoli</strong>.</p>
+            
+            <h4>Elementi</h4>
+            <ul>
+              <li>4 vertici (A, B, C, D)</li>
+              <li>4 lati (AB, BC, CD, DA)</li>
+              <li>4 angoli interni</li>
+              <li>2 diagonali (AC, BD)</li>
+            </ul>
+            
+            <div class="formula-box">
+              <strong>Proprietà Fondamentale:</strong><br>
+              La somma degli angoli interni è sempre <span class="formula">360°</span>
+            </div>
+            
+            <div class="figure-container">
+              <svg width="180" height="140" viewBox="0 0 180 140">
+                <polygon points="20,110 150,110 160,30 40,20" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+                <line x1="20" y1="110" x2="160" y2="30" stroke="#999" stroke-dasharray="5,5"/>
+                <line x1="150" y1="110" x2="40" y2="20" stroke="#999" stroke-dasharray="5,5"/>
+                <text x="10" y="120" font-size="14" fill="#333">A</text>
+                <text x="155" y="120" font-size="14" fill="#333">B</text>
+                <text x="165" y="30" font-size="14" fill="#333">C</text>
+                <text x="25" y="18" font-size="14" fill="#333">D</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Trapezio -->
+        <div class="interactive-card card-trapezio" data-card="trapezio">
+          <div class="card-header">
+            <svg width="28" height="20" viewBox="0 0 28 20" style="flex-shrink: 0;">
+              <polygon points="4,18 24,18 20,2 8,2" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+            </svg>
+            <span class="card-title">Trapezio</span>
+          </div>
+          <p class="card-preview">Quadrilatero con almeno 2 lati paralleli...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un trapezio è un quadrilatero con <strong>almeno 2 lati paralleli</strong> (le basi).</p>
+            
+            <h4>Elementi</h4>
+            <ul>
+              <li>Base maggiore (B) e base minore (b)</li>
+              <li>Altezza (h)</li>
+              <li>Lati obliqui</li>
+            </ul>
+            
+            <div class="figure-container">
+              <svg width="180" height="120" viewBox="0 0 180 120">
+                <polygon points="20,95 160,95 130,25 50,25" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                <!-- Altezza con quadratino interno -->
+                <line x1="50" y1="95" x2="50" y2="25" stroke="#999" stroke-dasharray="4,4"/>
+                <rect x="50" y="85" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                <text x="22" y="65" font-size="13" fill="#333">h</text>
+                <text x="85" y="112" font-size="13" fill="#333">B</text>
+                <text x="85" y="18" font-size="13" fill="#333">b</text>
+              </svg>
+            </div>
+            
+            <div class="formula-box">
+              <strong>Formula Area:</strong><br>
+              $A = \frac{(B + b) \cdot h}{2}$
+            </div>
+            
+            <div class="formula-box">
+              <strong>Formule Inverse:</strong><br>
+              $B = \frac{2A}{h} - b$ &nbsp;&nbsp;
+              $b = \frac{2A}{h} - B$ &nbsp;&nbsp;
+              $h = \frac{2A}{B + b}$
+            </div>
+            
+            <h4 style="margin-top: 18px; margin-bottom: 12px;">Tipi di trapezio</h4>
+            <div class="trapezio-types">
+              <div class="trapezio-type">
+                <h5>Scaleno</h5>
+                <svg width="100" height="65" viewBox="0 0 100 65">
+                  <polygon points="10,55 90,55 70,10 35,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                </svg>
+                <p>Lati obliqui diversi</p>
+              </div>
+              <div class="trapezio-type">
+                <h5>Isoscele</h5>
+                <svg width="100" height="65" viewBox="0 0 100 65">
+                  <polygon points="10,55 90,55 72,10 28,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                  <!-- Segni congruenza lati obliqui -->
+                  <line x1="16" y1="30" x2="22" y2="36" stroke="#4CAF50" stroke-width="2"/>
+                  <line x1="78" y1="36" x2="84" y2="30" stroke="#4CAF50" stroke-width="2"/>
+                  <!-- Archetto SINGOLO - Angoli base maggiore (A e B) - interni verso l'alto -->
+                  <path d="M 22,55 A 12,12 0 0,0 14,44" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                  <path d="M 78,55 A 12,12 0 0,1 86,44" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                  <!-- Archetto DOPPIO - Angoli base minore (D e C) - interni verso il basso -->
+                  <path d="M 38,10 A 10,10 0 0,1 24,19" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                  <path d="M 42,10 A 14,14 0 0,1 22,23" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                  <path d="M 62,10 A 10,10 0 0,0 76,19" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                  <path d="M 58,10 A 14,14 0 0,0 78,23" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
+                </svg>
+                <p>Lati obliqui congruenti<br>Angoli alla base congruenti</p>
+              </div>
+              <div class="trapezio-type">
+                <h5>Rettangolo</h5>
+                <svg width="100" height="65" viewBox="0 0 100 65">
+                  <polygon points="15,55 90,55 70,10 15,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                  <!-- Quadratini angoli retti -->
+                  <rect x="15" y="45" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                  <rect x="15" y="10" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                </svg>
+                <p>Un lato ⊥ alle basi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="buttons-row">
+        <button class="btn btn-primary" id="btn-to-phase2" disabled>
+          Continua → Fase 2
+        </button>
+      </div>
+    </div>
+    
+    <!-- FASE 2: Figure Derivate -->
+    <div id="phase2" class="phase">
+      <h2 class="phase-title">📗 Fase 2: Figure Derivate</h2>
+      <div class="phase-instruction">
+        Esplora le figure che derivano dal parallelogramma. Clicca su ogni scheda per scoprire le proprietà.
+        <span class="counter-badge" id="counter2">0/4</span>
+      </div>
+      
+      <div class="cards-grid">
+        <!-- Parallelogramma -->
+        <div class="interactive-card card-parallelogramma" data-card="parallelogramma">
+          <div class="card-header">
+            <svg width="28" height="20" viewBox="0 0 28 20" style="flex-shrink: 0;">
+              <polygon points="6,18 22,18 26,2 10,2" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+            </svg>
+            <span class="card-title">Parallelogramma</span>
+          </div>
+          <p class="card-preview">Trapezio con entrambe le coppie di lati paralleli...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un parallelogramma è un trapezio con <strong>entrambe le coppie di lati opposti paralleli</strong>.</p>
+            
+            <h4>Proprietà</h4>
+            <ul>
+              <li>Lati opposti congruenti</li>
+              <li>Angoli opposti congruenti</li>
+              <li>Angoli consecutivi supplementari</li>
+              <li>Diagonali che si incontrano nel punto medio</li>
+            </ul>
+            
+            <div class="formula-box">
+              <strong>Area:</strong> $A = b \cdot h$<br><br>
+              <strong>Inverse:</strong> $b = \frac{A}{h}$ &nbsp;&nbsp;
+              $h = \frac{A}{b}$
+            </div>
+            
+            <div class="figure-container">
+              <svg width="180" height="110" viewBox="0 0 180 110">
+                <polygon points="25,90 125,90 155,20 55,20" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+                <!-- Altezza con quadratino interno -->
+                <line x1="55" y1="90" x2="55" y2="20" stroke="#999" stroke-dasharray="4,4"/>
+                <rect x="55" y="80" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                <!-- Archetto SINGOLO - Angoli A(25,90) e C(155,20) ottusi -->
+                <path d="M 37,90 A 12,12 0 0,0 30,78" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <path d="M 143,20 A 12,12 0 0,0 150,32" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <!-- Archetto DOPPIO - Angoli B(125,90) e D(55,20) acuti -->
+                <path d="M 113,90 A 10,10 0 0,1 128,80" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <path d="M 110,90 A 14,14 0 0,1 131,77" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <path d="M 67,20 A 10,10 0 0,1 52,30" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <path d="M 70,20 A 14,14 0 0,1 49,33" fill="none" stroke="#ff9800" stroke-width="1.5"/>
+                <text x="20" y="58" font-size="13" fill="#333">h</text>
+                <text x="70" y="105" font-size="13" fill="#333">b</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Rettangolo -->
+        <div class="interactive-card card-rettangolo" data-card="rettangolo">
+          <div class="card-header">
+            <svg width="28" height="18" viewBox="0 0 28 18" style="flex-shrink: 0;">
+              <rect x="2" y="2" width="24" height="14" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+            </svg>
+            <span class="card-title">Rettangolo</span>
+          </div>
+          <p class="card-preview">Parallelogramma con 4 angoli retti...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un rettangolo è un parallelogramma con <strong>4 angoli retti</strong> (90° — equiangolo).</p>
+            
+            <h4>Proprietà (oltre a quelle del parallelogramma)</h4>
+            <ul>
+              <li>Diagonali congruenti</li>
+              <li>Le diagonali si incontrano nel loro punto medio</li>
+            </ul>
+            
+            <div class="formula-box">
+              <strong>Area:</strong> $A = b \cdot h$<br><br>
+              <strong>Inverse:</strong> $b = \frac{A}{h}$ &nbsp;&nbsp;
+              $h = \frac{A}{b}$
+            </div>
+            
+            <div class="figure-container">
+              <svg width="160" height="100" viewBox="0 0 160 100">
+                <rect x="20" y="15" width="120" height="70" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+                <rect x="20" y="15" width="12" height="12" fill="none" stroke="#333" stroke-width="1"/>
+                <rect x="128" y="15" width="12" height="12" fill="none" stroke="#333" stroke-width="1"/>
+                <rect x="20" y="73" width="12" height="12" fill="none" stroke="#333" stroke-width="1"/>
+                <rect x="128" y="73" width="12" height="12" fill="none" stroke="#333" stroke-width="1"/>
+                <text x="75" y="95" font-size="12" fill="#333">b</text>
+                <text x="5" y="55" font-size="12" fill="#333">h</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Rombo -->
+        <div class="interactive-card card-rombo" data-card="rombo">
+          <div class="card-header">
+            <svg width="22" height="28" viewBox="0 0 22 28" style="flex-shrink: 0;">
+              <polygon points="11,2 20,14 11,26 2,14" fill="#ffebee" stroke="#e57373" stroke-width="2"/>
+            </svg>
+            <span class="card-title">Rombo</span>
+          </div>
+          <p class="card-preview">Parallelogramma con 4 lati congruenti...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un rombo è un parallelogramma con <strong>4 lati congruenti</strong> (equilatero).</p>
+            
+            <h4>Proprietà (oltre a quelle del parallelogramma)</h4>
+            <ul>
+              <li>Diagonali perpendicolari</li>
+              <li>Diagonali bisettrici degli angoli</li>
+              <li>Le diagonali si incontrano nel punto medio</li>
+              <li>Angoli opposti congruenti</li>
+            </ul>
+            
+            <div class="formula-box">
+              <strong>Area:</strong> $A = \frac{D \cdot d}{2}$<br>
+              <small>(D = diagonale maggiore, d = diagonale minore)</small><br><br>
+              <strong>Inverse:</strong> $D = \frac{2A}{d}$ &nbsp;&nbsp;
+              $d = \frac{2A}{D}$
+            </div>
+            
+            <div class="figure-container">
+              <svg width="120" height="160" viewBox="0 0 120 160">
+                <polygon points="60,10 110,80 60,150 10,80" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+                <line x1="60" y1="10" x2="60" y2="150" stroke="#999" stroke-dasharray="5,5"/>
+                <line x1="10" y1="80" x2="110" y2="80" stroke="#999" stroke-dasharray="5,5"/>
+                <!-- Quadratino perpendicolarità al centro -->
+                <rect x="55" y="75" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                <!-- Archetto SINGOLO - Angoli Top e Bottom acuti -->
+                <path d="M 53,20 A 12,12 0 0,0 67,20" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <path d="M 53,140 A 12,12 0 0,1 67,140" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <!-- Archetto DOPPIO - Angoli Left e Right ottusi -->
+                <path d="M 18,70 A 10,10 0 0,1 18,90" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <path d="M 22,66 A 14,14 0 0,1 22,94" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <path d="M 102,70 A 10,10 0 0,0 102,90" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <path d="M 98,66 A 14,14 0 0,0 98,94" fill="none" stroke="#c62828" stroke-width="1.5"/>
+                <text x="68" y="45" font-size="12" fill="#333">D</text>
+                <text x="80" y="105" font-size="12" fill="#333">d</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quadrato -->
+        <div class="interactive-card card-quadrato" data-card="quadrato">
+          <div class="card-header">
+            <svg width="22" height="22" viewBox="0 0 22 22" style="flex-shrink: 0;">
+              <rect x="2" y="2" width="18" height="18" fill="#fffde7" stroke="#ffc107" stroke-width="2"/>
+            </svg>
+            <span class="card-title">Quadrato</span>
+          </div>
+          <p class="card-preview">Sia rettangolo che rombo — l'unico poligono regolare...</p>
+          <div class="card-content">
+            <p><strong>Definizione:</strong> Un quadrato è sia rettangolo che rombo: ha <strong>4 lati congruenti</strong> (equilatero) e <strong>4 angoli retti</strong> (equiangolo).</p>
+            
+            <h4>Proprietà</h4>
+            <ul>
+              <li>4 lati congruenti</li>
+              <li>4 angoli retti (90°)</li>
+              <li>Diagonali congruenti e perpendicolari</li>
+              <li>Le diagonali si incontrano nel punto medio</li>
+            </ul>
+            
+            <p style="margin-top: 12px; padding: 10px; background: #fffde7; border-radius: 8px; border-left: 4px solid #ffd54f;">
+              <strong>⭐ È l'unico poligono regolare tra i quadrilateri!</strong>
+            </p>
+            
+            <div class="formula-box">
+              <strong>Area:</strong> $A = l^2$ oppure $A = \frac{d^2}{2}$<br><br>
+              <strong>Inverse:</strong> $l = \sqrt{A}$ &nbsp;&nbsp;
+              $d = \sqrt{2A}$
+            </div>
+            
+            <div class="figure-container">
+              <svg width="130" height="130" viewBox="0 0 130 130">
+                <rect x="20" y="20" width="90" height="90" fill="#fffde7" stroke="#ffc107" stroke-width="2"/>
+                <!-- Diagonali -->
+                <line x1="20" y1="20" x2="110" y2="110" stroke="#999" stroke-dasharray="4,4"/>
+                <line x1="110" y1="20" x2="20" y2="110" stroke="#999" stroke-dasharray="4,4"/>
+                <!-- Quadratino ruotato 45° al centro per perpendicolarità diagonali -->
+                <rect x="59" y="59" width="12" height="12" fill="none" stroke="#333" stroke-width="1.5" transform="rotate(45, 65, 65)"/>
+                <!-- Quadratini angoli retti - lati allineati ai lati del quadrato -->
+                <rect x="20" y="20" width="12" height="12" fill="none" stroke="#333" stroke-width="1.5"/>
+                <rect x="98" y="20" width="12" height="12" fill="none" stroke="#333" stroke-width="1.5"/>
+                <rect x="98" y="98" width="12" height="12" fill="none" stroke="#333" stroke-width="1.5"/>
+                <rect x="20" y="98" width="12" height="12" fill="none" stroke="#333" stroke-width="1.5"/>
+                <!-- Etichette -->
+                <text x="60" y="125" font-size="13" fill="#333">l</text>
+                <text x="75" y="48" font-size="13" fill="#333">d</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="buttons-row">
+        <button class="btn btn-secondary" onclick="goToPhase(1)">← Fase 1</button>
+        <button class="btn btn-primary" id="btn-to-phase3" disabled>
+          Continua → Fase 3
+        </button>
+      </div>
+    </div>
+    
+    <!-- FASE 3: Concetti Chiave -->
+    <div id="phase3" class="phase">
+      <h2 class="phase-title">📙 Fase 3: Concetti Chiave</h2>
+      <div class="phase-instruction">
+        Approfondisci i concetti fondamentali. Espandi ogni scheda per consolidare la comprensione.
+        <span class="counter-badge" id="counter3">0/3</span>
+      </div>
+      
+      <div class="cards-grid">
+        <!-- Schema Gerarchico -->
+        <div class="interactive-card" data-card="gerarchia" style="grid-column: 1 / -1;">
+          <div class="card-header">
+            <span class="card-icon">🔻</span>
+            <span class="card-title">Schema Gerarchico</span>
+          </div>
+          <p class="card-preview">La relazione tra tutte le figure...</p>
+          <div class="card-content">
+            <div class="hierarchy-container">
+              <!-- QUADRILATERI -->
+              <div class="hierarchy-box hier-quadrilateri">
+                <svg width="24" height="20" viewBox="0 0 24 20" style="vertical-align: middle; margin-right: 8px;">
+                  <polygon points="2,18 22,18 18,2 6,2" fill="none" stroke="#1565c0" stroke-width="2"/>
+                </svg>
+                QUADRILATERI
+              </div>
+              <svg class="arrow-svg" width="40" height="30" viewBox="0 0 40 30">
+                <line x1="20" y1="2" x2="20" y2="22" stroke="#9e9e9e" stroke-width="2"/>
+                <polygon points="20,28 15,20 25,20" fill="#9e9e9e"/>
+              </svg>
+              
+              <!-- TRAPEZI -->
+              <div class="hierarchy-box hier-trapezi">
+                <svg width="24" height="18" viewBox="0 0 24 18" style="vertical-align: middle; margin-right: 8px;">
+                  <polygon points="2,16 22,16 18,2 6,2" fill="none" stroke="#2e7d32" stroke-width="2"/>
+                </svg>
+                TRAPEZI
+              </div>
+              <svg class="arrow-svg" width="40" height="30" viewBox="0 0 40 30">
+                <line x1="20" y1="2" x2="20" y2="22" stroke="#9e9e9e" stroke-width="2"/>
+                <polygon points="20,28 15,20 25,20" fill="#9e9e9e"/>
+              </svg>
+              
+              <!-- PARALLELOGRAMMI -->
+              <div class="hierarchy-box hier-parallelogrammi">
+                <svg width="26" height="18" viewBox="0 0 26 18" style="vertical-align: middle; margin-right: 8px;">
+                  <polygon points="4,16 20,16 22,2 6,2" fill="none" stroke="#e65100" stroke-width="2"/>
+                </svg>
+                PARALLELOGRAMMI
+              </div>
+              
+              <!-- Biforcazione verso RETTANGOLI e ROMBI -->
+              <svg class="arrow-svg" width="280" height="45" viewBox="0 0 280 45">
+                <line x1="140" y1="2" x2="140" y2="15" stroke="#9e9e9e" stroke-width="2"/>
+                <line x1="70" y1="15" x2="210" y2="15" stroke="#9e9e9e" stroke-width="2"/>
+                <line x1="70" y1="15" x2="70" y2="35" stroke="#9e9e9e" stroke-width="2"/>
+                <line x1="210" y1="15" x2="210" y2="35" stroke="#9e9e9e" stroke-width="2"/>
+                <polygon points="70,42 65,34 75,34" fill="#9e9e9e"/>
+                <polygon points="210,42 205,34 215,34" fill="#9e9e9e"/>
+              </svg>
+              
+              <!-- RETTANGOLI e ROMBI affiancati -->
+              <div class="hier-row">
+                <div class="hierarchy-box hier-rettangoli">
+                  <svg width="22" height="16" viewBox="0 0 22 16" style="vertical-align: middle; margin-right: 6px;">
+                    <rect x="2" y="2" width="18" height="12" fill="none" stroke="#00838f" stroke-width="2"/>
+                  </svg>
+                  RETTANGOLI
+                </div>
+                <div class="hierarchy-box hier-rombi">
+                  <svg width="20" height="22" viewBox="0 0 20 22" style="vertical-align: middle; margin-right: 6px;">
+                    <polygon points="10,2 18,11 10,20 2,11" fill="none" stroke="#c62828" stroke-width="2"/>
+                  </svg>
+                  ROMBI
+                </div>
+              </div>
+              
+              <!-- Frecce convergenti con simbolo ∩ -->
+              <svg class="arrow-svg" width="280" height="50" viewBox="0 0 280 50">
+                <line x1="70" y1="2" x2="140" y2="30" stroke="#9e9e9e" stroke-width="2"/>
+                <line x1="210" y1="2" x2="140" y2="30" stroke="#9e9e9e" stroke-width="2"/>
+                <circle cx="140" cy="30" r="12" fill="#fff" stroke="#9e9e9e" stroke-width="2"/>
+                <text x="140" y="35" text-anchor="middle" font-size="16" fill="#666">∩</text>
+                <line x1="140" y1="42" x2="140" y2="48" stroke="#9e9e9e" stroke-width="2"/>
+              </svg>
+              
+              <!-- QUADRATO -->
+              <div class="hierarchy-box hier-quadrato">
+                <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align: middle; margin-right: 8px;">
+                  <rect x="2" y="2" width="14" height="14" fill="none" stroke="#f57f17" stroke-width="2"/>
+                </svg>
+                QUADRATO
+              </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 15px; color: #555; font-size: 14px;">
+              Il <strong>quadrato</strong> è l'intersezione (∩) tra rettangoli e rombi:<br>
+              ha <strong>4 angoli retti</strong> (come il rettangolo) e <strong>4 lati congruenti</strong> (come il rombo).<br>
+              È l'<strong>unico poligono regolare</strong> tra i quadrilateri.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Formule Area -->
+        <div class="interactive-card" data-card="formule">
+          <div class="card-header">
+            <span class="card-icon">📐</span>
+            <span class="card-title">Riepilogo Formule Area</span>
+          </div>
+          <p class="card-preview">Tutte le formule per calcolare l'area...</p>
+          <div class="card-content">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr style="background: #f5f5f5;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Figura</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Formula</th>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">Trapezio</td>
+                <td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">$A = \frac{(B+b) \cdot h}{2}$</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">Parallelogramma</td>
+                <td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">$A = b \cdot h$</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">Rettangolo</td>
+                <td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">$A = b \cdot h$</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">Rombo</td>
+                <td style="padding: 10px; text-align: center; border-bottom: 1px solid #eee;">$A = \frac{D \cdot d}{2}$</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px;">Quadrato</td>
+                <td style="padding: 10px; text-align: center;">$A = l^2$ oppure $A = \frac{d^2}{2}$</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Proprietà chiave -->
+        <div class="interactive-card" data-card="proprieta">
+          <div class="card-header">
+            <span class="card-icon">✨</span>
+            <span class="card-title">Proprietà Distintive</span>
+          </div>
+          <p class="card-preview">Cosa distingue ogni figura...</p>
+          <div class="card-content">
+            <ul style="list-style: none; padding: 0;">
+              <li style="padding: 10px; margin-bottom: 8px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <strong>Trapezio isoscele:</strong> lati obliqui congruenti, angoli alla base congruenti
+              </li>
+              <li style="padding: 10px; margin-bottom: 8px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #ff9800;">
+                <strong>Parallelogramma:</strong> lati e angoli opposti congruenti, diagonali che si bisecano
+              </li>
+              <li style="padding: 10px; margin-bottom: 8px; background: #e0f7fa; border-radius: 8px; border-left: 4px solid #00bcd4;">
+                <strong>Rettangolo:</strong> tutti angoli retti (90°), diagonali congruenti
+              </li>
+              <li style="padding: 10px; margin-bottom: 8px; background: #ffebee; border-radius: 8px; border-left: 4px solid #e57373;">
+                <strong>Rombo:</strong> tutti i lati congruenti, diagonali perpendicolari
+              </li>
+              <li style="padding: 10px; background: #fffde7; border-radius: 8px; border-left: 4px solid #ffd54f;">
+                <strong>Quadrato:</strong> tutte le proprietà di rettangolo E rombo insieme
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="buttons-row">
+        <button class="btn btn-secondary" onclick="goToPhase(2)">← Fase 2</button>
+        <button class="btn btn-primary" id="btn-to-phase4" disabled>
+          Continua → Verifica
+        </button>
+      </div>
+    </div>
+    
+    <!-- FASE 4: Verifica -->
+    <div id="phase4" class="phase">
+      <h2 class="phase-title">📝 Fase 4: Verifica</h2>
+      <div class="phase-instruction">
+        Rispondi a tutte le domande, poi clicca "Verifica Risposte" per controllare.
+      </div>
+      
+      <div class="missing-warning" id="missing-warning">
+        ⚠️ Alcune domande non hanno ancora una risposta. Completa tutte le domande prima di verificare.
+      </div>
+      
+      <div id="quiz-container"></div>
+      
+      <div class="buttons-row">
+        <button class="btn btn-secondary" onclick="goToPhase(3)">← Fase 3</button>
+        <button class="btn btn-primary" id="btn-verify" onclick="verifyQuiz()">
+          ✓ Verifica Risposte
+        </button>
+        <button class="btn btn-success" id="btn-to-phase5" style="display: none;" onclick="goToPhase(5)">
+          Vai al Ripasso →
+        </button>
+      </div>
+    </div>
+    
+    <!-- FASE 5: Ripasso -->
+    <div id="phase5" class="phase">
+      <h2 class="phase-title">📚 Fase 5: Ripasso Personalizzato</h2>
+      
+      <div class="score-display" id="score-display">
+        <div class="score-number" id="final-score">-/-</div>
+        <div class="score-label">Risposte corrette</div>
+      </div>
+      
+      <div id="review-container"></div>
+      
+      <div class="buttons-row">
+        <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+        <button class="btn btn-success" onclick="restartQuiz()">🔄 Ricomincia</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Quiz Data
+    const quizData = [
+      {
+        category: "Definizioni",
+        question: "Qual è la proprietà fondamentale di TUTTI i quadrilateri?",
+        options: [
+          "Hanno 4 lati congruenti",
+          "La somma degli angoli interni è 360°",
+          "Hanno le diagonali perpendicolari",
+          "Hanno 4 angoli retti"
+        ],
+        correct: 1,
+        explanation: "La somma degli angoli interni di qualsiasi quadrilatero è sempre 360°, indipendentemente dalla sua forma."
+      },
+      {
+        category: "Trapezio",
+        question: "Cosa caratterizza un trapezio isoscele?",
+        options: [
+          "Ha un lato perpendicolare alle basi",
+          "Ha i lati obliqui congruenti",
+          "Ha tutti i lati uguali",
+          "Ha le diagonali perpendicolari"
+        ],
+        correct: 1,
+        explanation: "Il trapezio isoscele ha i due lati obliqui congruenti e gli angoli alla base congruenti."
+      },
+      {
+        category: "Trapezio",
+        question: "Qual è la formula dell'area del trapezio?",
+        options: [
+          "A = b × h",
+          "A = (D × d) / 2",
+          "A = (B + b) × h / 2",
+          "A = l²"
+        ],
+        correct: 2,
+        explanation: "L'area del trapezio si calcola come semisomma delle basi per l'altezza: A = (B + b) × h / 2"
+      },
+      {
+        category: "Parallelogramma",
+        question: "Quale proprietà NON appartiene al parallelogramma?",
+        options: [
+          "Lati opposti congruenti",
+          "Angoli opposti congruenti",
+          "Diagonali congruenti",
+          "Diagonali che si bisecano"
+        ],
+        correct: 2,
+        explanation: "Le diagonali congruenti sono una proprietà del rettangolo, non di tutti i parallelogrammi."
+      },
+      {
+        category: "Rettangolo",
+        question: "Cosa distingue il rettangolo dagli altri parallelogrammi?",
+        options: [
+          "Ha 4 lati congruenti",
+          "Ha 4 angoli retti",
+          "Ha le diagonali perpendicolari",
+          "Ha solo 2 lati paralleli"
+        ],
+        correct: 1,
+        explanation: "Il rettangolo è un parallelogramma equiangolo: tutti i suoi 4 angoli sono retti (90°)."
+      },
+      {
+        category: "Rombo",
+        question: "Qual è la formula per calcolare l'area del rombo?",
+        options: [
+          "A = b × h",
+          "A = l²",
+          "A = (D × d) / 2",
+          "A = (B + b) × h / 2"
+        ],
+        correct: 2,
+        explanation: "L'area del rombo si calcola come semiprodotto delle diagonali: A = (D × d) / 2"
+      },
+      {
+        category: "Rombo",
+        question: "Quale proprietà è esclusiva del rombo rispetto al parallelogramma?",
+        options: [
+          "Angoli opposti congruenti",
+          "Lati opposti congruenti",
+          "Diagonali perpendicolari",
+          "Diagonali che si bisecano"
+        ],
+        correct: 2,
+        explanation: "Le diagonali perpendicolari sono una proprietà aggiuntiva del rombo rispetto al parallelogramma."
+      },
+      {
+        category: "Quadrato",
+        question: "Perché il quadrato è l'unico poligono regolare tra i quadrilateri?",
+        options: [
+          "Ha 4 lati",
+          "Ha le diagonali uguali",
+          "Ha 4 lati congruenti E 4 angoli congruenti",
+          "Ha 2 coppie di lati paralleli"
+        ],
+        correct: 2,
+        explanation: "Un poligono regolare deve avere tutti i lati congruenti (equilatero) E tutti gli angoli congruenti (equiangolo). Solo il quadrato ha entrambe le proprietà."
+      },
+      {
+        category: "Gerarchia",
+        question: "Il quadrato è contemporaneamente:",
+        options: [
+          "Un trapezio e un rombo",
+          "Un rettangolo e un rombo",
+          "Un parallelogramma e un trapezio",
+          "Un rombo e un trapezio isoscele"
+        ],
+        correct: 1,
+        explanation: "Il quadrato è l'intersezione tra rettangoli (4 angoli retti) e rombi (4 lati congruenti)."
+      },
+      {
+        category: "Gerarchia",
+        question: "Quale affermazione è VERA?",
+        options: [
+          "Ogni rettangolo è un quadrato",
+          "Ogni rombo è un quadrato",
+          "Ogni quadrato è un parallelogramma",
+          "Ogni trapezio è un parallelogramma"
+        ],
+        correct: 2,
+        explanation: "Nella gerarchia: quadrato → rettangolo/rombo → parallelogramma → trapezio → quadrilatero. Ogni quadrato è un parallelogramma (ma non viceversa)."
+      }
+    ];
+    
+    // State
+    let exploredCards = {
+      phase1: new Set(),
+      phase2: new Set(),
+      phase3: new Set()
+    };
+    let userAnswers = {};
+    let quizVerified = false;
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupCards();
+      renderQuiz();
+    });
+    
+    // Render KaTeX formulas in an element using auto-render
+    function renderFormulasInElement(element) {
+      if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(element, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    
+    // Setup interactive cards
+    function setupCards() {
+      document.querySelectorAll('.interactive-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const content = card.querySelector('.card-content');
+          const cardId = card.dataset.card;
+          
+          // Toggle content
+          content.classList.toggle('visible');
+          
+          // Mark as explored
+          if (!card.classList.contains('explored')) {
+            card.classList.add('explored');
+            
+            // Determine which phase
+            const phase = card.closest('.phase');
+            if (phase.id === 'phase1') {
+              exploredCards.phase1.add(cardId);
+              updateCounter('counter1', exploredCards.phase1.size, 2);
+              if (exploredCards.phase1.size >= 2) {
+                document.getElementById('btn-to-phase2').disabled = false;
+              }
+            } else if (phase.id === 'phase2') {
+              exploredCards.phase2.add(cardId);
+              updateCounter('counter2', exploredCards.phase2.size, 4);
+              if (exploredCards.phase2.size >= 4) {
+                document.getElementById('btn-to-phase3').disabled = false;
+              }
+            } else if (phase.id === 'phase3') {
+              exploredCards.phase3.add(cardId);
+              updateCounter('counter3', exploredCards.phase3.size, 3);
+              if (exploredCards.phase3.size >= 3) {
+                document.getElementById('btn-to-phase4').disabled = false;
+              }
+            }
+          }
+          
+          // Render formulas in newly visible content
+          if (content.classList.contains('visible')) {
+            renderFormulasInElement(content);
+          }
+        });
+      });
+      
+      // Phase navigation buttons
+      document.getElementById('btn-to-phase2').addEventListener('click', () => goToPhase(2));
+      document.getElementById('btn-to-phase3').addEventListener('click', () => goToPhase(3));
+      document.getElementById('btn-to-phase4').addEventListener('click', () => goToPhase(4));
+    }
+    
+    // Update counter badge
+    function updateCounter(id, current, total) {
+      document.getElementById(id).textContent = `${current}/${total}`;
+    }
+    
+    // Render quiz
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = quizData.map((q, i) => `
+        <div class="quiz-question" id="question-${i}">
+          <div class="question-header">
+            <span class="question-number">${i + 1}</span>
+            <span class="question-text">${q.question}</span>
+            <span class="question-category">${q.category}</span>
+          </div>
+          <div class="options-list">
+            ${q.options.map((opt, j) => `
+              <button class="option-btn" data-question="${i}" data-option="${j}" onclick="selectOption(${i}, ${j})">
+                <span class="option-letter">${String.fromCharCode(65 + j)}</span>
+                <span>${opt}</span>
+              </button>
+            `).join('')}
+          </div>
+          <div class="feedback" id="feedback-${i}"></div>
+        </div>
+      `).join('');
+    }
+    
+    // Select option
+    function selectOption(questionIdx, optionIdx) {
+      if (quizVerified) return;
+      
+      // Remove previous selection
+      document.querySelectorAll(`[data-question="${questionIdx}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      
+      // Add new selection
+      const btn = document.querySelector(`[data-question="${questionIdx}"][data-option="${optionIdx}"]`);
+      btn.classList.add('selected');
+      
+      userAnswers[questionIdx] = optionIdx;
+      
+      // Hide warning if visible
+      document.getElementById('missing-warning').classList.remove('visible');
+    }
+    
+    // Verify quiz
+    function verifyQuiz() {
+      // Check all questions answered
+      const unanswered = [];
+      quizData.forEach((_, i) => {
+        if (userAnswers[i] === undefined) {
+          unanswered.push(i);
+        }
+      });
+      
+      if (unanswered.length > 0) {
+        document.getElementById('missing-warning').classList.add('visible');
+        // Scroll to first unanswered
+        document.getElementById(`question-${unanswered[0]}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      
+      quizVerified = true;
+      
+      // Show results
+      quizData.forEach((q, i) => {
+        const isCorrect = userAnswers[i] === q.correct;
+        
+        // Mark options
+        document.querySelectorAll(`[data-question="${i}"]`).forEach(btn => {
+          btn.classList.add('disabled');
+          const optIdx = parseInt(btn.dataset.option);
+          if (optIdx === q.correct) {
+            btn.classList.add('correct');
+          } else if (optIdx === userAnswers[i] && !isCorrect) {
+            btn.classList.add('incorrect');
+          }
+        });
+        
+        // Show feedback
+        const feedback = document.getElementById(`feedback-${i}`);
+        feedback.classList.add('visible', isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = isCorrect 
+          ? `✓ Corretto! ${q.explanation}`
+          : `✗ ${q.explanation}`;
+      });
+      
+      // Show continue button
+      document.getElementById('btn-verify').style.display = 'none';
+      document.getElementById('btn-to-phase5').style.display = 'inline-flex';
+      
+      // Update progress
+      document.querySelector('[data-phase="4"]').classList.add('completed');
+    }
+    
+    // Go to phase
+    function goToPhase(phaseNum) {
+      // Hide all phases
+      document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+      
+      // Show target phase
+      document.getElementById(`phase${phaseNum}`).classList.add('active');
+      
+      // Update progress bar
+      document.querySelectorAll('.progress-step').forEach(step => {
+        const stepPhase = parseInt(step.dataset.phase);
+        step.classList.remove('active');
+        if (stepPhase === phaseNum) {
+          step.classList.add('active');
+        }
+        if (stepPhase < phaseNum) {
+          step.classList.add('completed');
+        }
+      });
+      
+      // If going to phase 5, generate review
+      if (phaseNum === 5) {
+        generateReview();
+      }
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Generate review
+    function generateReview() {
+      const categories = {};
+      let correctCount = 0;
+      
+      // Group by category
+      quizData.forEach((q, i) => {
+        if (!categories[q.category]) {
+          categories[q.category] = { correct: 0, total: 0, questions: [] };
+        }
+        categories[q.category].total++;
+        categories[q.category].questions.push({ ...q, userAnswer: userAnswers[i], index: i });
+        
+        if (userAnswers[i] === q.correct) {
+          categories[q.category].correct++;
+          correctCount++;
+        }
+      });
+      
+      // Update score
+      document.getElementById('final-score').textContent = `${correctCount}/${quizData.length}`;
+      
+      // Generate review HTML
+      const container = document.getElementById('review-container');
+      container.innerHTML = Object.entries(categories).map(([cat, data]) => {
+        const needsReview = data.correct < data.total;
+        const statusClass = needsReview ? 'needs-review' : 'understood';
+        const statusLabel = needsReview ? '⚠️ Da rivedere' : '✓ Hai capito bene';
+        
+        let content = '';
+        
+        if (cat === 'Definizioni') {
+          content = `
+            <p><strong>Quadrilatero:</strong> poligono con 4 lati e 4 angoli. La somma degli angoli interni è sempre 360°.</p>
+          `;
+        } else if (cat === 'Trapezio') {
+          content = `
+            <p><strong>Trapezio:</strong> quadrilatero con almeno 2 lati paralleli (le basi).</p>
+            <ul>
+              <li><strong>Scaleno:</strong> lati obliqui diversi</li>
+              <li><strong>Isoscele:</strong> lati obliqui congruenti, angoli alla base congruenti</li>
+              <li><strong>Rettangolo:</strong> un lato perpendicolare alle basi</li>
+            </ul>
+            <p><strong>Area:</strong> A = (B + b) × h / 2</p>
+          `;
+        } else if (cat === 'Parallelogramma') {
+          content = `
+            <p><strong>Parallelogramma:</strong> trapezio con entrambe le coppie di lati opposti paralleli.</p>
+            <p><strong>Proprietà:</strong> lati opposti congruenti, angoli opposti congruenti, angoli consecutivi supplementari, diagonali che si bisecano.</p>
+            <p><strong>Area:</strong> A = b × h</p>
+          `;
+        } else if (cat === 'Rettangolo') {
+          content = `
+            <p><strong>Rettangolo:</strong> parallelogramma con 4 angoli retti (equiangolo).</p>
+            <p><strong>Proprietà aggiuntive:</strong> diagonali congruenti.</p>
+            <p><strong>Area:</strong> A = b × h</p>
+          `;
+        } else if (cat === 'Rombo') {
+          content = `
+            <p><strong>Rombo:</strong> parallelogramma con 4 lati congruenti (equilatero).</p>
+            <p><strong>Proprietà aggiuntive:</strong> diagonali perpendicolari e bisettrici degli angoli.</p>
+            <p><strong>Area:</strong> A = (D × d) / 2</p>
+          `;
+        } else if (cat === 'Quadrato') {
+          content = `
+            <p><strong>Quadrato:</strong> sia rettangolo che rombo. Ha 4 lati congruenti E 4 angoli retti.</p>
+            <p>È l'<strong>unico poligono regolare</strong> tra i quadrilateri (equilatero + equiangolo).</p>
+            <p><strong>Area:</strong> A = l² oppure A = d²/2</p>
+          `;
+        } else if (cat === 'Gerarchia') {
+          content = `
+            <p><strong>Schema gerarchico:</strong></p>
+            <p style="text-align: center; font-size: 0.95em; line-height: 1.8;">
+              QUADRILATERI<br>↓<br>
+              TRAPEZI<br>↓<br>
+              PARALLELOGRAMMI<br>↓<br>
+              RETTANGOLI ∩ ROMBI<br>↓<br>
+              QUADRATO
+            </p>
+            <p>Il quadrato è l'intersezione tra rettangoli e rombi.</p>
+          `;
+        }
+        
+        return `
+          <div class="review-section ${statusClass}">
+            <div class="review-header">
+              <span>${statusLabel}</span>
+              <span style="margin-left: auto;">${cat} (${data.correct}/${data.total})</span>
+            </div>
+            <div class="review-content">
+              ${content}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Restart quiz
+    function restartQuiz() {
+      // Reset state
+      exploredCards = { phase1: new Set(), phase2: new Set(), phase3: new Set() };
+      userAnswers = {};
+      quizVerified = false;
+      
+      // Reset UI
+      document.querySelectorAll('.interactive-card').forEach(card => {
+        card.classList.remove('explored');
+        card.querySelector('.card-content').classList.remove('visible');
+      });
+      
+      document.querySelectorAll('.progress-step').forEach(step => {
+        step.classList.remove('completed', 'active');
+      });
+      document.querySelector('[data-phase="1"]').classList.add('active');
+      
+      document.getElementById('btn-to-phase2').disabled = true;
+      document.getElementById('btn-to-phase3').disabled = true;
+      document.getElementById('btn-to-phase4').disabled = true;
+      
+      updateCounter('counter1', 0, 2);
+      updateCounter('counter2', 0, 4);
+      updateCounter('counter3', 0, 3);
+      
+      // Reset quiz
+      renderQuiz();
+      document.getElementById('btn-verify').style.display = 'inline-flex';
+      document.getElementById('btn-to-phase5').style.display = 'none';
+      document.getElementById('missing-warning').classList.remove('visible');
+      
+      // Go to phase 1
+      goToPhase(1);
+    }
+  </script>
+</body>
+</html>
