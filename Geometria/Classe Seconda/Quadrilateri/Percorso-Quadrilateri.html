@@ -751,73 +751,61 @@
           <div class="card-content">
             <p><strong>Definizione:</strong> Un trapezio è un quadrilatero con <strong>almeno 2 lati paralleli</strong> (le basi).</p>
             
-            <h4>Elementi</h4>
-            <ul>
-              <li>Base maggiore (B) e base minore (b)</li>
-              <li>Altezza (h)</li>
-              <li>Lati obliqui</li>
-            </ul>
-            
-            <div class="figure-container">
-              <svg width="180" height="120" viewBox="0 0 180 120">
-                <polygon points="20,95 160,95 130,25 50,25" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
-                <!-- Altezza con quadratino interno -->
-                <line x1="50" y1="95" x2="50" y2="25" stroke="#999" stroke-dasharray="4,4"/>
-                <rect x="50" y="85" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
-                <text x="22" y="65" font-size="13" fill="#333">h</text>
-                <text x="85" y="112" font-size="13" fill="#333">B</text>
-                <text x="85" y="18" font-size="13" fill="#333">b</text>
-              </svg>
-            </div>
-            
-            <div class="formula-box">
-              <strong>Formula Area:</strong><br>
-              $A = \frac{(B + b) \cdot h}{2}$
-            </div>
-            
-            <div class="formula-box">
-              <strong>Formule Inverse:</strong><br>
-              $B = \frac{2A}{h} - b$ &nbsp;&nbsp;
-              $b = \frac{2A}{h} - B$ &nbsp;&nbsp;
-              $h = \frac{2A}{B + b}$
-            </div>
-            
-            <h4 style="margin-top: 18px; margin-bottom: 12px;">Tipi di trapezio</h4>
-            <div class="trapezio-types">
-              <div class="trapezio-type">
-                <h5>Scaleno</h5>
-                <svg width="100" height="65" viewBox="0 0 100 65">
-                  <polygon points="10,55 90,55 70,10 35,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+            <!-- Layout compatto: figura + formule affiancate -->
+            <div style="display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; margin: 10px 0;">
+              <div style="flex: 0 0 auto;">
+                <svg width="140" height="95" viewBox="0 0 140 95">
+                  <polygon points="15,75 125,75 100,20 40,20" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                  <line x1="40" y1="75" x2="40" y2="20" stroke="#999" stroke-dasharray="4,4"/>
+                  <rect x="40" y="65" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+                  <text x="18" y="52" font-size="12" fill="#333">h</text>
+                  <text x="65" y="90" font-size="12" fill="#333">B</text>
+                  <text x="65" y="14" font-size="12" fill="#333">b</text>
                 </svg>
-                <p>Lati obliqui diversi</p>
               </div>
-              <div class="trapezio-type">
-                <h5>Isoscele</h5>
-                <svg width="100" height="65" viewBox="0 0 100 65">
-                  <polygon points="10,55 90,55 72,10 28,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
-                  <!-- Segni congruenza lati obliqui -->
-                  <line x1="16" y1="30" x2="22" y2="36" stroke="#4CAF50" stroke-width="2"/>
-                  <line x1="78" y1="36" x2="84" y2="30" stroke="#4CAF50" stroke-width="2"/>
-                  <!-- Archetto SINGOLO - Angoli base maggiore (A e B) - interni verso l'alto -->
-                  <path d="M 22,55 A 12,12 0 0,0 14,44" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                  <path d="M 78,55 A 12,12 0 0,1 86,44" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                  <!-- Archetto DOPPIO - Angoli base minore (D e C) - interni verso il basso -->
-                  <path d="M 38,10 A 10,10 0 0,1 24,19" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                  <path d="M 42,10 A 14,14 0 0,1 22,23" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                  <path d="M 62,10 A 10,10 0 0,0 76,19" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                  <path d="M 58,10 A 14,14 0 0,0 78,23" fill="none" stroke="#4CAF50" stroke-width="1.5"/>
-                </svg>
-                <p>Lati obliqui congruenti<br>Angoli alla base congruenti</p>
+              <div style="flex: 1; min-width: 180px;">
+                <div class="formula-box" style="margin: 0 0 8px 0; padding: 8px 12px;">
+                  <strong>Area:</strong> $A = \frac{(B + b) \cdot h}{2}$
+                </div>
+                <div class="formula-box" style="margin: 0; padding: 8px 12px; font-size: 13px;">
+                  <strong>Inverse:</strong><br>
+                  $B = \frac{2A}{h} - b$ &nbsp; $b = \frac{2A}{h} - B$ &nbsp; $h = \frac{2A}{B + b}$
+                </div>
               </div>
-              <div class="trapezio-type">
-                <h5>Rettangolo</h5>
-                <svg width="100" height="65" viewBox="0 0 100 65">
-                  <polygon points="15,55 90,55 70,10 15,10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
-                  <!-- Quadratini angoli retti -->
-                  <rect x="15" y="45" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
-                  <rect x="15" y="10" width="10" height="10" fill="none" stroke="#333" stroke-width="1.5"/>
+            </div>
+            
+            <h4 style="margin: 12px 0 8px 0; font-size: 15px;">Tipi di trapezio</h4>
+            <div class="trapezio-types" style="gap: 8px;">
+              <div class="trapezio-type" style="padding: 8px;">
+                <h5 style="margin-bottom: 4px;">Scaleno</h5>
+                <svg width="70" height="45" viewBox="0 0 70 45">
+                  <polygon points="5,40 65,40 50,5 22,5" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
                 </svg>
-                <p>Un lato ⊥ alle basi</p>
+                <p style="font-size: 11px; margin-top: 4px;">Lati obliqui diversi</p>
+              </div>
+              <div class="trapezio-type" style="padding: 8px;">
+                <h5 style="margin-bottom: 4px;">Isoscele</h5>
+                <svg width="70" height="45" viewBox="0 0 70 45">
+                  <polygon points="5,40 65,40 52,5 18,5" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                  <line x1="9" y1="20" x2="14" y2="25" stroke="#4CAF50" stroke-width="1.5"/>
+                  <line x1="56" y1="25" x2="61" y2="20" stroke="#4CAF50" stroke-width="1.5"/>
+                  <path d="M 14,40 A 10,10 0 0,0 8,31" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                  <path d="M 56,40 A 10,10 0 0,1 62,31" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                  <path d="M 26,5 A 8,8 0 0,1 15,12" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                  <path d="M 29,5 A 11,11 0 0,1 14,15" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                  <path d="M 44,5 A 8,8 0 0,0 55,12" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                  <path d="M 41,5 A 11,11 0 0,0 56,15" fill="none" stroke="#4CAF50" stroke-width="1.2"/>
+                </svg>
+                <p style="font-size: 11px; margin-top: 4px;">Lati obliqui e angoli<br>alla base congruenti</p>
+              </div>
+              <div class="trapezio-type" style="padding: 8px;">
+                <h5 style="margin-bottom: 4px;">Rettangolo</h5>
+                <svg width="70" height="45" viewBox="0 0 70 45">
+                  <polygon points="10,40 65,40 50,5 10,5" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+                  <rect x="10" y="32" width="8" height="8" fill="none" stroke="#333" stroke-width="1.2"/>
+                  <rect x="10" y="5" width="8" height="8" fill="none" stroke="#333" stroke-width="1.2"/>
+                </svg>
+                <p style="font-size: 11px; margin-top: 4px;">Un lato ⊥ alle basi</p>
               </div>
             </div>
           </div>
