@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portale Didattico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: #718096;
+            font-size: 1.15em;
+        }
+
+        /* Navigazione breadcrumb */
+        .breadcrumb {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: #4299e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .breadcrumb a:hover {
+            color: #2b6cb0;
+        }
+
+        .breadcrumb span {
+            color: #a0aec0;
+        }
+
+        .breadcrumb .current {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Griglia materie */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .subject-card.matematica { border-left: 5px solid #e53e3e; }
+        .subject-card.matematica:hover { border-color: #e53e3e; }
+        .subject-card.geometria { border-left: 5px solid #38a169; }
+        .subject-card.geometria:hover { border-color: #38a169; }
+        .subject-card.scienze { border-left: 5px solid #3182ce; }
+        .subject-card.scienze:hover { border-color: #3182ce; }
+
+        .subject-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subject-card.matematica h2 { color: #c53030; }
+        .subject-card.geometria h2 { color: #276749; }
+        .subject-card.scienze h2 { color: #2b6cb0; }
+
+        .subject-card p {
+            color: #718096;
+            font-size: 0.95em;
+        }
+
+        .icon {
+            font-size: 1.8em;
+        }
+
+        /* Lista classi/argomenti */
+        .items-list {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .items-list h3 {
+            font-size: 1.3em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            margin: 8px 0;
+            background: #f7fafc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .item-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 18px;
+            font-size: 1.3em;
+        }
+
+        .item-icon.folder { background: #fef3c7; }
+        .item-icon.file-html { background: #c6f6d5; }
+        .item-icon.file-pdf { background: #fed7d7; }
+        .item-icon.file-image { background: #e9d5ff; }
+        .item-icon.file-video { background: #bfdbfe; }
+        .item-icon.file-audio { background: #fce7f3; }
+        .item-icon.file-text { background: #f5f5f4; }
+        .item-icon.file-other { background: #e2e8f0; }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info h4 {
+            font-size: 1.05em;
+            color: #2d3748;
+            margin-bottom: 3px;
+        }
+
+        .item-info span {
+            font-size: 0.85em;
+            color: #a0aec0;
+        }
+
+        .item-arrow {
+            color: #cbd5e0;
+            font-size: 1.2em;
+        }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            color: #4a5568;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            margin-bottom: 25px;
+        }
+
+        .back-btn:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #718096;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #a0aec0;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: #4299e1;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Setup notice */
+        .setup-notice {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .setup-notice h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-notice p {
+            color: #78350f;
+            margin-bottom: 10px;
+        }
+
+        .setup-notice code {
+            background: rgba(255,255,255,0.6);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8em; }
+            .subjects-grid { grid-template-columns: 1fr; }
+            .subject-card { padding: 20px; }
+            .item { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Portale Didattico</h1>
+            <p>Matematica, Geometria e Scienze — Scuola Secondaria di Primo Grado</p>
+        </header>
+
+        <div id="app">
+            <div class="loading">Caricamento in corso...</div>
+        </div>
+
+        <footer>
+            <p>Materiali rilasciati sotto licenza <a href="licenza.html">CC BY-NC-SA 4.0</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // =====================================================
+        // CONFIGURAZIONE - MODIFICARE QUESTI VALORI
+        // =====================================================
+        const CONFIG = {
+            owner: 'newhorizon-hub',
+            repo: 'learn',
+            branch: 'main'
+        };
+        // =====================================================
+
+        const app = document.getElementById('app');
+        let currentPath = [];
+
+        // Icone per tipo file
+        const fileIcons = {
+            'html': '🌐',
+            'pdf': '📄',
+            'jpg': '🖼️',
+            'jpeg': '🖼️',
+            'png': '🖼️',
+            'gif': '🖼️',
+            'webp': '🖼️',
+            'svg': '🖼️',
+            'mp4': '🎬',
+            'webm': '🎬',
+            'mp3': '🎵',
+            'wav': '🎵',
+            'ogg': '🎵',
+            'txt': '📝',
+            'folder': '📁',
+            'default': '📎'
+        };
+
+        // Colori materie
+        const subjectColors = {
+            'Matematica': 'matematica',
+            'Geometria': 'geometria',
+            'Scienze': 'scienze'
+        };
+
+        // Cache config (5 minuti)
+        const CACHE_TTL = 5 * 60 * 1000;
+
+        // Verifica se la configurazione è stata impostata
+        function isConfigured() {
+            return CONFIG.owner !== 'INSERIRE_USERNAME' && CONFIG.repo !== 'INSERIRE_NOME_REPO';
+        }
+
+        // Mostra avviso di configurazione
+        function showSetupNotice() {
+            app.innerHTML = `
+                <div class="setup-notice">
+                    <h3>⚙️ Configurazione necessaria</h3>
+                    <p>Per attivare il portale, aprire il file <code>index.html</code> e modificare le righe di configurazione:</p>
+                    <p><code>owner: 'TUO_USERNAME_GITHUB'</code></p>
+                    <p><code>repo: 'NOME_DEL_REPOSITORY'</code></p>
+                </div>
+                ${renderHomepage([
+                    { name: 'Matematica', type: 'dir' },
+                    { name: 'Geometria', type: 'dir' },
+                    { name: 'Scienze', type: 'dir' }
+                ], true)}
+            `;
+        }
+
+        // Fetch contenuti da GitHub con cache localStorage
+        async function fetchContents(path = '') {
+            const cacheKey = `gh_cache_${path}`;
+            const cached = localStorage.getItem(cacheKey);
+            
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_TTL) {
+                    return data;
+                }
+            }
+            
+            const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}?ref=${CONFIG.branch}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Errore nel caricamento');
+                const data = await response.json();
+                
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    data,
+                    timestamp: Date.now()
+                }));
+                
+                return data;
+            } catch (error) {
+                console.error('Errore:', error);
+                // Fallback su cache scaduta se disponibile
+                if (cached) {
+                    return JSON.parse(cached).data;
+                }
+                return null;
+            }
+        }
+
+        // Renderizza homepage con card materie
+        function renderHomepage(items, isDemo = false) {
+            const subjects = items.filter(item => 
+                item.type === 'dir' && ['Matematica', 'Geometria', 'Scienze'].includes(item.name)
+            );
+
+            if (subjects.length === 0) {
+                return `<div class="empty-state"><div class="icon">📭</div><p>Nessuna materia trovata</p></div>`;
+            }
+
+            return `
+                <div class="subjects-grid">
+                    ${subjects.map(subject => `
+                        <div class="subject-card ${subjectColors[subject.name] || ''}" onclick="${isDemo ? "alert('Configurare owner e repo')" : `handleNavigate('${subject.name}')`}">
+                            <h2><span class="icon">${subject.name === 'Matematica' ? '🔢' : subject.name === 'Geometria' ? '📐' : '🔬'}</span>${subject.name}</h2>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Renderizza lista elementi (classi, argomenti, file)
+        function renderList(items, title) {
+            const folders = items.filter(i => i.type === 'dir').sort((a, b) => {
+                // Ordina Prima, Seconda, Terza
+                const order = ['Prima', 'Seconda', 'Terza'];
+                const aIdx = order.indexOf(a.name);
+                const bIdx = order.indexOf(b.name);
+                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                return a.name.localeCompare(b.name);
+            });
+
+            const files = items.filter(i => i.type === 'file' && !i.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name));
+
+            const allItems = [...folders, ...files];
+
+            if (allItems.length === 0) {
+                return `
+                    <button class="back-btn" onclick="goBack()">← Indietro</button>
+                    <div class="empty-state"><div class="icon">📭</div><p>Nessun contenuto disponibile</p></div>
+                `;
+            }
+
+            // Genera breadcrumb con onclick inline per ogni segmento
+            const breadcrumbItems = currentPath.map((p, i) => {
+                const label = p.replace(/-/g, ' ');
+                if (i === currentPath.length - 1) {
+                    return `<span class="current">${label}</span>`;
+                } else {
+                    // Usa indice per navigare - evita problemi con JSON in attributi HTML
+                    return `<a onclick="navigateToIndex(${i})">${label}</a>`;
+                }
+            }).join('<span>›</span>');
+
+            return `
+                <button class="back-btn" onclick="goBack()">← Indietro</button>
+                <nav class="breadcrumb">
+                    <a onclick="navigateToHome()">🏠 Home</a>
+                    <span>›</span>
+                    ${breadcrumbItems}
+                </nav>
+                <div class="items-list">
+                    <h3>${title}</h3>
+                    ${allItems.map(item => {
+                        const ext = item.name.split('.').pop().toLowerCase();
+                        const isFolder = item.type === 'dir';
+                        
+                        // Determina tipo icona
+                        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+                        const videoExts = ['mp4', 'webm'];
+                        const audioExts = ['mp3', 'wav', 'ogg'];
+                        
+                        let iconType = 'file-other';
+                        if (isFolder) iconType = 'folder';
+                        else if (ext === 'html') iconType = 'file-html';
+                        else if (ext === 'pdf') iconType = 'file-pdf';
+                        else if (imageExts.includes(ext)) iconType = 'file-image';
+                        else if (videoExts.includes(ext)) iconType = 'file-video';
+                        else if (audioExts.includes(ext)) iconType = 'file-audio';
+                        else if (ext === 'txt') iconType = 'file-text';
+                        
+                        const icon = isFolder ? fileIcons.folder : (fileIcons[ext] || fileIcons.default);
+                        const displayName = isFolder ? item.name.replace(/-/g, ' ') : item.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' ');
+
+                        if (isFolder) {
+                            // CARTELLA: usa onclick con il nome della cartella
+                            return `
+                                <div class="item" onclick="handleNavigate('${item.name}')">
+                                    <div class="item-icon ${iconType}">${icon}</div>
+                                    <div class="item-info">
+                                        <h4>${displayName}</h4>
+                                        <span>Cartella</span>
+                                    </div>
+                                    <span class="item-arrow">›</span>
+                                </div>
+                            `;
+                        } else {
+                            // FILE: tipi visualizzabili nel browser usano path assoluto
+                            const viewableTypes = ['html', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'txt'];
+                            const fileUrl = viewableTypes.includes(ext)
+                                ? `/${item.path}` 
+                                : (item.download_url || item.html_url);
+                            const target = (ext === 'html') ? '_self' : '_blank';
+                            const arrowIcon = (ext === 'html') ? '›' : '↗';
+                            return `
+                                <a class="item" href="${fileUrl}" target="${target}">
+                                    <div class="item-icon ${iconType}">${icon}</div>
+                                    <div class="item-info">
+                                        <h4>${displayName}</h4>
+                                        <span>${ext.toUpperCase()}</span>
+                                    </div>
+                                    <span class="item-arrow">${arrowIcon}</span>
+                                </a>
+                            `;
+                        }
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Funzione globale per navigare (usata dagli onclick inline)
+        function handleNavigate(folderName) {
+            navigateTo([...currentPath, folderName]);
+        }
+
+        // Funzione per navigare usando l'indice del breadcrumb
+        function navigateToIndex(index) {
+            navigateTo(currentPath.slice(0, index + 1));
+        }
+
+        // Funzione per tornare alla home
+        function navigateToHome() {
+            navigateTo([]);
+        }
+
+        // Navigazione
+        async function navigateTo(path) {
+            currentPath = path;
+            app.innerHTML = '<div class="loading">Caricamento in corso...</div>';
+
+            const pathString = path.join('/');
+            const items = await fetchContents(pathString);
+
+            if (!items) {
+                app.innerHTML = `
+                    <button class="back-btn" onclick="goBack()">← Indietro</button>
+                    <div class="empty-state"><div class="icon">⚠️</div><p>Errore nel caricamento dei contenuti</p></div>
+                `;
+                return;
+            }
+
+            if (path.length === 0) {
+                app.innerHTML = renderHomepage(items);
+            } else {
+                const title = path[path.length - 1].replace(/-/g, ' ');
+                app.innerHTML = renderList(items, title);
+            }
+        }
+
+        // Torna indietro
+        function goBack() {
+            currentPath.pop();
+            navigateTo([...currentPath]);
+        }
+
+        // Inizializzazione
+        if (isConfigured()) {
+            navigateTo([]);
+        } else {
+            showSetupNotice();
+        }
+    </script>
+</body>
+</html>
