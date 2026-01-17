@@ -176,6 +176,10 @@
         .item-icon.folder { background: #fef3c7; }
         .item-icon.file-html { background: #c6f6d5; }
         .item-icon.file-pdf { background: #fed7d7; }
+        .item-icon.file-image { background: #e9d5ff; }
+        .item-icon.file-video { background: #bfdbfe; }
+        .item-icon.file-audio { background: #fce7f3; }
+        .item-icon.file-text { background: #f5f5f4; }
         .item-icon.file-other { background: #e2e8f0; }
 
         .item-info {
@@ -345,6 +349,18 @@
         const fileIcons = {
             'html': '🌐',
             'pdf': '📄',
+            'jpg': '🖼️',
+            'jpeg': '🖼️',
+            'png': '🖼️',
+            'gif': '🖼️',
+            'webp': '🖼️',
+            'svg': '🖼️',
+            'mp4': '🎬',
+            'webm': '🎬',
+            'mp3': '🎵',
+            'wav': '🎵',
+            'ogg': '🎵',
+            'txt': '📝',
             'folder': '📁',
             'default': '📎'
         };
@@ -414,7 +430,6 @@
                     ${subjects.map(subject => `
                         <div class="subject-card ${subjectColors[subject.name] || ''}" onclick="${isDemo ? "alert('Configurare owner e repo')" : `handleNavigate('${subject.name}')`}">
                             <h2><span class="icon">${subject.name === 'Matematica' ? '🔢' : subject.name === 'Geometria' ? '📐' : '🔬'}</span>${subject.name}</h2>
-                            <p>${subjectDescriptions[subject.name] || ''}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -466,7 +481,21 @@
                     ${allItems.map(item => {
                         const ext = item.name.split('.').pop().toLowerCase();
                         const isFolder = item.type === 'dir';
-                        const iconType = isFolder ? 'folder' : (ext === 'html' ? 'file-html' : ext === 'pdf' ? 'file-pdf' : 'file-other');
+                        
+                        // Determina tipo icona
+                        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+                        const videoExts = ['mp4', 'webm'];
+                        const audioExts = ['mp3', 'wav', 'ogg'];
+                        
+                        let iconType = 'file-other';
+                        if (isFolder) iconType = 'folder';
+                        else if (ext === 'html') iconType = 'file-html';
+                        else if (ext === 'pdf') iconType = 'file-pdf';
+                        else if (imageExts.includes(ext)) iconType = 'file-image';
+                        else if (videoExts.includes(ext)) iconType = 'file-video';
+                        else if (audioExts.includes(ext)) iconType = 'file-audio';
+                        else if (ext === 'txt') iconType = 'file-text';
+                        
                         const icon = isFolder ? fileIcons.folder : (fileIcons[ext] || fileIcons.default);
                         const displayName = isFolder ? item.name.replace(/-/g, ' ') : item.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' ');
 
@@ -483,11 +512,13 @@
                                 </div>
                             `;
                         } else {
-                            // FILE: usa path relativo per HTML, download_url per altri
-                            const fileUrl = (ext === 'html') 
-                                ? `${item.path}` 
+                            // FILE: tipi visualizzabili nel browser usano path assoluto
+                            const viewableTypes = ['html', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'txt'];
+                            const fileUrl = viewableTypes.includes(ext)
+                                ? `/${item.path}` 
                                 : (item.download_url || item.html_url);
                             const target = (ext === 'html') ? '_self' : '_blank';
+                            const arrowIcon = (ext === 'html') ? '›' : '↗';
                             return `
                                 <a class="item" href="${fileUrl}" target="${target}">
                                     <div class="item-icon ${iconType}">${icon}</div>
@@ -495,7 +526,7 @@
                                         <h4>${displayName}</h4>
                                         <span>${ext.toUpperCase()}</span>
                                     </div>
-                                    <span class="item-arrow">${ext === 'html' ? '›' : '↗'}</span>
+                                    <span class="item-arrow">${arrowIcon}</span>
                                 </a>
                             `;
                         }
