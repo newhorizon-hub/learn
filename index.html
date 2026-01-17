@@ -19,30 +19,6 @@
             line-height: 1.6;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            color: #2d3748;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        header p {
-            color: #718096;
-            font-size: 1.15em;
-        }
-
         /* Navigazione breadcrumb */
         .breadcrumb {
             background: white;
@@ -109,7 +85,6 @@
 
         .subject-card h2 {
             font-size: 1.5em;
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -118,11 +93,6 @@
         .subject-card.matematica h2 { color: #c53030; }
         .subject-card.geometria h2 { color: #276749; }
         .subject-card.scienze h2 { color: #2b6cb0; }
-
-        .subject-card p {
-            color: #718096;
-            font-size: 0.95em;
-        }
 
         .icon {
             font-size: 1.8em;
@@ -372,12 +342,14 @@
             'Scienze': 'scienze'
         };
 
-        // Descrizioni materie
-        const subjectDescriptions = {
-            'Matematica': 'Numeri, espressioni, equazioni e calcolo',
-            'Geometria': 'Figure, misure, teoremi e dimostrazioni',
-            'Scienze': 'Natura, corpo umano e metodo scientifico'
-        };
+        // Tipi file per categorizzazione
+        const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+        const VIDEO_EXTS = ['mp4', 'webm'];
+        const AUDIO_EXTS = ['mp3', 'wav', 'ogg'];
+        const VIEWABLE_EXTS = ['html', 'pdf', ...IMAGE_EXTS, ...VIDEO_EXTS, ...AUDIO_EXTS, 'txt'];
+
+        // Cache config (5 minuti)
+        const CACHE_TTL = 5 * 60 * 1000;
 
         // Verifica se la configurazione è stata impostata
         function isConfigured() {
@@ -399,18 +371,38 @@
                     { name: 'Scienze', type: 'dir' }
                 ], true)}
             `;
-            attachDemoListeners();
         }
 
-        // Fetch contenuti da GitHub
+        // Fetch contenuti da GitHub con cache localStorage
         async function fetchContents(path = '') {
+            const cacheKey = `gh_cache_${path}`;
+            const cached = localStorage.getItem(cacheKey);
+            
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_TTL) {
+                    return data;
+                }
+            }
+            
             const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}?ref=${CONFIG.branch}`;
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Errore nel caricamento');
-                return await response.json();
+                const data = await response.json();
+                
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    data,
+                    timestamp: Date.now()
+                }));
+                
+                return data;
             } catch (error) {
                 console.error('Errore:', error);
+                // Fallback su cache scaduta se disponibile
+                if (cached) {
+                    return JSON.parse(cached).data;
+                }
                 return null;
             }
         }
@@ -483,17 +475,13 @@
                         const isFolder = item.type === 'dir';
                         
                         // Determina tipo icona
-                        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-                        const videoExts = ['mp4', 'webm'];
-                        const audioExts = ['mp3', 'wav', 'ogg'];
-                        
                         let iconType = 'file-other';
                         if (isFolder) iconType = 'folder';
                         else if (ext === 'html') iconType = 'file-html';
                         else if (ext === 'pdf') iconType = 'file-pdf';
-                        else if (imageExts.includes(ext)) iconType = 'file-image';
-                        else if (videoExts.includes(ext)) iconType = 'file-video';
-                        else if (audioExts.includes(ext)) iconType = 'file-audio';
+                        else if (IMAGE_EXTS.includes(ext)) iconType = 'file-image';
+                        else if (VIDEO_EXTS.includes(ext)) iconType = 'file-video';
+                        else if (AUDIO_EXTS.includes(ext)) iconType = 'file-audio';
                         else if (ext === 'txt') iconType = 'file-text';
                         
                         const icon = isFolder ? fileIcons.folder : (fileIcons[ext] || fileIcons.default);
@@ -513,8 +501,7 @@
                             `;
                         } else {
                             // FILE: tipi visualizzabili nel browser usano path assoluto
-                            const viewableTypes = ['html', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mp3', 'wav', 'ogg', 'txt'];
-                            const fileUrl = viewableTypes.includes(ext)
+                            const fileUrl = VIEWABLE_EXTS.includes(ext)
                                 ? `/${item.path}` 
                                 : (item.download_url || item.html_url);
                             const target = (ext === 'html') ? '_self' : '_blank';
@@ -538,11 +525,6 @@
         // Funzione globale per navigare (usata dagli onclick inline)
         function handleNavigate(folderName) {
             navigateTo([...currentPath, folderName]);
-        }
-
-        // Funzione globale per navigare a un path specifico (usata dal breadcrumb)
-        function navigateToPath(pathArray) {
-            navigateTo(pathArray);
         }
 
         // Funzione per navigare usando l'indice del breadcrumb
@@ -583,11 +565,6 @@
         function goBack() {
             currentPath.pop();
             navigateTo([...currentPath]);
-        }
-
-        // Demo listeners (quando non configurato)
-        function attachDemoListeners() {
-            // Non serve più perché usiamo onclick inline
         }
 
         // Inizializzazione
