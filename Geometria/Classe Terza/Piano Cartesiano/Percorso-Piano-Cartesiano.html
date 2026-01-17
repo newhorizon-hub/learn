@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percorso Didattico - Il Piano Cartesiano</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: #4ade80;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .phase {
+            display: none;
+        }
+        
+        .phase.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .instruction {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .element-box {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .element-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .element-box.opened {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-color: #3b82f6;
+        }
+        
+        .element-box h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .element-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #9ca3af;
+            color: #374151;
+            line-height: 1.6;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+        
+        .element-content .katex {
+            font-size: 0.95em;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .element-content .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px 0;
+        }
+        
+        .element-box.opened .element-content {
+            display: block;
+        }
+        
+        .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #10b981;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .element-box.opened .checkmark {
+            display: flex;
+        }
+        
+        .card-grid {
+            display: grid;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .expandable-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .expandable-card:hover {
+            border-color: #764ba2;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s;
+        }
+        
+        .expandable-card.expanded .card-icon {
+            transform: rotate(180deg);
+        }
+        
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+        }
+        
+        .expandable-card.expanded .card-body {
+            max-height: 1000px;
+            padding: 20px;
+        }
+        
+        .card-body p {
+            line-height: 1.8;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .card-body .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .formula-box {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.2em;
+            overflow-x: auto;
+        }
+        
+        .formula-box .katex {
+            font-size: 1em;
+        }
+        
+        .example-box {
+            background: #e0f2fe;
+            border-left: 4px solid #0ea5e9;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .quiz-container {
+            margin: 30px 0;
+        }
+        
+        .question {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .question.answered-correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .question.answered-wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .question h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .question-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f3f4f6;
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .option.disabled {
+            cursor: not-allowed;
+        }
+        
+        .option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+            font-weight: bold;
+        }
+        
+        .option.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.correct {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .feedback.wrong {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .ripasso-section {
+            margin: 30px 0;
+        }
+        
+        .ripasso-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .ripasso-card.da-rivedere {
+            background: #fef9c3;
+            border-color: #eab308;
+        }
+        
+        .ripasso-card.consolidato {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .ripasso-label {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .ripasso-label.da-rivedere {
+            background: #eab308;
+            color: white;
+        }
+        
+        .ripasso-label.consolidato {
+            background: #10b981;
+            color: white;
+        }
+        
+        .ripasso-card h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .ripasso-card p {
+            line-height: 1.8;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(107, 114, 128, 0.4);
+        }
+        
+        .btn-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .warning-box.show {
+            display: block;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            header, .progress-bar, .btn, .btn-container {
+                display: none !important;
+            }
+            
+            .phase {
+                display: none !important;
+            }
+            
+            #phase5 {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            header h1 {
+                font-size: 1.5em;
+            }
+            
+            .element-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .btn-secondary {
+                margin-left: 0;
+            }
+            
+            .formula-box {
+                font-size: 1em;
+                padding: 15px;
+            }
+            
+            .element-content .katex {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Il Piano Cartesiano</h1>
+            <p>Percorso di studio interattivo</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <!-- FASE 1: Gli elementi del Piano Cartesiano -->
+            <div id="phase1" class="phase active">
+                <h2>Fase 1: Gli Elementi del Piano Cartesiano</h2>
+                
+                <div class="instruction">
+                    📌 Clicca su ogni elemento per scoprirne le caratteristiche
+                </div>
+                
+                <div class="element-grid">
+                    <div class="element-box" data-element="assi">
+                        <span class="checkmark">✓</span>
+                        <h3>Gli Assi</h3>
+                        <p>Asse $x$ e asse $y$</p>
+                        <div class="element-content">
+                            <strong>Asse delle ascisse (asse $x$):</strong> linea orizzontale che si estende indefinitamente verso destra e verso sinistra<br><br>
+                            <strong>Asse delle ordinate (asse $y$):</strong> linea verticale che si estende indefinitamente verso l'alto e verso il basso<br><br>
+                            I due assi sono perpendicolari e si incontrano nell'origine.
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="origine">
+                        <span class="checkmark">✓</span>
+                        <h3>Origine</h3>
+                        <p>Punto $O(0; 0)$</p>
+                        <div class="element-content">
+                            L'<strong>origine</strong> è il punto di incontro dei due assi e ha coordinate $(0; 0)$.<br><br>
+                            È il punto di riferimento per tutto il piano cartesiano.
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="coordinate">
+                        <span class="checkmark">✓</span>
+                        <h3>Coordinate di un Punto</h3>
+                        <p>$P(x; y)$</p>
+                        <div class="element-content">
+                            Ogni punto del piano è identificato da una <strong>coppia ordinata</strong> di numeri: $(x; y)$<br><br>
+                            <strong>$x$ (ascissa):</strong> distanza dall'asse $y$<br>
+                            • positiva se il punto è a destra dell'asse $y$<br>
+                            • negativa se è a sinistra<br><br>
+                            <strong>$y$ (ordinata):</strong> distanza dall'asse $x$<br>
+                            • positiva se il punto è sopra l'asse $x$<br>
+                            • negativa se è sotto<br><br>
+                            <strong>Esempio:</strong> $A(3; 2)$ significa 3 passi a destra, 2 passi in alto
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="quadranti">
+                        <span class="checkmark">✓</span>
+                        <h3>I Quattro Quadranti</h3>
+                        <p>I, II, III, IV</p>
+                        <div class="element-content">
+                            Gli assi dividono il piano in 4 regioni chiamate quadranti:<br><br>
+                            <strong>I quadrante:</strong> $x$ positiva, $y$ positiva (entrambi +)<br>
+                            <strong>II quadrante:</strong> $x$ negativa, $y$ positiva<br>
+                            <strong>III quadrante:</strong> $x$ negativa, $y$ negativa (entrambi −)<br>
+                            <strong>IV quadrante:</strong> $x$ positiva, $y$ negativa
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn" id="btn-phase1" disabled>Vai alla Fase 2 →</button>
+                </div>
+            </div>
+            
+            <!-- FASE 2: Operazioni sul Piano Cartesiano -->
+            <div id="phase2" class="phase">
+                <h2>Fase 2: Calcoli sul Piano Cartesiano</h2>
+                
+                <div class="instruction">
+                    📌 Clicca su ogni operazione per vederne le caratteristiche
+                </div>
+                
+                <div class="element-grid">
+                    <div class="element-box" data-element="distanza">
+                        <span class="checkmark">✓</span>
+                        <h3>Distanza tra Due Punti</h3>
+                        <p>Come si calcola</p>
+                        <div class="element-content">
+                            Per calcolare la distanza tra due punti $A(x_A; y_A)$ e $B(x_B; y_B)$ si usa la formula:<br><br>
+                            $$d = \sqrt{(x_B - x_A)^2 + (y_B - y_A)^2}$$<br>
+                            Questa formula deriva dal <strong>teorema di Pitagora</strong>.
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="triangolo-pitagora">
+                        <span class="checkmark">✓</span>
+                        <h3>Perché il Teorema di Pitagora?</h3>
+                        <p>La distanza forma un triangolo</p>
+                        <div class="element-content">
+                            La distanza tra due punti è l'<strong>ipotenusa</strong> di un triangolo rettangolo:<br><br>
+                            <strong>Cateto orizzontale:</strong> differenza tra le ascisse<br>
+                            <strong>Cateto verticale:</strong> differenza tra le ordinate<br>
+                            <strong>Ipotenusa:</strong> la distanza che cerchiamo<br><br>
+                            <strong>Esempio:</strong> se i cateti misurano 3 e 4, l'ipotenusa misura 5
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="punto-medio">
+                        <span class="checkmark">✓</span>
+                        <h3>Punto Medio di un Segmento</h3>
+                        <p>Come si trova</p>
+                        <div class="element-content">
+                            Il <strong>punto medio</strong> $M$ di un segmento che unisce $P(x_P; y_P)$ e $Q(x_Q; y_Q)$ si trova così:<br><br>
+                            $$M\left(\frac{x_P + x_Q}{2}; \frac{y_P + y_Q}{2}\right)$$<br>
+                            In pratica: fai la <strong>media delle ascisse</strong> e la <strong>media delle ordinate</strong>.<br><br>
+                            Il punto medio divide il segmento in due parti uguali.
+                        </div>
+                    </div>
+                    
+                    <div class="element-box" data-element="esempio-medio">
+                        <span class="checkmark">✓</span>
+                        <h3>Esempio del Punto Medio</h3>
+                        <p>Calcolo pratico</p>
+                        <div class="element-content">
+                            Trovare il punto medio tra $A(2; 5)$ e $B(-4; 5)$:<br><br>
+                            <strong>Ascissa del punto medio:</strong><br>
+                            $\frac{2 + (-4)}{2} = \frac{-2}{2} = -1$<br><br>
+                            <strong>Ordinata del punto medio:</strong><br>
+                            $\frac{5 + 5}{2} = \frac{10}{2} = 5$<br><br>
+                            <strong>Risultato:</strong> $M(-1; 5)$
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="goToPhase(1)">← Torna Indietro</button>
+                    <button class="btn" id="btn-phase2" disabled>Vai alla Fase 3 →</button>
+                </div>
+            </div>
+            
+            <!-- FASE 3: Concetti Chiave -->
+            <div id="phase3" class="phase">
+                <h2>Fase 3: Concetti Chiave</h2>
+                
+                <div class="instruction">
+                    📌 Clicca su ogni card per approfondire i concetti fondamentali
+                </div>
+                
+                <div class="card-grid">
+                    <div class="expandable-card" data-card="formule">
+                        <div class="card-header">
+                            <span>📐 Le Formule Fondamentali</span>
+                            <span class="card-icon">▼</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="formula-box">
+                                <strong>Distanza tra due punti:</strong><br>
+                                $$d = \sqrt{(x_B - x_A)^2 + (y_B - y_A)^2}$$
+                            </div>
+                            
+                            <div class="formula-box">
+                                <strong>Punto medio:</strong><br>
+                                $$M\left(\frac{x_P + x_Q}{2}; \frac{y_P + y_Q}{2}\right)$$
+                            </div>
+                            
+                            <p><strong>Ricorda:</strong> La distanza usa il teorema di Pitagora, il punto medio usa la media aritmetica.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="expandable-card" data-card="figure">
+                        <div class="card-header">
+                            <span>🔷 Figure Geometriche sul Piano</span>
+                            <span class="card-icon">▼</span>
+                        </div>
+                        <div class="card-body">
+                            <p>Sul piano cartesiano possiamo disegnare e studiare diverse figure geometriche:</p>
+                            
+                            <div class="example-box">
+                                <strong>Rettangolo con lati paralleli agli assi:</strong><br>
+                                I lati sono orizzontali o verticali<br>
+                                <strong>Perimetro:</strong> $2 \times (base + altezza)$<br>
+                                <strong>Area:</strong> $base \times altezza$
+                            </div>
+                            
+                            <div class="example-box">
+                                <strong>Quadrato:</strong><br>
+                                Rettangolo con tutti i lati uguali<br>
+                                <strong>Perimetro:</strong> $4 \times lato$<br>
+                                <strong>Area:</strong> $lato \times lato$
+                            </div>
+                            
+                            <div class="example-box">
+                                <strong>Diagonali del rettangolo:</strong><br>
+                                Le due diagonali si intersecano sempre nel punto medio del rettangolo
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="expandable-card" data-card="esempi">
+                        <div class="card-header">
+                            <span>💡 Esempi Pratici</span>
+                            <span class="card-icon">▼</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="example-box">
+                                <strong>Esempio 1 - Triangolo rettangolo:</strong><br>
+                                Punti: $A(1; 4)$, $B(-3; 4)$, $C(-3; 1)$<br>
+                                Cateti: 4 cm e 3 cm<br>
+                                Ipotenusa: 5 cm<br>
+                                Perimetro: 12 cm, Area: 6 cm²
+                            </div>
+                            
+                            <div class="example-box">
+                                <strong>Esempio 2 - Rettangolo:</strong><br>
+                                Punti: $A(3; 2)$, $B(3; -1)$, $C(-2; -1)$, $D(-2; 2)$<br>
+                                Base: 5 cm, Altezza: 3 cm<br>
+                                Perimetro: 16 cm, Area: 15 cm²<br>
+                                Punto medio diagonali: $(0.5; 0.5)$
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="expandable-card" data-card="errori">
+                        <div class="card-header">
+                            <span>⚠️ Errori Comuni da Evitare</span>
+                            <span class="card-icon">▼</span>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>1. Confondere ascissa e ordinata</strong><br>
+                            Ricorda: prima $x$ (orizzontale), poi $y$ (verticale). Si scrive sempre $(x; y)$</p>
+                            
+                            <p><strong>2. Sbagliare i segni nelle sottrazioni</strong><br>
+                            Attenzione: $3 - (-2) = 3 + 2 = 5$, non 1!</p>
+                            
+                            <p><strong>3. Dimenticare la radice quadrata</strong><br>
+                            La distanza è $\sqrt{...}$, non solo $(...)^2$</p>
+                            
+                            <p><strong>4. Confondere punto medio con distanza</strong><br>
+                            Punto medio → fai la media<br>
+                            Distanza → usa Pitagora</p>
+                            
+                            <p><strong>5. Non controllare in quale quadrante cade il punto</strong><br>
+                            Guarda sempre i segni: $(-3; 2)$ è nel II quadrante, non nel I!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="goToPhase(2)">← Torna Indietro</button>
+                    <button class="btn" id="btn-phase3" disabled>Vai alla Verifica →</button>
+                </div>
+            </div>
+            
+            <!-- FASE 4: Verifica -->
+            <div id="phase4" class="phase">
+                <h2>Fase 4: Verifica le Tue Conoscenze</h2>
+                
+                <div class="instruction">
+                    📝 Rispondi a tutte le domande, poi clicca su "Verifica Risposte"
+                </div>
+                
+                <div class="warning-box" id="incomplete-warning">
+                    ⚠️ Devi rispondere a tutte le domande prima di verificare!
+                </div>
+                
+                <div class="quiz-container" id="quizContainer">
+                    <!-- Le domande verranno generate da JavaScript -->
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="goToPhase(3)">← Torna Indietro</button>
+                    <button class="btn" id="btn-verify" onclick="verifyAnswers()">Verifica Risposte</button>
+                    <button class="btn" id="btn-to-ripasso" style="display: none;" onclick="goToPhase(5)">Vai al Ripasso →</button>
+                </div>
+            </div>
+            
+            <!-- FASE 5: Ripasso Personalizzato -->
+            <div id="phase5" class="phase">
+                <h2>Fase 5: Ripasso Personalizzato</h2>
+                
+                <div id="summary" class="summary">
+                    <!-- Il riepilogo verrà generato da JavaScript -->
+                </div>
+                
+                <div id="ripassoContent" class="ripasso-section">
+                    <!-- Il contenuto di ripasso verrà generato da JavaScript -->
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                    <button class="btn" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                    <button class="btn" onclick="location.reload()">🔄 Ricomincia</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variabili globali
+        let currentPhase = 1;
+        let openedElements = {
+            phase1: new Set(),
+            phase2: new Set(),
+            phase3: new Set()
+        };
+        let quizAnswers = {};
+        let quizResults = {};
+        
+        // Domande del quiz
+        const questions = [
+            {
+                id: 1,
+                category: "Elementi base",
+                question: "Quale delle seguenti affermazioni sull'origine è corretta?",
+                options: [
+                    "L'origine ha coordinate (1; 1)",
+                    "L'origine è il punto di incontro dei due assi e ha coordinate (0; 0)",
+                    "L'origine si trova sempre nel primo quadrante",
+                    "L'origine cambia posizione"
+                ],
+                correct: 1,
+                explanation: "L'origine è il punto in cui si incontrano l'asse x e l'asse y, e ha sempre coordinate (0; 0). È il punto di riferimento per tutto il piano cartesiano."
+            },
+            {
+                id: 2,
+                category: "Coordinate",
+                question: "Un punto ha coordinate $A(3; -2)$. In quale quadrante si trova?",
+                options: [
+                    "Primo quadrante",
+                    "Secondo quadrante",
+                    "Terzo quadrante",
+                    "Quarto quadrante"
+                ],
+                correct: 3,
+                explanation: "Il punto A(3; -2) ha ascissa positiva (3) e ordinata negativa (-2). Nel quarto quadrante x è positiva e y è negativa."
+            },
+            {
+                id: 3,
+                category: "Distanza",
+                question: "Quanto dista il punto $A(1; 2)$ dal punto $B(4; 6)$?",
+                options: [
+                    "3 cm",
+                    "4 cm",
+                    "5 cm",
+                    "7 cm"
+                ],
+                correct: 2,
+                explanation: "Calcoliamo con Pitagora: i cateti sono 3 (differenza x) e 4 (differenza y). L'ipotenusa è 5. Formula: d = √[(4-1)² + (6-2)²] = √[9 + 16] = √25 = 5 cm."
+            },
+            {
+                id: 4,
+                category: "Distanza",
+                question: "I punti $A(-3; 4)$ e $B(-3; 1)$ hanno la stessa ascissa. Quanto distano?",
+                options: [
+                    "1 cm",
+                    "2 cm",
+                    "3 cm",
+                    "4 cm"
+                ],
+                correct: 2,
+                explanation: "Quando due punti hanno la stessa x (ascissa), la distanza è semplicemente la differenza delle y (ordinate): |4 - 1| = 3 cm."
+            },
+            {
+                id: 5,
+                category: "Punto medio",
+                question: "Qual è il punto medio tra $A(2; 5)$ e $B(-4; 5)$?",
+                options: [
+                    "$M(-1; 5)$",
+                    "$M(-2; 5)$",
+                    "$M(1; 5)$",
+                    "$M(-1; 10)$"
+                ],
+                correct: 0,
+                explanation: "Il punto medio si trova facendo la media delle coordinate: M = ((2+(-4))/2; (5+5)/2) = ((-2)/2; 10/2) = (-1; 5)."
+            },
+            {
+                id: 6,
+                category: "Punto medio",
+                question: "Se il punto medio tra $A(3; y)$ e $B(-1; 4)$ è $M(1; 2)$, quanto vale $y$?",
+                options: [
+                    "$y = 0$",
+                    "$y = 2$",
+                    "$y = 4$",
+                    "$y = 6$"
+                ],
+                correct: 0,
+                explanation: "L'ordinata del punto medio è (y + 4)/2 = 2. Quindi y + 4 = 4, da cui y = 0. Verifica: (0 + 4)/2 = 4/2 = 2 ✓"
+            },
+            {
+                id: 7,
+                category: "Figure geometriche",
+                question: "Un rettangolo ha vertici $A(3; 2)$, $B(3; -1)$, $C(-2; -1)$, $D(-2; 2)$. Qual è la sua area?",
+                options: [
+                    "9 cm²",
+                    "12 cm²",
+                    "15 cm²",
+                    "16 cm²"
+                ],
+                correct: 2,
+                explanation: "Il rettangolo ha base di 5 cm (da x=-2 a x=3) e altezza di 3 cm (da y=-1 a y=2). Area = 5 × 3 = 15 cm²."
+            },
+            {
+                id: 8,
+                category: "Figure geometriche",
+                question: "Per completare il rettangolo $ABCD$ con $A(1; 4)$, $B(-3; 4)$, $C(-3; 1)$, dove va il punto $D$?",
+                options: [
+                    "$D(1; 1)$",
+                    "$D(-3; -3)$",
+                    "$D(4; 1)$",
+                    "$D(1; -3)$"
+                ],
+                correct: 0,
+                explanation: "Per completare il rettangolo, D deve avere la stessa x di A (x=1) e la stessa y di C (y=1). Quindi D(1; 1)."
+            },
+            {
+                id: 9,
+                category: "Applicazioni pratiche",
+                question: "Un triangolo rettangolo ha cateti lunghi 6 cm e 8 cm. Quanto misura l'ipotenusa?",
+                options: [
+                    "9 cm",
+                    "10 cm",
+                    "12 cm",
+                    "14 cm"
+                ],
+                correct: 1,
+                explanation: "Usando il teorema di Pitagora: ipotenusa = √(6² + 8²) = √(36 + 64) = √100 = 10 cm."
+            },
+            {
+                id: 10,
+                category: "Applicazioni pratiche",
+                question: "In un quadrato $ABCD$ con lati di 4 cm, le diagonali si intersecano in $K$. Se $A$ è nell'origine $(0; 0)$ e $C$ è in $(4; 4)$, dove si trova $K$?",
+                options: [
+                    "$K(1; 1)$",
+                    "$K(2; 2)$",
+                    "$K(3; 3)$",
+                    "$K(4; 4)$"
+                ],
+                correct: 1,
+                explanation: "Il punto K è il punto medio tra A(0; 0) e C(4; 4): K = ((0+4)/2; (0+4)/2) = (2; 2)."
+            }
+        ];
+        
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            initPhase1();
+            initPhase2();
+            initPhase3();
+            generateQuiz();
+            updateProgress();
+            
+            // Render formule matematiche
+            if (typeof renderMathInElement !== 'undefined') {
+                setTimeout(() => {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }, 100);
+            }
+        });
+        
+        // Fase 1: Elementi del piano cartesiano
+        function initPhase1() {
+            const boxes = document.querySelectorAll('#phase1 .element-box');
+            boxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    if (!this.classList.contains('opened')) {
+                        this.classList.add('opened');
+                        const element = this.getAttribute('data-element');
+                        openedElements.phase1.add(element);
+                        checkPhase1Complete();
+                    }
+                });
+            });
+        }
+        
+        function checkPhase1Complete() {
+            const totalElements = document.querySelectorAll('#phase1 .element-box').length;
+            const btn = document.getElementById('btn-phase1');
+            
+            if (openedElements.phase1.size === totalElements) {
+                btn.disabled = false;
+                btn.onclick = () => goToPhase(2);
+            }
+        }
+        
+        // Fase 2: Operazioni
+        function initPhase2() {
+            const boxes = document.querySelectorAll('#phase2 .element-box');
+            boxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    if (!this.classList.contains('opened')) {
+                        this.classList.add('opened');
+                        const element = this.getAttribute('data-element');
+                        openedElements.phase2.add(element);
+                        checkPhase2Complete();
+                    }
+                });
+            });
+        }
+        
+        function checkPhase2Complete() {
+            const totalElements = document.querySelectorAll('#phase2 .element-box').length;
+            const btn = document.getElementById('btn-phase2');
+            
+            if (openedElements.phase2.size === totalElements) {
+                btn.disabled = false;
+                btn.onclick = () => goToPhase(3);
+            }
+        }
+        
+        // Fase 3: Card espandibili
+        function initPhase3() {
+            const cards = document.querySelectorAll('#phase3 .expandable-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!this.classList.contains('expanded')) {
+                        this.classList.add('expanded');
+                        const cardId = this.getAttribute('data-card');
+                        openedElements.phase3.add(cardId);
+                        checkPhase3Complete();
+                        
+                        // Render formule nella card appena aperta
+                        setTimeout(() => {
+                            if (typeof renderMathInElement !== 'undefined') {
+                                renderMathInElement(this, {
+                                    delimiters: [
+                                        {left: '$$', right: '$$', display: true},
+                                        {left: '$', right: '$', display: false}
+                                    ]
+                                });
+                            }
+                        }, 100);
+                    }
+                });
+            });
+        }
+        
+        function checkPhase3Complete() {
+            const totalCards = document.querySelectorAll('#phase3 .expandable-card').length;
+            const btn = document.getElementById('btn-phase3');
+            
+            if (openedElements.phase3.size === totalCards) {
+                btn.disabled = false;
+                btn.onclick = () => goToPhase(4);
+            }
+        }
+        
+        // Generazione quiz
+        function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            
+            questions.forEach(q => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.id = `question-${q.id}`;
+                
+                let html = `
+                    <span class="question-category">${q.category}</span>
+                    <h3>${q.id}. ${q.question}</h3>
+                    <div class="options">
+                `;
+                
+                q.options.forEach((option, index) => {
+                    html += `
+                        <label class="option" id="option-${q.id}-${index}">
+                            <input type="radio" name="question-${q.id}" value="${index}" 
+                                   onchange="handleAnswer(${q.id}, ${index})">
+                            ${option}
+                        </label>
+                    `;
+                });
+                
+                html += `
+                    </div>
+                    <div class="feedback" id="feedback-${q.id}"></div>
+                `;
+                
+                questionDiv.innerHTML = html;
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        function handleAnswer(questionId, answerIndex) {
+            quizAnswers[questionId] = answerIndex;
+        }
+        
+        function verifyAnswers() {
+            // Verifica che tutte le domande abbiano risposta
+            const unanswered = questions.filter(q => quizAnswers[q.id] === undefined);
+            
+            if (unanswered.length > 0) {
+                const warning = document.getElementById('incomplete-warning');
+                warning.classList.add('show');
+                
+                // Scroll alla prima domanda senza risposta
+                const firstUnanswered = document.getElementById(`question-${unanswered[0].id}`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                setTimeout(() => {
+                    warning.classList.remove('show');
+                }, 3000);
+                
+                return;
+            }
+            
+            // Blocca tutte le opzioni e mostra feedback
+            questions.forEach(q => {
+                const userAnswer = quizAnswers[q.id];
+                const isCorrect = userAnswer === q.correct;
+                
+                quizResults[q.id] = isCorrect;
+                
+                const questionDiv = document.getElementById(`question-${q.id}`);
+                const feedbackDiv = document.getElementById(`feedback-${q.id}`);
+                
+                // Disabilita le opzioni
+                const options = questionDiv.querySelectorAll('.option');
+                options.forEach((option, index) => {
+                    option.classList.add('disabled');
+                    const radio = option.querySelector('input');
+                    radio.disabled = true;
+                    
+                    if (index === q.correct) {
+                        option.classList.add('correct');
+                    } else if (index === userAnswer && !isCorrect) {
+                        option.classList.add('wrong');
+                    }
+                });
+                
+                // Mostra feedback
+                questionDiv.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+                feedbackDiv.className = `feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+                feedbackDiv.innerHTML = `
+                    <strong>${isCorrect ? '✓ Corretto!' : '✗ Risposta non corretta'}</strong><br>
+                    ${q.explanation}
+                `;
+            });
+            
+            // Nascondi bottone verifica, mostra bottone ripasso
+            document.getElementById('btn-verify').style.display = 'none';
+            document.getElementById('btn-to-ripasso').style.display = 'inline-block';
+            
+            // Render formule nei feedback
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.getElementById('quizContainer'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+            }, 100);
+        }
+        
+        // Generazione ripasso personalizzato
+        function generateRipasso() {
+            const correctCount = Object.values(quizResults).filter(r => r).length;
+            const totalCount = questions.length;
+            const percentage = Math.round((correctCount / totalCount) * 100);
+            
+            // Riepilogo
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <h3>🎯 Risultato della Verifica</h3>
+                <div class="score">${correctCount}/${totalCount}</div>
+                <p style="font-size: 1.2em;">${percentage}% di risposte corrette</p>
+            `;
+            
+            // Analizza per categoria
+            const categoryResults = {};
+            questions.forEach(q => {
+                if (!categoryResults[q.category]) {
+                    categoryResults[q.category] = { correct: 0, total: 0 };
+                }
+                categoryResults[q.category].total++;
+                if (quizResults[q.id]) {
+                    categoryResults[q.category].correct++;
+                }
+            });
+            
+            // Genera contenuti di ripasso
+            const ripassoContent = document.getElementById('ripassoContent');
+            ripassoContent.innerHTML = '';
+            
+            for (const [category, stats] of Object.entries(categoryResults)) {
+                const percentage = (stats.correct / stats.total) * 100;
+                const needsReview = percentage < 75;
+                
+                const card = document.createElement('div');
+                card.className = `ripasso-card ${needsReview ? 'da-rivedere' : 'consolidato'}`;
+                
+                let content = `
+                    <span class="ripasso-label ${needsReview ? 'da-rivedere' : 'consolidato'}">
+                        ${needsReview ? '⚠️ Da rivedere' : '✓ Hai capito bene'}
+                    </span>
+                    <h3>${category}</h3>
+                    <p><strong>Risultato:</strong> ${stats.correct}/${stats.total} risposte corrette</p>
+                `;
+                
+                // Contenuto specifico per categoria
+                if (category === "Elementi base") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• L'<strong>origine</strong> ha sempre coordinate (0; 0) ed è il punto dove si incontrano i due assi</p>
+                            <p>• L'<strong>asse x</strong> (ascisse) è la linea orizzontale</p>
+                            <p>• L'<strong>asse y</strong> (ordinate) è la linea verticale</p>
+                            <p>• I due assi sono sempre perpendicolari tra loro</p>
+                        `;
+                    } else {
+                        content += `<p>Ottimo! Conosci bene gli elementi fondamentali del piano cartesiano.</p>`;
+                    }
+                }
+                
+                if (category === "Coordinate") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• Un punto si scrive sempre: P(x; y) — prima x, poi y</p>
+                            <p>• <strong>I quadrante:</strong> x positiva, y positiva</p>
+                            <p>• <strong>II quadrante:</strong> x negativa, y positiva</p>
+                            <p>• <strong>III quadrante:</strong> x negativa, y negativa</p>
+                            <p>• <strong>IV quadrante:</strong> x positiva, y negativa</p>
+                        `;
+                    } else {
+                        content += `<p>Perfetto! Sai leggere le coordinate e individuare i quadranti.</p>`;
+                    }
+                }
+                
+                if (category === "Distanza") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• Formula della distanza: $$d = \\sqrt{(x_B - x_A)^2 + (y_B - y_A)^2}$$</p>
+                            <p>• Questa formula usa il teorema di Pitagora</p>
+                            <p>• Quando due punti hanno la stessa x o la stessa y, il calcolo si semplifica</p>
+                            <p>• Ricorda di fare la radice quadrata alla fine!</p>
+                        `;
+                    } else {
+                        content += `<p>Eccellente! Sai calcolare le distanze tra punti usando Pitagora.</p>`;
+                    }
+                }
+                
+                if (category === "Punto medio") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• Formula del punto medio: $$M\\left(\\frac{x_P + x_Q}{2}; \\frac{y_P + y_Q}{2}\\right)$$</p>
+                            <p>• In pratica: fai la media delle x e la media delle y</p>
+                            <p>• Il punto medio divide il segmento in due parti uguali</p>
+                        `;
+                    } else {
+                        content += `<p>Benissimo! Sai trovare il punto medio di un segmento.</p>`;
+                    }
+                }
+                
+                if (category === "Figure geometriche") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• Per completare un rettangolo: il quarto punto deve avere la x di un vertice e la y di un altro</p>
+                            <p>• <strong>Area del rettangolo:</strong> base × altezza</p>
+                            <p>• <strong>Perimetro:</strong> 2 × (base + altezza)</p>
+                            <p>• Le diagonali si incontrano nel punto medio del rettangolo</p>
+                        `;
+                    } else {
+                        content += `<p>Molto bene! Sai lavorare con le figure geometriche sul piano cartesiano.</p>`;
+                    }
+                }
+                
+                if (category === "Applicazioni pratiche") {
+                    if (needsReview) {
+                        content += `
+                            <p><strong>Ripassa questi concetti:</strong></p>
+                            <p>• Applica le formule con attenzione: distanza usa Pitagora, punto medio usa la media</p>
+                            <p>• Visualizza sempre la figura mentalmente</p>
+                            <p>• Controlla se puoi semplificare (per esempio quando x o y sono uguali)</p>
+                        `;
+                    } else {
+                        content += `<p>Eccellente! Sai applicare le conoscenze a problemi concreti.</p>`;
+                    }
+                }
+                
+                card.innerHTML = content;
+                ripassoContent.appendChild(card);
+            }
+            
+            // Render formule nel ripasso
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(ripassoContent, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+            }, 100);
+        }
+        
+        // Navigazione tra fasi
+        function goToPhase(phase) {
+            // Nascondi fase corrente
+            document.getElementById(`phase${currentPhase}`).classList.remove('active');
+            
+            // Mostra nuova fase
+            currentPhase = phase;
+            document.getElementById(`phase${phase}`).classList.add('active');
+            
+            // Se andiamo alla fase 5, genera il ripasso
+            if (phase === 5) {
+                generateRipasso();
+            }
+            
+            // Aggiorna progress bar
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Render formule
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+            }, 100);
+        }
+        
+        // Aggiorna barra di progresso
+        function updateProgress() {
+            const progress = (currentPhase / 5) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+    </script>
+</body>
+</html>
