@@ -456,12 +456,14 @@
         // Renderizza lista elementi (classi, argomenti, file)
         function renderList(items, title) {
             const folders = items.filter(i => i.type === 'dir').sort((a, b) => {
-                // Ordina Prima, Seconda, Terza
+                // Ordina Prima, Seconda, Terza (cerca parola chiave nel nome)
                 const order = ['Prima', 'Seconda', 'Terza'];
-                const aIdx = order.indexOf(a.name);
-                const bIdx = order.indexOf(b.name);
+                const aIdx = order.findIndex(o => a.name.includes(o));
+                const bIdx = order.findIndex(o => b.name.includes(o));
                 if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-                return a.name.localeCompare(b.name);
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+                return a.name.localeCompare(b.name, 'it');
             });
 
             const files = items.filter(i => i.type === 'file' && !i.name.startsWith('.')).sort((a, b) => a.name.localeCompare(b.name));
