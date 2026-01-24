@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Equazioni di Primo Grado - Percorso Didattico</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1565c0, #42a5f5);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase-title {
+            background: linear-gradient(135deg, #1565c0, #42a5f5);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px 12px 0 0;
+            font-size: 1.3em;
+        }
+        
+        .phase-content {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            color: #0d47a1;
+        }
+        
+        .clickable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .clickable-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .clickable-item:hover {
+            border-color: #42a5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 165, 245, 0.2);
+        }
+        
+        .clickable-item.viewed {
+            border-color: #42a5f5;
+            background: #e3f2fd;
+        }
+        
+        .clickable-item.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            color: #1565c0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .clickable-item h3 {
+            color: #1565c0;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .clickable-item .preview {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .clickable-item .details {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            color: #333;
+        }
+        
+        .clickable-item.expanded .details {
+            display: block;
+        }
+        
+        .example-box {
+            background: #fff8e1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.15em;
+            margin: 12px 0;
+        }
+        
+        .step-box {
+            background: #e8f5e9;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #4caf50;
+        }
+        
+        .warning-box {
+            background: #ffebee;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #f44336;
+        }
+        
+        .rule-box {
+            background: #fff3e0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .concept-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card.viewed {
+            border-color: #42a5f5;
+        }
+        
+        .concept-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+        
+        .concept-header:hover {
+            background: #e3f2fd;
+        }
+        
+        .concept-card.viewed .concept-header {
+            background: #e3f2fd;
+        }
+        
+        .concept-header h3 {
+            color: #1565c0;
+            font-size: 1.1em;
+        }
+        
+        .concept-header .icon {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+        
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+        
+        .concept-body {
+            display: none;
+            padding: 0 20px 20px;
+        }
+        
+        .concept-card.expanded .concept-body {
+            display: block;
+        }
+        
+        .quiz-section {
+            margin-bottom: 25px;
+        }
+        
+        .quiz-section h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .question.correct {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .question.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .question p {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #42a5f5;
+            background: #e3f2fd;
+        }
+        
+        .option.selected {
+            border-color: #42a5f5;
+            background: #e3f2fd;
+        }
+        
+        .option.disabled {
+            cursor: default;
+        }
+        
+        .option.correct-answer {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .option.wrong-answer {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .option input {
+            margin-right: 12px;
+        }
+        
+        .feedback {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        
+        .feedback.correct {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1565c0, #42a5f5);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .review-area {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .review-header {
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .review-header.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .review-header.review {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .review-content {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .score-display .score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #1565c0;
+        }
+        
+        .score-display .label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .procedure-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .procedure-table th, .procedure-table td {
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        
+        .procedure-table th {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .procedure-table tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5em; }
+            .phase-content { padding: 15px; }
+            .clickable-grid { grid-template-columns: 1fr; }
+            .btn { padding: 10px 20px; font-size: 0.95em; }
+            .btn-container { flex-direction: column; }
+            .btn-container .btn { width: 100%; text-align: center; }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .progress-container, .progress-text, .btn-container, .phase:not(#phase5) { display: none !important; }
+            #phase5 { display: block !important; }
+            .phase-title { background: #1565c0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .review-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Le Equazioni di Primo Grado</h1>
+        <p class="subtitle">Percorso didattico interattivo</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 20%"></div>
+        </div>
+        <p class="progress-text" id="progressText">Fase 1 di 5 — Cos'è un'equazione</p>
+        
+        <!-- FASE 1: Definizione e regole -->
+        <div class="phase active" id="phase1">
+            <div class="phase-title">Fase 1 — Cos'è un'equazione e le regole d'oro</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per scoprirne i dettagli. Devi visualizzarli tutti per proseguire.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Cos'è un'equazione</h3>
+                        <p class="preview">Definizione e obiettivo</p>
+                        <div class="details">
+                            <p>Un'<strong>equazione</strong> è un'uguaglianza tra due espressioni che contiene un valore sconosciuto, detto <strong>incognita</strong> (di solito \(x\)).</p>
+                            <div class="formula-box">
+                                \(2x + 3 = 11\)
+                            </div>
+                            <p><strong>Risolvere un'equazione</strong> significa trovare il valore di &nbsp;\(x\)&nbsp; che rende <strong>vera</strong> l'uguaglianza.</p>
+                            <div class="example-box">
+                                Se \(x = 4\): &nbsp; \(2 \cdot 4 + 3 = 8 + 3 = 11\) ✓<br>
+                                L'uguaglianza è vera, quindi \(x = 4\) è la <strong>soluzione</strong>.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Regola 1: Cambio membro, cambio segno</h3>
+                        <p class="preview">La prima regola d'oro</p>
+                        <div class="details">
+                            <p>Un termine che passa dall'altra parte del segno \(=\) <strong>cambia segno</strong>.</p>
+                            <div class="rule-box">
+                                <strong>Se è positivo diventa negativo, e viceversa.</strong>
+                            </div>
+                            <div class="step-box">
+                                \(x + 5 = 12\)<br><br>
+                                \(x = 12 \, {\color{red} - \, 5}\)<br><br>
+                                \(x = 7\)
+                            </div>
+                            <p style="margin-top: 10px;">Il \(+5\) passa a destra e diventa \(-5\).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Regola 2: Il coefficiente passa a dividere</h3>
+                        <p class="preview">La seconda regola d'oro</p>
+                        <div class="details">
+                            <p>Il numero che <strong>moltiplica</strong> la \(x\) passa dall'altra parte <strong>a dividere</strong>.</p>
+                            <div class="rule-box">
+                                <strong>Da moltiplicazione a divisione!</strong>
+                            </div>
+                            <div class="step-box">
+                                \(3x = 15\)<br><br>
+                                \(x = 15 \, {\color{red} : \, 3}\)<br><br>
+                                \(x = 5\)
+                            </div>
+                            <p style="margin-top: 10px;">Il \(3\) che moltiplica passa a dividere.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Attenzione ai segni!</h3>
+                        <p class="preview">L'errore più comune</p>
+                        <div class="details">
+                            <div class="warning-box">
+                                <strong>Il meno davanti alla parentesi cambia TUTTI i segni!</strong>
+                            </div>
+                            <div class="example-box">
+                                <strong>Giusto:</strong> \(-(2x - 3) = -2x + 3\)<br><br>
+                                <strong>Sbagliato:</strong> \(-(2x - 3) = -2x - 3\) ✗
+                            </div>
+                            <p style="margin-top: 10px;">Quando togli una parentesi preceduta dal segno meno, ogni termine cambia segno!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <span></span>
+                    <button class="btn btn-primary" id="btn1" disabled onclick="nextPhase(2)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 2: Procedimento -->
+        <div class="phase" id="phase2">
+            <div class="phase-title">Fase 2 — Il procedimento risolutivo</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per vedere il procedimento passo per passo.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>I 4 passi</h3>
+                        <p class="preview">Lo schema da seguire sempre</p>
+                        <div class="details">
+                            <div class="rule-box">
+                                <strong>1. Svolgo i calcoli</strong><br>
+                                <span style="font-size: 0.9em;">Parentesi, prodotti, moltiplicazioni</span>
+                            </div>
+                            <div class="rule-box">
+                                <strong>2. Sposto i termini</strong><br>
+                                <span style="font-size: 0.9em;">\(x\) a sinistra, numeri a destra</span>
+                            </div>
+                            <div class="rule-box">
+                                <strong>3. Riduco</strong><br>
+                                <span style="font-size: 0.9em;">Sommo i termini simili</span>
+                            </div>
+                            <div class="rule-box">
+                                <strong>4. Divido per il coefficiente</strong><br>
+                                <span style="font-size: 0.9em;">Trovo il valore di &nbsp;\(x\)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Esempio 1</h3>
+                        <p class="preview">\(3(x + 2) - 5 = 2x + 7\)</p>
+                        <div class="details">
+                            <p><strong>Risolvi:</strong> \(3(x + 2) - 5 = 2x + 7\)</p>
+                            <div class="step-box">
+                                <strong>1. Svolgo i calcoli:</strong><br>
+                                \(3x + 6 - 5 = 2x + 7\)
+                            </div>
+                            <div class="step-box">
+                                <strong>2. Sposto i termini:</strong><br>
+                                \(3x - 2x = 7 - 6 + 5\)
+                            </div>
+                            <div class="step-box">
+                                <strong>3. Riduco:</strong><br>
+                                \(x = 6\)
+                            </div>
+                            <div class="step-box">
+                                <strong>4. Divido:</strong> già fatto!
+                            </div>
+                            <div class="formula-box">
+                                <strong>Soluzione:</strong> \(x = 6\)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Esempio 2</h3>
+                        <p class="preview">\(5x - 3(x - 4) = 18\)</p>
+                        <div class="details">
+                            <p><strong>Risolvi:</strong> \(5x - 3(x - 4) = 18\)</p>
+                            <div class="step-box">
+                                <strong>1. Svolgo i calcoli:</strong><br>
+                                \(5x - 3x + 12 = 18\)<br>
+                                <span style="font-size: 0.85em; color: #666;">Attenzione: \(-3 \cdot (-4) = +12\)</span>
+                            </div>
+                            <div class="step-box">
+                                <strong>2. Sposto i termini:</strong><br>
+                                \(5x - 3x = 18 - 12\)
+                            </div>
+                            <div class="step-box">
+                                <strong>3. Riduco:</strong><br>
+                                \(2x = 6\)
+                            </div>
+                            <div class="step-box">
+                                <strong>4. Divido:</strong><br>
+                                \(x = 6 : 2 = 3\)
+                            </div>
+                            <div class="formula-box">
+                                <strong>Soluzione:</strong> \(x = 3\)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>La verifica</h3>
+                        <p class="preview">Come controllare il risultato</p>
+                        <div class="details">
+                            <p><strong>Come si fa:</strong> sostituisco il valore trovato al posto della \(x\) e controllo che i due membri siano uguali.</p>
+                            <div class="example-box">
+                                <strong>Verifico che \(x = 6\) sia soluzione di:</strong><br>
+                                \(3(x + 2) - 5 = 2x + 7\)
+                            </div>
+                            <div class="step-box">
+                                <strong>Primo membro:</strong><br>
+                                \(3(6 + 2) - 5 = 3 \cdot 8 - 5 = 24 - 5 = \mathbf{19}\)
+                            </div>
+                            <div class="step-box">
+                                <strong>Secondo membro:</strong><br>
+                                \(2 \cdot 6 + 7 = 12 + 7 = \mathbf{19}\)
+                            </div>
+                            <div class="formula-box">
+                                \(19 = 19\) ✓ La soluzione è corretta!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(1)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn2" disabled onclick="nextPhase(3)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 3: I tre casi -->
+        <div class="phase" id="phase3">
+            <div class="phase-title">Fase 3 — I tre casi possibili</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Espandi ogni card per scoprire i tre tipi di equazioni.
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Equazione DETERMINATA</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Ha UNA soluzione.</strong> È il caso normale!
+                        </div>
+                        <p><strong>Esempio:</strong> \(2x + 1 = 7\)</p>
+                        <div class="step-box">
+                            \(2x = 7 - 1\)<br>
+                            \(2x = 6\)<br>
+                            \(x = 3\)
+                        </div>
+                        <div class="formula-box">
+                            Soluzione: \(x = 3\)
+                        </div>
+                        <p style="margin-top: 10px;">Quando il coefficiente di &nbsp;\(x\)&nbsp; è diverso da zero, l'equazione ha esattamente una soluzione.</p>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Equazione INDETERMINATA</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Ha INFINITE soluzioni.</strong> Qualsiasi valore di &nbsp;\(x\)&nbsp; va bene!
+                        </div>
+                        <p><strong>Esempio:</strong> \(2(x + 1) = 2x + 2\)</p>
+                        <div class="step-box">
+                            \(2x + 2 = 2x + 2\)<br>
+                            \(2x - 2x = 2 - 2\)<br>
+                            \(0x = 0\) ← sempre vero!
+                        </div>
+                        <div class="formula-box">
+                            \(0 = 0\) è sempre vero!<br>
+                            Qualsiasi \(x\) è soluzione.
+                        </div>
+                        <p style="margin-top: 10px;">Si riconosce perché si arriva a &nbsp;\(0x = 0\), che è un'identità vera.</p>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Equazione IMPOSSIBILE</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Non ha soluzioni.</strong> Nessun valore di &nbsp;\(x\)&nbsp; va bene!
+                        </div>
+                        <p><strong>Esempio:</strong> \(2(x + 1) = 2x + 5\)</p>
+                        <div class="step-box">
+                            \(2x + 2 = 2x + 5\)<br>
+                            \(2x - 2x = 5 - 2\)<br>
+                            \(0x = 3\) ← impossibile!
+                        </div>
+                        <div class="formula-box">
+                            \(0 = 3\) è sempre falso!<br>
+                            Nessun \(x\) è soluzione.
+                        </div>
+                        <p style="margin-top: 10px;">Si riconosce perché si arriva a &nbsp;\(0x = k\)&nbsp; con &nbsp;\(k \neq 0\), che è impossibile.</p>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Riepilogo: come riconoscerli</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <table class="procedure-table">
+                            <tr>
+                                <th>Forma finale</th>
+                                <th>Tipo</th>
+                                <th>Soluzioni</th>
+                            </tr>
+                            <tr>
+                                <td>\(ax = b\)&nbsp; con &nbsp;\(a \neq 0\)</td>
+                                <td><strong>Determinata</strong></td>
+                                <td>Una: \(x = \frac{b}{a}\)</td>
+                            </tr>
+                            <tr>
+                                <td>\(0x = 0\)</td>
+                                <td><strong>Indeterminata</strong></td>
+                                <td>Infinite</td>
+                            </tr>
+                            <tr>
+                                <td>\(0x = k\)&nbsp; con &nbsp;\(k \neq 0\)</td>
+                                <td><strong>Impossibile</strong></td>
+                                <td>Nessuna</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(2)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn3" disabled onclick="nextPhase(4)">Vai alla verifica →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 4: Verifica -->
+        <div class="phase" id="phase4">
+            <div class="phase-title">Fase 4 — Verifica</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Rispondi a tutte le domande, poi clicca su "Verifica risposte".
+                </div>
+                
+                <div class="quiz-section" data-area="regole">
+                    <h3>Le regole</h3>
+                    
+                    <div class="question" data-correct="b">
+                        <p>1. Nell'equazione \(x + 7 = 12\), quanto vale \(x\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q1" value="a"> \(x = 19\)</label>
+                            <label class="option"><input type="radio" name="q1" value="b"> \(x = 5\)</label>
+                            <label class="option"><input type="radio" name="q1" value="c"> \(x = -5\)</label>
+                            <label class="option"><input type="radio" name="q1" value="d"> \(x = 7\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il +7 passa a destra e diventa -7: x = 12 - 7 = 5."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>2. Nell'equazione \(4x = 20\), quanto vale \(x\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q2" value="a"> \(x = 80\)</label>
+                            <label class="option"><input type="radio" name="q2" value="b"> \(x = 16\)</label>
+                            <label class="option"><input type="radio" name="q2" value="c"> \(x = 5\)</label>
+                            <label class="option"><input type="radio" name="q2" value="d"> \(x = 24\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il coefficiente 4 passa a dividere: x = 20 : 4 = 5."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="a">
+                        <p>3. Qual è il risultato corretto di \(-(3x - 5)\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q3" value="a"> \(-3x + 5\)</label>
+                            <label class="option"><input type="radio" name="q3" value="b"> \(-3x - 5\)</label>
+                            <label class="option"><input type="radio" name="q3" value="c"> \(3x - 5\)</label>
+                            <label class="option"><input type="radio" name="q3" value="d"> \(3x + 5\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il meno davanti cambia TUTTI i segni: -(3x - 5) = -3x + 5."></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-section" data-area="procedimento">
+                    <h3>Il procedimento</h3>
+                    
+                    <div class="question" data-correct="d">
+                        <p>4. Risolvi: \(2x + 3 = 11\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q4" value="a"> \(x = 7\)</label>
+                            <label class="option"><input type="radio" name="q4" value="b"> \(x = 14\)</label>
+                            <label class="option"><input type="radio" name="q4" value="c"> \(x = 5,5\)</label>
+                            <label class="option"><input type="radio" name="q4" value="d"> \(x = 4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="2x = 11 - 3 = 8, quindi x = 8 : 2 = 4."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="b">
+                        <p>5. Risolvi: \(5x - 2 = 3x + 6\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q5" value="a"> \(x = 2\)</label>
+                            <label class="option"><input type="radio" name="q5" value="b"> \(x = 4\)</label>
+                            <label class="option"><input type="radio" name="q5" value="c"> \(x = 8\)</label>
+                            <label class="option"><input type="radio" name="q5" value="d"> \(x = -4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="5x - 3x = 6 + 2, quindi 2x = 8 e x = 4."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>6. Risolvi: \(3(x - 2) = 12\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q6" value="a"> \(x = 2\)</label>
+                            <label class="option"><input type="radio" name="q6" value="b"> \(x = 10\)</label>
+                            <label class="option"><input type="radio" name="q6" value="c"> \(x = 6\)</label>
+                            <label class="option"><input type="radio" name="q6" value="d"> \(x = 4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="3x - 6 = 12, quindi 3x = 18 e x = 6."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="a">
+                        <p>7. Risolvi: \(4x - (x + 3) = 9\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q7" value="a"> \(x = 4\)</label>
+                            <label class="option"><input type="radio" name="q7" value="b"> \(x = 3\)</label>
+                            <label class="option"><input type="radio" name="q7" value="c"> \(x = 6\)</label>
+                            <label class="option"><input type="radio" name="q7" value="d"> \(x = 2\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="4x - x - 3 = 9, quindi 3x = 12 e x = 4."></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-section" data-area="casi">
+                    <h3>I tre casi</h3>
+                    
+                    <div class="question" data-correct="b">
+                        <p>8. L'equazione \(x - x = 5\) è:</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q8" value="a"> Determinata</label>
+                            <label class="option"><input type="radio" name="q8" value="b"> Impossibile</label>
+                            <label class="option"><input type="radio" name="q8" value="c"> Indeterminata</label>
+                            <label class="option"><input type="radio" name="q8" value="d"> Non è un'equazione</label>
+                        </div>
+                        <div class="feedback" data-explanation="x - x = 5 diventa 0 = 5, che è falso. Nessun valore di x può soddisfarla."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>9. L'equazione \(2x + 1 = 2x + 1\) è:</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q9" value="a"> Determinata con &nbsp;\(x = 0\)</label>
+                            <label class="option"><input type="radio" name="q9" value="b"> Impossibile</label>
+                            <label class="option"><input type="radio" name="q9" value="c"> Indeterminata</label>
+                            <label class="option"><input type="radio" name="q9" value="d"> Determinata con &nbsp;\(x = 1\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="2x - 2x = 1 - 1 dà 0 = 0, sempre vero. Qualsiasi x è soluzione."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="d">
+                        <p>10. Quando un'equazione è determinata?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q10" value="a"> Quando si arriva a &nbsp;\(0 = 0\)</label>
+                            <label class="option"><input type="radio" name="q10" value="b"> Quando si arriva a &nbsp;\(0 = k\)&nbsp; con &nbsp;\(k \neq 0\)</label>
+                            <label class="option"><input type="radio" name="q10" value="c"> Quando ha infinite soluzioni</label>
+                            <label class="option"><input type="radio" name="q10" value="d"> Quando il coefficiente di &nbsp;\(x\)&nbsp; è diverso da zero</label>
+                        </div>
+                        <div class="feedback" data-explanation="Se il coefficiente di x è diverso da zero, posso dividere e trovare un unico valore di x."></div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(3)">← Indietro</button>
+                    <button class="btn btn-primary" id="btnVerify" onclick="verifyAnswers()">Verifica risposte</button>
+                    <button class="btn btn-primary" id="btnToReview" style="display: none;" onclick="nextPhase(5)">Vai al ripasso →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <div class="phase-title">Fase 5 — Ripasso personalizzato</div>
+            <div class="phase-content">
+                <div class="score-display">
+                    <div class="score" id="finalScore">0/10</div>
+                    <div class="label">Risposte corrette</div>
+                </div>
+                
+                <div id="reviewContent"></div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(4)">← Rivedi errori</button>
+                    <div>
+                        <button class="btn btn-secondary" onclick="window.print()" style="margin-right: 10px;">Stampa ripasso</button>
+                        <button class="btn btn-primary" onclick="restart()">Ricomincia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let totalItems = { 1: 4, 2: 4, 3: 4 };
+        let quizResults = {};
+        let verified = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        });
+        
+        function toggleItem(element) {
+            element.classList.toggle('expanded');
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            renderMathInElement(element, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function toggleCard(element) {
+            element.classList.toggle('expanded');
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            renderMathInElement(element, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function checkPhaseCompletion(phase) {
+            const btn = document.getElementById('btn' + phase);
+            if (viewedItems[phase].size >= totalItems[phase]) {
+                btn.disabled = false;
+            }
+        }
+        
+        function nextPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+            if (n === 5) generateReview();
+        }
+        
+        function prevPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+        }
+        
+        function updateProgress(phase) {
+            const percentage = phase * 20;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            const titles = {
+                1: "Cos'è un'equazione e le regole d'oro",
+                2: 'Il procedimento risolutivo',
+                3: 'I tre casi possibili',
+                4: 'Verifica',
+                5: 'Ripasso personalizzato'
+            };
+            document.getElementById('progressText').textContent = `Fase ${phase} di 5 — ${titles[phase]}`;
+        }
+        
+        function verifyAnswers() {
+            const questions = document.querySelectorAll('.question');
+            let allAnswered = true;
+            let firstUnanswered = null;
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    if (!firstUnanswered) firstUnanswered = q;
+                }
+            });
+            
+            if (!allAnswered) {
+                alert('Rispondi a tutte le domande prima di verificare.');
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            
+            let correct = 0;
+            quizResults = { regole: [], procedimento: [], casi: [] };
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                const correctAnswer = q.dataset.correct;
+                const area = q.closest('.quiz-section').dataset.area;
+                const feedback = q.querySelector('.feedback');
+                const explanation = feedback.dataset.explanation;
+                
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.add('disabled');
+                    opt.querySelector('input').disabled = true;
+                });
+                
+                if (selected.value === correctAnswer) {
+                    correct++;
+                    q.classList.add('correct');
+                    feedback.classList.add('correct');
+                    feedback.innerHTML = '✓ Corretto! ' + explanation;
+                    quizResults[area].push({ correct: true, question: index + 1 });
+                } else {
+                    q.classList.add('incorrect');
+                    feedback.classList.add('incorrect');
+                    feedback.innerHTML = '✗ Sbagliato. ' + explanation;
+                    quizResults[area].push({ correct: false, question: index + 1 });
+                    q.querySelectorAll('.option').forEach(opt => {
+                        if (opt.querySelector('input').value === correctAnswer) {
+                            opt.classList.add('correct-answer');
+                        }
+                    });
+                    selected.parentElement.classList.add('wrong-answer');
+                }
+            });
+            
+            document.getElementById('finalScore').textContent = correct + '/10';
+            document.getElementById('btnVerify').style.display = 'none';
+            document.getElementById('btnToReview').style.display = 'inline-block';
+            verified = true;
+        }
+        
+        function generateReview() {
+            const content = document.getElementById('reviewContent');
+            content.innerHTML = '';
+            
+            const areas = [
+                {
+                    id: 'regole',
+                    title: 'Le regole',
+                    content: `
+                        <p><strong>Le due regole d'oro:</strong></p>
+                        <div style="background: #fff3e0; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <strong>1. Cambio membro = cambio segno</strong><br>
+                            \\(x + 5 = 12 \\Rightarrow x = 12 - 5 = 7\\)
+                        </div>
+                        <div style="background: #fff3e0; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <strong>2. Il coefficiente passa a dividere</strong><br>
+                            \\(3x = 15 \\Rightarrow x = 15 : 3 = 5\\)
+                        </div>
+                        <div style="background: #ffebee; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <strong>Attenzione!</strong> Il meno davanti alla parentesi cambia TUTTI i segni:<br>
+                            \\(-(3x - 5) = -3x + 5\\)
+                        </div>
+                    `
+                },
+                {
+                    id: 'procedimento',
+                    title: 'Il procedimento',
+                    content: `
+                        <p><strong>I 4 passi per risolvere un'equazione:</strong></p>
+                        <ol style="margin: 10px 0 10px 20px;">
+                            <li><strong>Svolgo i calcoli</strong> (parentesi, prodotti)</li>
+                            <li><strong>Sposto i termini</strong> (\\(x\\) a sinistra, numeri a destra)</li>
+                            <li><strong>Riduco</strong> (sommo i termini simili)</li>
+                            <li><strong>Divido</strong> per il coefficiente</li>
+                        </ol>
+                        <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <strong>Esempio:</strong> \\(3(x - 2) = 12\\)<br>
+                            \\(3x - 6 = 12\\)<br>
+                            \\(3x = 18\\)<br>
+                            \\(x = 6\\)
+                        </div>
+                    `
+                },
+                {
+                    id: 'casi',
+                    title: 'I tre casi',
+                    content: `
+                        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                            <tr style="background: #e3f2fd;">
+                                <th style="padding: 10px; border: 1px solid #ccc;">Tipo</th>
+                                <th style="padding: 10px; border: 1px solid #ccc;">Forma finale</th>
+                                <th style="padding: 10px; border: 1px solid #ccc;">Soluzioni</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;"><strong>Determinata</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">\\(ax = b\\)&nbsp; con &nbsp;\\(a \\neq 0\\)</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Una</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;"><strong>Indeterminata</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">\\(0x = 0\\)</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Infinite</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;"><strong>Impossibile</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">\\(0x = k\\)&nbsp; con &nbsp;\\(k \\neq 0\\)</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Nessuna</td>
+                            </tr>
+                        </table>
+                    `
+                }
+            ];
+            
+            areas.forEach(area => {
+                const results = quizResults[area.id];
+                const correctCount = results.filter(r => r.correct).length;
+                const totalCount = results.length;
+                const needsReview = correctCount < totalCount;
+                
+                const div = document.createElement('div');
+                div.className = 'review-area';
+                div.innerHTML = `
+                    <div class="review-header ${needsReview ? 'review' : 'success'}">
+                        ${needsReview ? '⚠' : '✓'} ${area.title} — ${correctCount}/${totalCount} corrette
+                        ${needsReview ? '(Da rivedere)' : '(Hai capito bene)'}
+                    </div>
+                    <div class="review-content">
+                        ${needsReview ? area.content : '<p>Ottimo lavoro! Hai dimostrato di aver compreso questa sezione.</p>'}
+                    </div>
+                `;
+                content.appendChild(div);
+            });
+            
+            renderMathInElement(content, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function restart() {
+            viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+            quizResults = {};
+            verified = false;
+            
+            document.querySelectorAll('.clickable-item, .concept-card').forEach(el => {
+                el.classList.remove('viewed', 'expanded');
+            });
+            
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('correct', 'incorrect');
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('disabled', 'selected', 'correct-answer', 'wrong-answer');
+                    opt.querySelector('input').disabled = false;
+                    opt.querySelector('input').checked = false;
+                });
+                q.querySelector('.feedback').classList.remove('correct', 'incorrect');
+            });
+            
+            document.getElementById('btn1').disabled = true;
+            document.getElementById('btn2').disabled = true;
+            document.getElementById('btn3').disabled = true;
+            document.getElementById('btnVerify').style.display = 'inline-block';
+            document.getElementById('btnToReview').style.display = 'none';
+            
+            nextPhase(1);
+        }
+    </script>
+</body>
+</html>

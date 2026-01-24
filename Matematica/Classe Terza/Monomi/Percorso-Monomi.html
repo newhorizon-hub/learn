@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Monomi - Percorso Didattico</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1a237e;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1a237e, #3949ab);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        /* Phases */
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase-title {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px 12px 0 0;
+            font-size: 1.3em;
+        }
+        
+        .phase-content {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #1a237e;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            color: #1a237e;
+        }
+        
+        /* Clickable Elements */
+        .clickable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .clickable-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .clickable-item:hover {
+            border-color: #3949ab;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(57, 73, 171, 0.2);
+        }
+        
+        .clickable-item.viewed {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .clickable-item.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .clickable-item h3 {
+            color: #1a237e;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .clickable-item .preview {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .clickable-item .details {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            color: #333;
+        }
+        
+        .clickable-item.expanded .details {
+            display: block;
+        }
+        
+        .example {
+            background: #fff8e1;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 8px 0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .non-example {
+            background: #ffebee;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin: 8px 0;
+            border-left: 3px solid #f44336;
+        }
+        
+        /* Cards for Phase 3 */
+        .concept-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card.viewed {
+            border-color: #4caf50;
+        }
+        
+        .concept-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+        
+        .concept-header:hover {
+            background: #e8eaf6;
+        }
+        
+        .concept-card.viewed .concept-header {
+            background: #f1f8e9;
+        }
+        
+        .concept-header h3 {
+            color: #1a237e;
+            font-size: 1.1em;
+        }
+        
+        .concept-header .icon {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+        
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+        
+        .concept-body {
+            display: none;
+            padding: 0 20px 20px;
+        }
+        
+        .concept-card.expanded .concept-body {
+            display: block;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            margin: 12px 0;
+        }
+        
+        .rule-box {
+            background: #e3f2fd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        /* Quiz */
+        .quiz-section {
+            margin-bottom: 25px;
+        }
+        
+        .quiz-section h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .question.correct {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .question.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .question p {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #3949ab;
+            background: #e8eaf6;
+        }
+        
+        .option.selected {
+            border-color: #3949ab;
+            background: #e8eaf6;
+        }
+        
+        .option.disabled {
+            cursor: default;
+        }
+        
+        .option.correct-answer {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .option.wrong-answer {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .option input {
+            margin-right: 12px;
+        }
+        
+        .feedback {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        
+        .feedback.correct {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #3949ab);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 35, 126, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* Phase 5 - Review */
+        .review-area {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .review-header {
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .review-header.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .review-header.review {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .review-content {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .score-display .score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #1a237e;
+        }
+        
+        .score-display .label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .phase-content {
+                padding: 15px;
+            }
+            
+            .clickable-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.95em;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .btn-container .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .progress-container,
+            .progress-text,
+            .btn-container,
+            .phase:not(#phase5) {
+                display: none !important;
+            }
+            
+            #phase5 {
+                display: block !important;
+            }
+            
+            .phase-title {
+                background: #1a237e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .review-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>I Monomi</h1>
+        <p class="subtitle">Percorso didattico interattivo</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 20%"></div>
+        </div>
+        <p class="progress-text" id="progressText">Fase 1 di 5 — Definizione di monomio</p>
+        
+        <!-- FASE 1: Definizione -->
+        <div class="phase active" id="phase1">
+            <div class="phase-title">Fase 1 — Definizione di monomio</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per scoprirne i dettagli. Devi visualizzarli tutti per proseguire.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Cos'è un monomio</h3>
+                        <p class="preview">Definizione e struttura</p>
+                        <div class="details">
+                            <p>Un <strong>monomio</strong> è un'espressione algebrica costituita dal prodotto di:</p>
+                            <ul style="margin: 10px 0 10px 20px;">
+                                <li>Un <strong>coefficiente numerico</strong> (un numero)</li>
+                                <li>Una <strong>parte letterale</strong> (lettere con esponenti interi positivi)</li>
+                            </ul>
+                            <div class="formula-box">
+                                \(-3a^2b\)
+                            </div>
+                            <p style="margin-top: 10px;">In questo esempio: \(-3\) è il coefficiente, \(a^2b\) è la parte letterale.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Coefficiente</h3>
+                        <p class="preview">Il fattore numerico del monomio</p>
+                        <div class="details">
+                            <p>Il <strong>coefficiente</strong> è il numero che moltiplica la parte letterale.</p>
+                            <div class="example">
+                                <strong>Esempi:</strong><br>
+                                • In \(5x^2\) il coefficiente è \(5\)<br>
+                                • In \(-2ab\) il coefficiente è \(-2\)<br>
+                                • In \(\frac{3}{4}xy\) il coefficiente è \(\frac{3}{4}\)
+                            </div>
+                            <p style="margin-top: 10px;">Se non è scritto, il coefficiente è \(1\) (es. \(a = 1 \cdot a\)).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Parte letterale</h3>
+                        <p class="preview">Le variabili e i loro esponenti</p>
+                        <div class="details">
+                            <p>La <strong>parte letterale</strong> è formata dalle lettere (variabili) con i loro esponenti.</p>
+                            <div class="example">
+                                <strong>Esempi:</strong><br>
+                                • In \(5x^2\) la parte letterale è \(x^2\)<br>
+                                • In \(-2a^3b\) la parte letterale è \(a^3b\)<br>
+                                • In \(7\) non c'è parte letterale
+                            </div>
+                            <p style="margin-top: 10px;">Gli esponenti devono essere numeri interi positivi o zero.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Cosa NON è un monomio</h3>
+                        <p class="preview">Espressioni da non confondere</p>
+                        <div class="details">
+                            <p><strong>Non sono monomi:</strong></p>
+                            <div class="non-example">
+                                • \(x + y\) → è una somma (polinomio)<br>
+                                • \(\frac{2}{x}\) → la variabile è al denominatore<br>
+                                • \(3a^{-2}\) → esponente negativo<br>
+                                • \(\sqrt{x}\) → esponente frazionario \((x^{1/2})\)
+                            </div>
+                            <p style="margin-top: 10px;">Un monomio deve avere solo prodotti, con esponenti interi non negativi.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <span></span>
+                    <button class="btn btn-primary" id="btn1" disabled onclick="nextPhase(2)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 2: Grado e Monomi Simili -->
+        <div class="phase" id="phase2">
+            <div class="phase-title">Fase 2 — Grado e monomi simili</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per scoprirne i dettagli. Devi visualizzarli tutti per proseguire.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Grado rispetto a una lettera</h3>
+                        <p class="preview">L'esponente di una singola variabile</p>
+                        <div class="details">
+                            <p>Il <strong>grado rispetto a una lettera</strong> è l'esponente con cui quella lettera compare.</p>
+                            <div class="example">
+                                Nel monomio \(4a^3b^2c\):<br>
+                                • Grado rispetto ad \(a\): <strong>3</strong><br>
+                                • Grado rispetto a \(b\): <strong>2</strong><br>
+                                • Grado rispetto a \(c\): <strong>1</strong>
+                            </div>
+                            <p style="margin-top: 10px;">Se una lettera non compare, il grado rispetto a essa è \(0\).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Grado complessivo</h3>
+                        <p class="preview">La somma di tutti gli esponenti</p>
+                        <div class="details">
+                            <p>Il <strong>grado complessivo</strong> è la somma di tutti gli esponenti della parte letterale.</p>
+                            <div class="example">
+                                \(4a^3b^2c\) → Grado: \(3 + 2 + 1 = \mathbf{6}\)<br><br>
+                                \(5x^2y\) → Grado: \(2 + 1 = \mathbf{3}\)<br><br>
+                                \(7\) → Grado: \(\mathbf{0}\) (nessuna lettera)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Monomi simili</h3>
+                        <p class="preview">Stessa parte letterale</p>
+                        <div class="details">
+                            <p>Due monomi sono <strong>simili</strong> quando hanno la <strong>stessa parte letterale</strong>: stesse lettere con stessi esponenti.</p>
+                            <div class="example">
+                                <strong>Sono simili:</strong><br>
+                                • \(3a^2b\) e \(-5a^2b\)<br>
+                                • \(\frac{1}{2}xy^3\) e \(7xy^3\)
+                            </div>
+                            <p style="margin-top: 8px;">I coefficienti possono essere diversi!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Monomi NON simili</h3>
+                        <p class="preview">Parte letterale diversa</p>
+                        <div class="details">
+                            <p>I monomi <strong>non sono simili</strong> se hanno lettere diverse o esponenti diversi.</p>
+                            <div class="non-example">
+                                <strong>Non sono simili:</strong><br>
+                                • \(3a^2b\) e \(3ab^2\) → esponenti diversi<br>
+                                • \(2x^2\) e \(2x^3\) → esponenti diversi<br>
+                                • \(5ab\) e \(5abc\) → lettere diverse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(1)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn2" disabled onclick="nextPhase(3)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 3: Operazioni -->
+        <div class="phase" id="phase3">
+            <div class="phase-title">Fase 3 — Operazioni con i monomi</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Espandi ogni card per studiare le operazioni. Devi visualizzarle tutte per proseguire.
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Somma e differenza</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Regola:</strong> Possibili <strong>solo tra monomi simili</strong>. Si sommano/sottraggono i coefficienti, la parte letterale resta uguale.
+                        </div>
+                        <div class="formula-box">
+                            \(5a^2b + 3a^2b = 8a^2b\)
+                        </div>
+                        <div class="formula-box">
+                            \(7xy - 10xy = -3xy\)
+                        </div>
+                        <div class="example" style="margin-top: 15px;">
+                            <strong>Attenzione:</strong> Se i monomi non sono simili, non si può semplificare:<br>
+                            \(3a + 2b\) resta \(3a + 2b\)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Prodotto</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Regola:</strong> Sempre possibile. Si moltiplicano i coefficienti e si sommano gli esponenti delle lettere uguali.
+                        </div>
+                        <div class="formula-box">
+                            \((3a^2b) \cdot (2ab^3) = 6a^3b^4\)
+                        </div>
+                        <div class="example" style="margin-top: 15px;">
+                            <strong>Passaggi:</strong><br>
+                            • Coefficienti: \(3 \cdot 2 = 6\)<br>
+                            • Lettera \(a\): \(a^2 \cdot a^1 = a^{2+1} = a^3\)<br>
+                            • Lettera \(b\): \(b^1 \cdot b^3 = b^{1+3} = b^4\)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Quoziente</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Regola:</strong> Si dividono i coefficienti e si sottraggono gli esponenti delle lettere uguali.
+                        </div>
+                        <div class="formula-box">
+                            \((12a^4b^3) : (3a^2b) = 4a^2b^2\)
+                        </div>
+                        <div class="example" style="margin-top: 15px;">
+                            <strong>Passaggi:</strong><br>
+                            • Coefficienti: \(12 : 3 = 4\)<br>
+                            • Lettera \(a\): \(a^{4-2} = a^2\)<br>
+                            • Lettera \(b\): \(b^{3-1} = b^2\)
+                        </div>
+                        <div class="example">
+                            <strong>Ricorda:</strong> \(x^{2-2} = x^0 = 1\) → la lettera scompare!
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Potenza di un monomio</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <div class="rule-box">
+                            <strong>Regola:</strong> Si eleva il coefficiente alla potenza e si moltiplicano gli esponenti delle lettere per l'esponente.
+                        </div>
+                        <div class="formula-box">
+                            \((2a^3b)^2 = 4a^6b^2\)
+                        </div>
+                        <div class="example" style="margin-top: 15px;">
+                            <strong>Passaggi:</strong><br>
+                            • Coefficiente: \(2^2 = 4\)<br>
+                            • Lettera \(a\): \(a^{3 \cdot 2} = a^6\)<br>
+                            • Lettera \(b\): \(b^{1 \cdot 2} = b^2\)
+                        </div>
+                        <div class="non-example">
+                            <strong>Attenzione al segno!</strong><br>
+                            \((-3x^2)^3 = -27x^6\) → esponente dispari, risultato negativo<br>
+                            \((-3x^2)^2 = 9x^4\) → esponente pari, risultato positivo
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(2)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn3" disabled onclick="nextPhase(4)">Vai alla verifica →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 4: Verifica -->
+        <div class="phase" id="phase4">
+            <div class="phase-title">Fase 4 — Verifica</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Rispondi a tutte le domande, poi clicca su "Verifica risposte".
+                </div>
+                
+                <!-- Sezione: Definizioni -->
+                <div class="quiz-section" data-area="definizioni">
+                    <h3>Definizioni e struttura</h3>
+                    
+                    <div class="question" data-correct="b">
+                        <p>1. Qual è il coefficiente del monomio \(-5a^3b^2\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q1" value="a"> \(a^3b^2\)</label>
+                            <label class="option"><input type="radio" name="q1" value="b"> \(-5\)</label>
+                            <label class="option"><input type="radio" name="q1" value="c"> \(5\)</label>
+                            <label class="option"><input type="radio" name="q1" value="d"> \(3\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il coefficiente è il fattore numerico che moltiplica la parte letterale, incluso il segno. In questo caso è -5."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>2. Quale delle seguenti espressioni NON è un monomio?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q2" value="a"> \(7x^2y\)</label>
+                            <label class="option"><input type="radio" name="q2" value="b"> \(-3\)</label>
+                            <label class="option"><input type="radio" name="q2" value="c"> \(\frac{2}{x}\)</label>
+                            <label class="option"><input type="radio" name="q2" value="d"> \(ab\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="2/x equivale a 2x⁻¹, che ha un esponente negativo. I monomi devono avere solo esponenti interi non negativi."></div>
+                    </div>
+                </div>
+                
+                <!-- Sezione: Grado -->
+                <div class="quiz-section" data-area="grado">
+                    <h3>Grado di un monomio</h3>
+                    
+                    <div class="question" data-correct="c">
+                        <p>3. Qual è il grado complessivo del monomio \(4a^2b^3c\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q3" value="a"> \(3\)</label>
+                            <label class="option"><input type="radio" name="q3" value="b"> \(5\)</label>
+                            <label class="option"><input type="radio" name="q3" value="c"> \(6\)</label>
+                            <label class="option"><input type="radio" name="q3" value="d"> \(4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il grado complessivo è la somma degli esponenti: 2 + 3 + 1 = 6."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="b">
+                        <p>4. Due monomi sono simili quando hanno:</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q4" value="a"> Lo stesso coefficiente</label>
+                            <label class="option"><input type="radio" name="q4" value="b"> La stessa parte letterale</label>
+                            <label class="option"><input type="radio" name="q4" value="c"> Lo stesso grado complessivo</label>
+                            <label class="option"><input type="radio" name="q4" value="d"> Le stesse lettere (con esponenti qualsiasi)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Monomi simili devono avere esattamente la stessa parte letterale: stesse lettere con stessi esponenti."></div>
+                    </div>
+                </div>
+                
+                <!-- Sezione: Operazioni -->
+                <div class="quiz-section" data-area="operazioni">
+                    <h3>Operazioni con i monomi</h3>
+                    
+                    <div class="question" data-correct="a">
+                        <p>5. Calcola: \(6a^2b - 2a^2b\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q5" value="a"> \(4a^2b\)</label>
+                            <label class="option"><input type="radio" name="q5" value="b"> \(4a^4b^2\)</label>
+                            <label class="option"><input type="radio" name="q5" value="c"> \(8a^2b\)</label>
+                            <label class="option"><input type="radio" name="q5" value="d"> Non si può calcolare</label>
+                        </div>
+                        <div class="feedback" data-explanation="Sono monomi simili, quindi si sottraggono i coefficienti: 6 - 2 = 4. La parte letterale resta invariata."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>6. Calcola: \((2a^2b) \cdot (3ab^2)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q6" value="a"> \(5a^3b^3\)</label>
+                            <label class="option"><input type="radio" name="q6" value="b"> \(6a^2b^2\)</label>
+                            <label class="option"><input type="radio" name="q6" value="c"> \(6a^3b^3\)</label>
+                            <label class="option"><input type="radio" name="q6" value="d"> \(6a^3b^2\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Coefficienti: 2 · 3 = 6. Esponenti: a^(2+1) = a³ e b^(1+2) = b³."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="b">
+                        <p>7. Calcola: \((15x^4y^3) : (5x^2y)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q7" value="a"> \(3x^2y^3\)</label>
+                            <label class="option"><input type="radio" name="q7" value="b"> \(3x^2y^2\)</label>
+                            <label class="option"><input type="radio" name="q7" value="c"> \(10x^2y^2\)</label>
+                            <label class="option"><input type="radio" name="q7" value="d"> \(3x^6y^4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Coefficienti: 15 : 5 = 3. Esponenti: x^(4-2) = x² e y^(3-1) = y²."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="d">
+                        <p>8. Calcola: \((2a^2b)^3\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q8" value="a"> \(6a^6b^3\)</label>
+                            <label class="option"><input type="radio" name="q8" value="b"> \(8a^5b^4\)</label>
+                            <label class="option"><input type="radio" name="q8" value="c"> \(2a^6b^3\)</label>
+                            <label class="option"><input type="radio" name="q8" value="d"> \(8a^6b^3\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Coefficiente: 2³ = 8. Esponenti: a^(2·3) = a⁶ e b^(1·3) = b³."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="a">
+                        <p>9. Calcola: \((-2x^3)^2\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q9" value="a"> \(4x^6\)</label>
+                            <label class="option"><input type="radio" name="q9" value="b"> \(-4x^6\)</label>
+                            <label class="option"><input type="radio" name="q9" value="c"> \(4x^5\)</label>
+                            <label class="option"><input type="radio" name="q9" value="d"> \(-4x^5\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Coefficiente: (-2)² = 4 (positivo perché l'esponente è pari). Esponente: x^(3·2) = x⁶."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>10. Quale operazione NON è sempre possibile tra monomi?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q10" value="a"> Prodotto</label>
+                            <label class="option"><input type="radio" name="q10" value="b"> Potenza</label>
+                            <label class="option"><input type="radio" name="q10" value="c"> Somma</label>
+                            <label class="option"><input type="radio" name="q10" value="d"> Quoziente</label>
+                        </div>
+                        <div class="feedback" data-explanation="La somma (e la differenza) è possibile solo tra monomi simili. Se non sono simili, non si può eseguire."></div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(3)">← Indietro</button>
+                    <button class="btn btn-primary" id="btnVerify" onclick="verifyAnswers()">Verifica risposte</button>
+                    <button class="btn btn-primary" id="btnToReview" style="display: none;" onclick="nextPhase(5)">Vai al ripasso →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <div class="phase-title">Fase 5 — Ripasso personalizzato</div>
+            <div class="phase-content">
+                <div class="score-display">
+                    <div class="score" id="finalScore">0/10</div>
+                    <div class="label">Risposte corrette</div>
+                </div>
+                
+                <div id="reviewContent"></div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(4)">← Rivedi errori</button>
+                    <div>
+                        <button class="btn btn-secondary" onclick="window.print()" style="margin-right: 10px;">Stampa ripasso</button>
+                        <button class="btn btn-primary" onclick="restart()">Ricomincia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let totalItems = { 1: 4, 2: 4, 3: 4 };
+        let quizResults = {};
+        let verified = false;
+        
+        // Initialize KaTeX
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        });
+        
+        // Toggle clickable item
+        function toggleItem(element) {
+            element.classList.toggle('expanded');
+            
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            
+            // Re-render math
+            renderMathInElement(element, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        }
+        
+        // Toggle concept card
+        function toggleCard(element) {
+            element.classList.toggle('expanded');
+            
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            
+            // Re-render math
+            renderMathInElement(element, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        }
+        
+        // Check if phase is complete
+        function checkPhaseCompletion(phase) {
+            const btn = document.getElementById('btn' + phase);
+            if (viewedItems[phase].size >= totalItems[phase]) {
+                btn.disabled = false;
+            }
+        }
+        
+        // Navigation
+        function nextPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+            
+            if (n === 5) {
+                generateReview();
+            }
+        }
+        
+        function prevPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+        }
+        
+        function updateProgress(phase) {
+            const percentage = phase * 20;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            
+            const titles = {
+                1: 'Definizione di monomio',
+                2: 'Grado e monomi simili',
+                3: 'Operazioni con i monomi',
+                4: 'Verifica',
+                5: 'Ripasso personalizzato'
+            };
+            document.getElementById('progressText').textContent = `Fase ${phase} di 5 — ${titles[phase]}`;
+        }
+        
+        // Quiz verification
+        function verifyAnswers() {
+            const questions = document.querySelectorAll('.question');
+            let allAnswered = true;
+            let firstUnanswered = null;
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    if (!firstUnanswered) firstUnanswered = q;
+                }
+            });
+            
+            if (!allAnswered) {
+                alert('Rispondi a tutte le domande prima di verificare.');
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            
+            // Check answers
+            let correct = 0;
+            quizResults = { definizioni: [], grado: [], operazioni: [] };
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                const correctAnswer = q.dataset.correct;
+                const area = q.closest('.quiz-section').dataset.area;
+                const feedback = q.querySelector('.feedback');
+                const explanation = feedback.dataset.explanation;
+                
+                // Disable options
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.add('disabled');
+                    opt.querySelector('input').disabled = true;
+                });
+                
+                if (selected.value === correctAnswer) {
+                    correct++;
+                    q.classList.add('correct');
+                    feedback.classList.add('correct');
+                    feedback.innerHTML = '✓ Corretto! ' + explanation;
+                    quizResults[area].push({ correct: true, question: index + 1 });
+                } else {
+                    q.classList.add('incorrect');
+                    feedback.classList.add('incorrect');
+                    feedback.innerHTML = '✗ Sbagliato. ' + explanation;
+                    quizResults[area].push({ correct: false, question: index + 1 });
+                    
+                    // Highlight correct answer
+                    q.querySelectorAll('.option').forEach(opt => {
+                        if (opt.querySelector('input').value === correctAnswer) {
+                            opt.classList.add('correct-answer');
+                        }
+                    });
+                    selected.parentElement.classList.add('wrong-answer');
+                }
+            });
+            
+            document.getElementById('finalScore').textContent = correct + '/10';
+            document.getElementById('btnVerify').style.display = 'none';
+            document.getElementById('btnToReview').style.display = 'inline-block';
+            verified = true;
+        }
+        
+        // Generate review content
+        function generateReview() {
+            const content = document.getElementById('reviewContent');
+            content.innerHTML = '';
+            
+            const areas = [
+                {
+                    id: 'definizioni',
+                    title: 'Definizioni e struttura',
+                    content: `
+                        <p>Un <strong>monomio</strong> è un'espressione algebrica formata dal prodotto di un <strong>coefficiente numerico</strong> e una <strong>parte letterale</strong>.</p>
+                        <ul style="margin: 10px 0 10px 20px;">
+                            <li>Il <strong>coefficiente</strong> è il numero (con il suo segno)</li>
+                            <li>La <strong>parte letterale</strong> sono le variabili con i loro esponenti</li>
+                            <li>Gli esponenti devono essere interi non negativi</li>
+                        </ul>
+                        <p>Esempio: in \\(-5a^3b^2\\), il coefficiente è \\(-5\\) e la parte letterale è \\(a^3b^2\\).</p>
+                    `
+                },
+                {
+                    id: 'grado',
+                    title: 'Grado e monomi simili',
+                    content: `
+                        <p><strong>Grado complessivo:</strong> somma di tutti gli esponenti della parte letterale.</p>
+                        <p style="margin: 10px 0;">Esempio: \\(4a^2b^3c\\) ha grado \\(2 + 3 + 1 = 6\\)</p>
+                        <p><strong>Monomi simili:</strong> hanno la stessa parte letterale (stesse lettere con stessi esponenti). I coefficienti possono essere diversi.</p>
+                        <p style="margin: 10px 0;">Esempio: \\(3a^2b\\) e \\(-5a^2b\\) sono simili.</p>
+                    `
+                },
+                {
+                    id: 'operazioni',
+                    title: 'Operazioni con i monomi',
+                    content: `
+                        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                            <tr style="background: #e8eaf6;">
+                                <th style="padding: 10px; border: 1px solid #ccc;">Operazione</th>
+                                <th style="padding: 10px; border: 1px solid #ccc;">Coefficienti</th>
+                                <th style="padding: 10px; border: 1px solid #ccc;">Esponenti</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Somma/Differenza</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si sommano/sottraggono</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Restano uguali</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Prodotto</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si moltiplicano</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si sommano</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Quoziente</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si dividono</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si sottraggono</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Potenza</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si eleva a potenza</td>
+                                <td style="padding: 10px; border: 1px solid #ccc;">Si moltiplicano</td>
+                            </tr>
+                        </table>
+                        <p><strong>Ricorda:</strong> La somma è possibile solo tra monomi simili!</p>
+                        <p style="margin-top: 10px;"><strong>Attenzione ai segni:</strong> \\((-2x)^2 = 4x^2\\) ma \\((-2x)^3 = -8x^3\\)</p>
+                    `
+                }
+            ];
+            
+            areas.forEach(area => {
+                const results = quizResults[area.id];
+                const correctCount = results.filter(r => r.correct).length;
+                const totalCount = results.length;
+                const needsReview = correctCount < totalCount;
+                
+                const div = document.createElement('div');
+                div.className = 'review-area';
+                
+                div.innerHTML = `
+                    <div class="review-header ${needsReview ? 'review' : 'success'}">
+                        ${needsReview ? '⚠' : '✓'} ${area.title} — ${correctCount}/${totalCount} corrette
+                        ${needsReview ? '(Da rivedere)' : '(Hai capito bene)'}
+                    </div>
+                    <div class="review-content">
+                        ${needsReview ? area.content : '<p>Ottimo lavoro! Hai dimostrato di aver compreso questa sezione.</p>'}
+                    </div>
+                `;
+                
+                content.appendChild(div);
+            });
+            
+            // Re-render math
+            renderMathInElement(content, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        }
+        
+        // Restart
+        function restart() {
+            // Reset state
+            viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+            quizResults = {};
+            verified = false;
+            
+            // Reset UI
+            document.querySelectorAll('.clickable-item, .concept-card').forEach(el => {
+                el.classList.remove('viewed', 'expanded');
+            });
+            
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('correct', 'incorrect');
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('disabled', 'selected', 'correct-answer', 'wrong-answer');
+                    opt.querySelector('input').disabled = false;
+                    opt.querySelector('input').checked = false;
+                });
+                q.querySelector('.feedback').classList.remove('correct', 'incorrect');
+            });
+            
+            document.getElementById('btn1').disabled = true;
+            document.getElementById('btn2').disabled = true;
+            document.getElementById('btn3').disabled = true;
+            document.getElementById('btnVerify').style.display = 'inline-block';
+            document.getElementById('btnToReview').style.display = 'none';
+            
+            // Go to phase 1
+            nextPhase(1);
+        }
+    </script>
+</body>
+</html>
