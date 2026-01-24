@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Polinomi - Percorso Didattico</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2e7d32, #4caf50);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase-title {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px 12px 0 0;
+            font-size: 1.3em;
+        }
+        
+        .phase-content {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .instruction {
+            background: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            color: #1b5e20;
+        }
+        
+        .clickable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .clickable-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .clickable-item:hover {
+            border-color: #4caf50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+        
+        .clickable-item.viewed {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .clickable-item.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .clickable-item h3 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .clickable-item .preview {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .clickable-item .details {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            color: #333;
+        }
+        
+        .clickable-item.expanded .details {
+            display: block;
+        }
+        
+        .example-box {
+            background: #fff8e1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.15em;
+            margin: 12px 0;
+        }
+        
+        .step-box {
+            background: #e3f2fd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #2196f3;
+        }
+        
+        .warning-box {
+            background: #ffebee;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #f44336;
+        }
+        
+        .concept-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .concept-card.viewed {
+            border-color: #4caf50;
+        }
+        
+        .concept-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+        
+        .concept-header:hover {
+            background: #e8f5e9;
+        }
+        
+        .concept-card.viewed .concept-header {
+            background: #f1f8e9;
+        }
+        
+        .concept-header h3 {
+            color: #2e7d32;
+            font-size: 1.1em;
+        }
+        
+        .concept-header .icon {
+            font-size: 1.3em;
+            transition: transform 0.3s ease;
+        }
+        
+        .concept-card.expanded .concept-header .icon {
+            transform: rotate(180deg);
+        }
+        
+        .concept-body {
+            display: none;
+            padding: 0 20px 20px;
+        }
+        
+        .concept-card.expanded .concept-body {
+            display: block;
+        }
+        
+        .quiz-section {
+            margin-bottom: 25px;
+        }
+        
+        .quiz-section h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .question.correct {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .question.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .question p {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .option.selected {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .option.disabled {
+            cursor: default;
+        }
+        
+        .option.correct-answer {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .option.wrong-answer {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .option input {
+            margin-right: 12px;
+        }
+        
+        .feedback {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        
+        .feedback.correct {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .review-area {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .review-header {
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .review-header.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .review-header.review {
+            background: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .review-content {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .score-display .score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        
+        .score-display .label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5em; }
+            .phase-content { padding: 15px; }
+            .clickable-grid { grid-template-columns: 1fr; }
+            .btn { padding: 10px 20px; font-size: 0.95em; }
+            .btn-container { flex-direction: column; }
+            .btn-container .btn { width: 100%; text-align: center; }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .progress-container, .progress-text, .btn-container, .phase:not(#phase5) { display: none !important; }
+            #phase5 { display: block !important; }
+            .phase-title { background: #2e7d32 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .review-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>I Polinomi</h1>
+        <p class="subtitle">Percorso didattico interattivo</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 20%"></div>
+        </div>
+        <p class="progress-text" id="progressText">Fase 1 di 5 — Definizione di polinomio</p>
+        
+        <!-- FASE 1: Definizione -->
+        <div class="phase active" id="phase1">
+            <div class="phase-title">Fase 1 — Definizione di polinomio</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per scoprirne i dettagli. Devi visualizzarli tutti per proseguire.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Cos'è un polinomio</h3>
+                        <p class="preview">Definizione e struttura</p>
+                        <div class="details">
+                            <p>Un <strong>polinomio</strong> è una somma algebrica di monomi.</p>
+                            <p style="margin-top: 8px;">I singoli monomi si chiamano <strong>termini</strong> del polinomio.</p>
+                            <div class="formula-box">
+                                \(3x^2 + 5x - 7\)
+                            </div>
+                            <p>Questo polinomio ha <strong>3 termini</strong>: \(3x^2\), \(5x\) e \(-7\).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Classificazione</h3>
+                        <p class="preview">Binomio, trinomio...</p>
+                        <div class="details">
+                            <p>I polinomi si classificano in base al numero di termini:</p>
+                            <div class="example-box">
+                                <strong>Binomio</strong>: 2 termini<br>
+                                Esempio: \(2x + 3\)
+                            </div>
+                            <div class="example-box">
+                                <strong>Trinomio</strong>: 3 termini<br>
+                                Esempio: \(x^2 - 4x + 1\)
+                            </div>
+                            <p style="margin-top: 10px;">Con più di 3 termini si dice semplicemente "polinomio".</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Grado di un polinomio</h3>
+                        <p class="preview">Il grado massimo tra i termini</p>
+                        <div class="details">
+                            <p>Il <strong>grado di un polinomio</strong> è il grado massimo tra tutti i suoi termini.</p>
+                            <div class="example-box">
+                                \(3x^2 + 5x - 7\)<br><br>
+                                • \(3x^2\) ha grado 2<br>
+                                • \(5x\) ha grado 1<br>
+                                • \(-7\) ha grado 0<br><br>
+                                Il polinomio ha grado <strong>2</strong> (il massimo).
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="1" onclick="toggleItem(this)">
+                        <h3>Ordinato e completo</h3>
+                        <p class="preview">Proprietà speciali</p>
+                        <div class="details">
+                            <p><strong>Polinomio ordinato:</strong> i termini sono scritti per grado decrescente.</p>
+                            <div class="example-box">
+                                \(x^3 + 2x^2 - x + 5\) è ordinato ✓<br>
+                                \(2x^2 + x^3 - x + 5\) NON è ordinato ✗
+                            </div>
+                            <p style="margin-top: 10px;"><strong>Polinomio completo:</strong> contiene tutti i gradi da 0 al massimo.</p>
+                            <div class="example-box">
+                                \(x^3 + 2x^2 - x + 5\) è completo ✓<br>
+                                \(x^3 - x + 5\) NON è completo (manca \(x^2\)) ✗
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <span></span>
+                    <button class="btn btn-primary" id="btn1" disabled onclick="nextPhase(2)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 2: Somma e differenza -->
+        <div class="phase" id="phase2">
+            <div class="phase-title">Fase 2 — Somma e differenza di polinomi</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Clicca su ogni elemento per scoprirne i dettagli. Devi visualizzarli tutti per proseguire.
+                </div>
+                
+                <div class="clickable-grid">
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>La regola fondamentale</h3>
+                        <p class="preview">Sommare i monomi simili</p>
+                        <div class="details">
+                            <p>Per sommare due polinomi si sommano i <strong>monomi simili</strong> (stessa parte letterale).</p>
+                            <div class="formula-box">
+                                Si raggruppano i termini con la stessa parte letterale e si sommano i coefficienti.
+                            </div>
+                            <p style="margin-top: 10px;">I termini non simili restano invariati nel risultato.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Esempio di somma</h3>
+                        <p class="preview">Passaggio per passaggio</p>
+                        <div class="details">
+                            <p><strong>Calcola:</strong> \((3x^2 + 2x - 1) + (x^2 - 5x + 4)\)</p>
+                            <div class="step-box">
+                                <strong>Passo 1:</strong> Raggruppo i monomi simili<br>
+                                \((3x^2 + x^2) + (2x - 5x) + (-1 + 4)\)
+                            </div>
+                            <div class="step-box">
+                                <strong>Passo 2:</strong> Sommo i coefficienti<br>
+                                \(4x^2 + (-3x) + 3\)
+                            </div>
+                            <div class="formula-box">
+                                <strong>Risultato:</strong> \(4x^2 - 3x + 3\)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>La differenza</h3>
+                        <p class="preview">Attenzione ai segni!</p>
+                        <div class="details">
+                            <p>Per la <strong>differenza</strong>, si cambiano tutti i segni del secondo polinomio, poi si sommano i monomi simili.</p>
+                            <div class="warning-box">
+                                <strong>Attenzione!</strong> Quando togli le parentesi precedute dal segno meno, <strong>tutti i segni cambiano</strong>!
+                            </div>
+                            <div class="example-box">
+                                \(-(2x^2 + x - 6) = -2x^2 - x + 6\)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clickable-item" data-phase="2" onclick="toggleItem(this)">
+                        <h3>Esempio di differenza</h3>
+                        <p class="preview">Passaggio per passaggio</p>
+                        <div class="details">
+                            <p><strong>Calcola:</strong> \((5x^2 - 3x + 2) - (2x^2 + x - 6)\)</p>
+                            <div class="step-box">
+                                <strong>Passo 1:</strong> Cambio i segni del secondo polinomio<br>
+                                \(5x^2 - 3x + 2 - 2x^2 - x + 6\)
+                            </div>
+                            <div class="step-box">
+                                <strong>Passo 2:</strong> Raggruppo e sommo<br>
+                                \((5x^2 - 2x^2) + (-3x - x) + (2 + 6)\)
+                            </div>
+                            <div class="formula-box">
+                                <strong>Risultato:</strong> \(3x^2 - 4x + 8\)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(1)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn2" disabled onclick="nextPhase(3)">Continua →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 3: Prodotto -->
+        <div class="phase" id="phase3">
+            <div class="phase-title">Fase 3 — Prodotto di polinomi</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Espandi ogni card per studiare le operazioni. Devi visualizzarle tutte per proseguire.
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Monomio per polinomio</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Si applica la <strong>proprietà distributiva</strong>: il monomio moltiplica ogni termine del polinomio.</p>
+                        <div class="formula-box">
+                            \(a \cdot (b + c + d) = ab + ac + ad\)
+                        </div>
+                        <p style="margin-top: 15px;"><strong>Esempio:</strong> \(2x \cdot (3x^2 - 4x + 5)\)</p>
+                        <div class="step-box">
+                            \(= (2x \cdot 3x^2) + (2x \cdot (-4x)) + (2x \cdot 5)\)
+                        </div>
+                        <div class="step-box">
+                            \(= 6x^3 - 8x^2 + 10x\)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Polinomio per polinomio</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Ogni termine del primo polinomio moltiplica <strong>ogni termine</strong> del secondo.</p>
+                        <div class="formula-box">
+                            \((a + b)(c + d) = ac + ad + bc + bd\)
+                        </div>
+                        <p style="margin-top: 15px;"><strong>Esempio:</strong> \((x + 3)(x - 2)\)</p>
+                        <div class="step-box">
+                            <strong>Passo 1:</strong> Moltiplico ogni termine<br>
+                            \(= x \cdot x + x \cdot (-2) + 3 \cdot x + 3 \cdot (-2)\)
+                        </div>
+                        <div class="step-box">
+                            <strong>Passo 2:</strong> Eseguo i prodotti<br>
+                            \(= x^2 - 2x + 3x - 6\)
+                        </div>
+                        <div class="step-box">
+                            <strong>Passo 3:</strong> Sommo i monomi simili<br>
+                            \(= x^2 + x - 6\)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Altro esempio completo</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p><strong>Calcola:</strong> \((2a - 1)(a + 4)\)</p>
+                        <div class="step-box">
+                            <strong>Passo 1:</strong> Moltiplico ogni termine<br>
+                            \(= 2a \cdot a + 2a \cdot 4 + (-1) \cdot a + (-1) \cdot 4\)
+                        </div>
+                        <div class="step-box">
+                            <strong>Passo 2:</strong> Eseguo i prodotti<br>
+                            \(= 2a^2 + 8a - a - 4\)
+                        </div>
+                        <div class="step-box">
+                            <strong>Passo 3:</strong> Sommo i monomi simili<br>
+                            \(= 2a^2 + 7a - 4\)
+                        </div>
+                        <div class="formula-box">
+                            <strong>Risultato:</strong> \(2a^2 + 7a - 4\)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="concept-card" data-phase="3" onclick="toggleCard(this)">
+                    <div class="concept-header">
+                        <h3>Trucco pratico</h3>
+                        <span class="icon">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Per non dimenticare nessun prodotto, puoi usare lo schema <strong>FOIL</strong> (per i binomi):</p>
+                        <div class="example-box">
+                            <strong>F</strong>irst (primi): \(x \cdot x\)<br>
+                            <strong>O</strong>uter (esterni): \(x \cdot (-2)\)<br>
+                            <strong>I</strong>nner (interni): \(3 \cdot x\)<br>
+                            <strong>L</strong>ast (ultimi): \(3 \cdot (-2)\)
+                        </div>
+                        <p style="margin-top: 10px;">Per polinomi più lunghi: procedi con ordine, termine per termine, senza saltare!</p>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(2)">← Indietro</button>
+                    <button class="btn btn-primary" id="btn3" disabled onclick="nextPhase(4)">Vai alla verifica →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 4: Verifica -->
+        <div class="phase" id="phase4">
+            <div class="phase-title">Fase 4 — Verifica</div>
+            <div class="phase-content">
+                <div class="instruction">
+                    Rispondi a tutte le domande, poi clicca su "Verifica risposte".
+                </div>
+                
+                <div class="quiz-section" data-area="definizioni">
+                    <h3>Definizioni</h3>
+                    
+                    <div class="question" data-correct="b">
+                        <p>1. Un polinomio è:</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q1" value="a"> Un prodotto di monomi</label>
+                            <label class="option"><input type="radio" name="q1" value="b"> Una somma algebrica di monomi</label>
+                            <label class="option"><input type="radio" name="q1" value="c"> Un quoziente di monomi</label>
+                            <label class="option"><input type="radio" name="q1" value="d"> Un monomio elevato a potenza</label>
+                        </div>
+                        <div class="feedback" data-explanation="Un polinomio è per definizione una somma algebrica (somma o differenza) di monomi."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>2. Qual è il grado del polinomio \(2x^3 - 5x + 4\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q2" value="a"> 1</label>
+                            <label class="option"><input type="radio" name="q2" value="b"> 2</label>
+                            <label class="option"><input type="radio" name="q2" value="c"> 3</label>
+                            <label class="option"><input type="radio" name="q2" value="d"> 4</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il grado è il massimo tra i gradi dei termini. Il termine 2x³ ha grado 3, che è il massimo."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="a">
+                        <p>3. Un binomio è un polinomio con:</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q3" value="a"> 2 termini</label>
+                            <label class="option"><input type="radio" name="q3" value="b"> 3 termini</label>
+                            <label class="option"><input type="radio" name="q3" value="c"> Grado 2</label>
+                            <label class="option"><input type="radio" name="q3" value="d"> 2 variabili</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il prefisso 'bi-' indica due. Un binomio ha esattamente 2 termini."></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-section" data-area="somma">
+                    <h3>Somma e differenza</h3>
+                    
+                    <div class="question" data-correct="b">
+                        <p>4. Calcola: \((2x^2 + 3x) + (x^2 - x)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q4" value="a"> \(3x^2 + 4x\)</label>
+                            <label class="option"><input type="radio" name="q4" value="b"> \(3x^2 + 2x\)</label>
+                            <label class="option"><input type="radio" name="q4" value="c"> \(3x^4 + 2x^2\)</label>
+                            <label class="option"><input type="radio" name="q4" value="d"> \(2x^4 + 3x^2\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Si sommano i monomi simili: (2x² + x²) + (3x - x) = 3x² + 2x."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="d">
+                        <p>5. Calcola: \((4x^2 - 2x + 1) - (x^2 + 3x - 2)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q5" value="a"> \(3x^2 + x - 1\)</label>
+                            <label class="option"><input type="radio" name="q5" value="b"> \(3x^2 - x + 3\)</label>
+                            <label class="option"><input type="radio" name="q5" value="c"> \(3x^2 + 5x - 1\)</label>
+                            <label class="option"><input type="radio" name="q5" value="d"> \(3x^2 - 5x + 3\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Cambio i segni: 4x² - 2x + 1 - x² - 3x + 2 = 3x² - 5x + 3."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>6. Qual è l'errore in \(-(3x - 2) = -3x - 2\)?</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q6" value="a"> Il primo termine è sbagliato</label>
+                            <label class="option"><input type="radio" name="q6" value="b"> Non c'è errore</label>
+                            <label class="option"><input type="radio" name="q6" value="c"> Il secondo termine dovrebbe essere \(+2\)</label>
+                            <label class="option"><input type="radio" name="q6" value="d"> Bisogna elevare al quadrato</label>
+                        </div>
+                        <div class="feedback" data-explanation="Il meno davanti alla parentesi cambia TUTTI i segni: -(3x - 2) = -3x + 2."></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-section" data-area="prodotto">
+                    <h3>Prodotto</h3>
+                    
+                    <div class="question" data-correct="a">
+                        <p>7. Calcola: \(3x \cdot (2x - 5)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q7" value="a"> \(6x^2 - 15x\)</label>
+                            <label class="option"><input type="radio" name="q7" value="b"> \(6x^2 - 5x\)</label>
+                            <label class="option"><input type="radio" name="q7" value="c"> \(5x^2 - 15x\)</label>
+                            <label class="option"><input type="radio" name="q7" value="d"> \(6x - 15\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="Distributiva: 3x · 2x = 6x² e 3x · (-5) = -15x."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="c">
+                        <p>8. Calcola: \((x + 2)(x + 3)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q8" value="a"> \(x^2 + 6\)</label>
+                            <label class="option"><input type="radio" name="q8" value="b"> \(x^2 + 5x\)</label>
+                            <label class="option"><input type="radio" name="q8" value="c"> \(x^2 + 5x + 6\)</label>
+                            <label class="option"><input type="radio" name="q8" value="d"> \(x^2 + 6x + 5\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="x·x + x·3 + 2·x + 2·3 = x² + 3x + 2x + 6 = x² + 5x + 6."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="b">
+                        <p>9. Calcola: \((x - 4)(x + 1)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q9" value="a"> \(x^2 - 3x + 4\)</label>
+                            <label class="option"><input type="radio" name="q9" value="b"> \(x^2 - 3x - 4\)</label>
+                            <label class="option"><input type="radio" name="q9" value="c"> \(x^2 + 3x - 4\)</label>
+                            <label class="option"><input type="radio" name="q9" value="d"> \(x^2 - 5x - 4\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="x·x + x·1 + (-4)·x + (-4)·1 = x² + x - 4x - 4 = x² - 3x - 4."></div>
+                    </div>
+                    
+                    <div class="question" data-correct="d">
+                        <p>10. Calcola: \((2x - 3)(x + 2)\)</p>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q10" value="a"> \(2x^2 - x - 6\)</label>
+                            <label class="option"><input type="radio" name="q10" value="b"> \(2x^2 + 7x - 6\)</label>
+                            <label class="option"><input type="radio" name="q10" value="c"> \(2x^2 - x + 6\)</label>
+                            <label class="option"><input type="radio" name="q10" value="d"> \(2x^2 + x - 6\)</label>
+                        </div>
+                        <div class="feedback" data-explanation="2x·x + 2x·2 + (-3)·x + (-3)·2 = 2x² + 4x - 3x - 6 = 2x² + x - 6."></div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(3)">← Indietro</button>
+                    <button class="btn btn-primary" id="btnVerify" onclick="verifyAnswers()">Verifica risposte</button>
+                    <button class="btn btn-primary" id="btnToReview" style="display: none;" onclick="nextPhase(5)">Vai al ripasso →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <div class="phase-title">Fase 5 — Ripasso personalizzato</div>
+            <div class="phase-content">
+                <div class="score-display">
+                    <div class="score" id="finalScore">0/10</div>
+                    <div class="label">Risposte corrette</div>
+                </div>
+                
+                <div id="reviewContent"></div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-secondary" onclick="prevPhase(4)">← Rivedi errori</button>
+                    <div>
+                        <button class="btn btn-secondary" onclick="window.print()" style="margin-right: 10px;">Stampa ripasso</button>
+                        <button class="btn btn-primary" onclick="restart()">Ricomincia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let totalItems = { 1: 4, 2: 4, 3: 4 };
+        let quizResults = {};
+        let verified = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        });
+        
+        function toggleItem(element) {
+            element.classList.toggle('expanded');
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            renderMathInElement(element, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function toggleCard(element) {
+            element.classList.toggle('expanded');
+            if (!element.classList.contains('viewed')) {
+                element.classList.add('viewed');
+                const phase = element.dataset.phase;
+                viewedItems[phase].add(element);
+                checkPhaseCompletion(phase);
+            }
+            renderMathInElement(element, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function checkPhaseCompletion(phase) {
+            const btn = document.getElementById('btn' + phase);
+            if (viewedItems[phase].size >= totalItems[phase]) {
+                btn.disabled = false;
+            }
+        }
+        
+        function nextPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+            if (n === 5) generateReview();
+        }
+        
+        function prevPhase(n) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + n).classList.add('active');
+            updateProgress(n);
+            window.scrollTo(0, 0);
+        }
+        
+        function updateProgress(phase) {
+            const percentage = phase * 20;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            const titles = {
+                1: 'Definizione di polinomio',
+                2: 'Somma e differenza',
+                3: 'Prodotto di polinomi',
+                4: 'Verifica',
+                5: 'Ripasso personalizzato'
+            };
+            document.getElementById('progressText').textContent = `Fase ${phase} di 5 — ${titles[phase]}`;
+        }
+        
+        function verifyAnswers() {
+            const questions = document.querySelectorAll('.question');
+            let allAnswered = true;
+            let firstUnanswered = null;
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                    if (!firstUnanswered) firstUnanswered = q;
+                }
+            });
+            
+            if (!allAnswered) {
+                alert('Rispondi a tutte le domande prima di verificare.');
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            
+            let correct = 0;
+            quizResults = { definizioni: [], somma: [], prodotto: [] };
+            
+            questions.forEach((q, index) => {
+                const name = 'q' + (index + 1);
+                const selected = document.querySelector(`input[name="${name}"]:checked`);
+                const correctAnswer = q.dataset.correct;
+                const area = q.closest('.quiz-section').dataset.area;
+                const feedback = q.querySelector('.feedback');
+                const explanation = feedback.dataset.explanation;
+                
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.add('disabled');
+                    opt.querySelector('input').disabled = true;
+                });
+                
+                if (selected.value === correctAnswer) {
+                    correct++;
+                    q.classList.add('correct');
+                    feedback.classList.add('correct');
+                    feedback.innerHTML = '✓ Corretto! ' + explanation;
+                    quizResults[area].push({ correct: true, question: index + 1 });
+                } else {
+                    q.classList.add('incorrect');
+                    feedback.classList.add('incorrect');
+                    feedback.innerHTML = '✗ Sbagliato. ' + explanation;
+                    quizResults[area].push({ correct: false, question: index + 1 });
+                    q.querySelectorAll('.option').forEach(opt => {
+                        if (opt.querySelector('input').value === correctAnswer) {
+                            opt.classList.add('correct-answer');
+                        }
+                    });
+                    selected.parentElement.classList.add('wrong-answer');
+                }
+            });
+            
+            document.getElementById('finalScore').textContent = correct + '/10';
+            document.getElementById('btnVerify').style.display = 'none';
+            document.getElementById('btnToReview').style.display = 'inline-block';
+            verified = true;
+        }
+        
+        function generateReview() {
+            const content = document.getElementById('reviewContent');
+            content.innerHTML = '';
+            
+            const areas = [
+                {
+                    id: 'definizioni',
+                    title: 'Definizioni',
+                    content: `
+                        <p>Un <strong>polinomio</strong> è una somma algebrica di monomi, detti <strong>termini</strong>.</p>
+                        <ul style="margin: 10px 0 10px 20px;">
+                            <li><strong>Binomio</strong>: 2 termini</li>
+                            <li><strong>Trinomio</strong>: 3 termini</li>
+                            <li><strong>Grado</strong>: il grado massimo tra i termini</li>
+                        </ul>
+                        <p>Un polinomio è <strong>ordinato</strong> se i termini sono per grado decrescente, <strong>completo</strong> se contiene tutti i gradi.</p>
+                    `
+                },
+                {
+                    id: 'somma',
+                    title: 'Somma e differenza',
+                    content: `
+                        <p><strong>Regola:</strong> si sommano i monomi simili (stessa parte letterale).</p>
+                        <p style="margin: 10px 0;"><strong>Attenzione alla differenza:</strong> il segno meno davanti alla parentesi cambia TUTTI i segni!</p>
+                        <div style="background: #ffebee; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <strong>Esempio:</strong> \\(-(3x - 2) = -3x + 2\\) (non \\(-3x - 2\\)!)
+                        </div>
+                    `
+                },
+                {
+                    id: 'prodotto',
+                    title: 'Prodotto',
+                    content: `
+                        <p><strong>Monomio × polinomio:</strong> si applica la distributiva.</p>
+                        <p style="margin: 10px 0;">\\(a(b + c) = ab + ac\\)</p>
+                        <p><strong>Polinomio × polinomio:</strong> ogni termine del primo moltiplica ogni termine del secondo.</p>
+                        <div style="background: #e8f5e9; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <strong>Esempio:</strong> \\((x + 2)(x + 3) = x^2 + 3x + 2x + 6 = x^2 + 5x + 6\\)
+                        </div>
+                        <p>Ricorda di sommare i monomi simili alla fine!</p>
+                    `
+                }
+            ];
+            
+            areas.forEach(area => {
+                const results = quizResults[area.id];
+                const correctCount = results.filter(r => r.correct).length;
+                const totalCount = results.length;
+                const needsReview = correctCount < totalCount;
+                
+                const div = document.createElement('div');
+                div.className = 'review-area';
+                div.innerHTML = `
+                    <div class="review-header ${needsReview ? 'review' : 'success'}">
+                        ${needsReview ? '⚠' : '✓'} ${area.title} — ${correctCount}/${totalCount} corrette
+                        ${needsReview ? '(Da rivedere)' : '(Hai capito bene)'}
+                    </div>
+                    <div class="review-content">
+                        ${needsReview ? area.content : '<p>Ottimo lavoro! Hai dimostrato di aver compreso questa sezione.</p>'}
+                    </div>
+                `;
+                content.appendChild(div);
+            });
+            
+            renderMathInElement(content, {
+                delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}]
+            });
+        }
+        
+        function restart() {
+            viewedItems = { 1: new Set(), 2: new Set(), 3: new Set() };
+            quizResults = {};
+            verified = false;
+            
+            document.querySelectorAll('.clickable-item, .concept-card').forEach(el => {
+                el.classList.remove('viewed', 'expanded');
+            });
+            
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('correct', 'incorrect');
+                q.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('disabled', 'selected', 'correct-answer', 'wrong-answer');
+                    opt.querySelector('input').disabled = false;
+                    opt.querySelector('input').checked = false;
+                });
+                q.querySelector('.feedback').classList.remove('correct', 'incorrect');
+            });
+            
+            document.getElementById('btn1').disabled = true;
+            document.getElementById('btn2').disabled = true;
+            document.getElementById('btn3').disabled = true;
+            document.getElementById('btnVerify').style.display = 'inline-block';
+            document.getElementById('btnToReview').style.display = 'none';
+            
+            nextPhase(1);
+        }
+    </script>
+</body>
+</html>
