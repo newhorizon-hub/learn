@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piano Cartesiano - Strumento Didattico</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    .sidebar {
+      width: 360px;
+      background: #fafafa;
+      border-left: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Canvas header */
+    .canvas-header {
+      padding: 12px 20px;
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .canvas-header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .coords-display {
+      font-family: 'Courier New', monospace;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    /* Canvas */
+    .canvas-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas {
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Quadrant labels */
+    .quadrant-label {
+      position: absolute;
+      font-size: 1.5rem;
+      font-weight: bold;
+      opacity: 0.12;
+      pointer-events: none;
+      color: #2c3e50;
+    }
+
+    /* Zoom controls */
+    .zoom-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .zoom-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: white;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+    }
+
+    .zoom-btn:hover {
+      background: #f0f0f0;
+      transform: scale(1.05);
+    }
+
+    .scale-legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+    .scale-box {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #2c3e50;
+      background: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Sidebar sections */
+    .sidebar-header {
+      padding: 15px 20px;
+      background: #3498db;
+      color: white;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Input row */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .input-group {
+      flex: 1;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #219a52;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-secondary {
+      background: #ecf0f1;
+      color: #2c3e50;
+    }
+
+    .btn-secondary:hover {
+      background: #dfe6e9;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Points list */
+    .points-list {
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .point-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+    }
+
+    .point-item:hover {
+      background: #e8f4fc;
+    }
+
+    .point-item.selected {
+      background: #d4edfc;
+      border: 1px solid #3498db;
+    }
+
+    .point-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .point-marker {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+
+    .point-coords {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .point-delete {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .point-delete:hover {
+      background: #ffebee;
+      color: #e74c3c;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+      font-size: 0.9rem;
+    }
+
+    /* Calculations */
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .calc-result {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      display: none;
+    }
+
+    .calc-result.active {
+      display: block;
+    }
+
+    .calc-title {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calc-steps {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: #444;
+    }
+
+    .calc-steps .step {
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 6px;
+      border-left: 3px solid #3498db;
+    }
+
+    .calc-steps .result {
+      background: #e8f5e9;
+      border-left-color: #27ae60;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .calc-steps .formula {
+      font-family: 'Courier New', monospace;
+      background: #fff8e1;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* Selection info */
+    .selection-info {
+      background: #fff8e1;
+      border: 1px solid #ffca28;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: #f57c00;
+    }
+
+    /* Instructions */
+    .instructions {
+      font-size: 0.85rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .instructions li {
+      margin-bottom: 6px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .app-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: 50vh;
+        border-left: none;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .canvas-area {
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Canvas Area -->
+    <div class="canvas-area">
+      <div class="canvas-header">
+        <h1>📐 Piano Cartesiano</h1>
+        <div class="coords-display" id="coords-display">x: — , y: —</div>
+      </div>
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+        <div class="quadrant-label" style="top: 15%; right: 25%;">I</div>
+        <div class="quadrant-label" style="top: 15%; left: 15%;">II</div>
+        <div class="quadrant-label" style="bottom: 20%; left: 15%;">III</div>
+        <div class="quadrant-label" style="bottom: 20%; right: 25%;">IV</div>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="zoomIn()" title="Zoom +">+</button>
+          <button class="zoom-btn" onclick="zoomOut()" title="Zoom −">−</button>
+          <button class="zoom-btn" onclick="resetView()" title="Reset">⟲</button>
+        </div>
+        <div class="scale-legend">
+          <div class="scale-box"></div>
+          <span>= 1 u</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Strumenti</h2>
+      </div>
+      <div class="sidebar-content">
+        <!-- Add point -->
+        <div class="section">
+          <div class="section-title">➕ Aggiungi punto</div>
+          <div class="input-row">
+            <div class="input-group">
+              <label>x</label>
+              <input type="number" id="input-x" placeholder="0" step="0.5">
+            </div>
+            <div class="input-group">
+              <label>y</label>
+              <input type="number" id="input-y" placeholder="0" step="0.5">
+            </div>
+            <button class="btn btn-primary" onclick="addPointFromInput()" style="align-self: flex-end;">+</button>
+          </div>
+          <p class="instructions" style="margin-top: 8px; font-size: 0.8rem; color: #999;">
+            Oppure clicca direttamente sul piano
+          </p>
+        </div>
+
+        <!-- Points list -->
+        <div class="section">
+          <div class="section-title">📍 Punti <span id="points-count" style="color: #999; font-weight: normal;">(0)</span></div>
+          <div class="points-list" id="points-list">
+            <div class="empty-state">Nessun punto inserito</div>
+          </div>
+          <div class="btn-group" style="margin-top: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Deseleziona</button>
+            <button class="btn btn-danger btn-sm" onclick="clearAllPoints()">Cancella tutti</button>
+          </div>
+        </div>
+
+        <!-- Calculations -->
+        <div class="section">
+          <div class="section-title">🧮 Calcoli</div>
+          <div class="selection-info" id="selection-info" style="display: none;">
+            Seleziona i punti cliccandoli nella lista
+          </div>
+          <div class="calc-buttons">
+            <button class="btn btn-success btn-sm" onclick="calcDistance()">Distanza</button>
+            <button class="btn btn-success btn-sm" onclick="calcMidpoint()">Punto medio</button>
+            <button class="btn btn-success btn-sm" onclick="calcPerimeter()">Perimetro</button>
+            <button class="btn btn-success btn-sm" onclick="calcArea()">Area</button>
+          </div>
+          <div class="calc-result" id="calc-result"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="section">
+          <div class="section-title">💡 Istruzioni</div>
+          <ul class="instructions">
+            <li><strong>Click sul piano:</strong> aggiunge un punto</li>
+            <li><strong>Click su un punto nella lista:</strong> lo seleziona</li>
+            <li><strong>Distanza / Punto medio:</strong> seleziona 2 punti</li>
+            <li><strong>Perimetro / Area:</strong> seleziona 3+ punti</li>
+            <li><strong>Trascina sul piano:</strong> sposta la vista</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIGURATION ===
+    const COLORS = [
+      '#e74c3c', '#3498db', '#27ae60', '#9b59b6', '#f39c12',
+      '#1abc9c', '#e91e63', '#00bcd4', '#ff5722', '#607d8b'
+    ];
+
+    // === STATE ===
+    let points = [];
+    let selectedIndices = [];
+    let scale = 40; // pixels per unit
+    let offsetX = 0;
+    let offsetY = 0;
+    let isDragging = false;
+    let dragStartX, dragStartY;
+    let dragStartOffsetX, dragStartOffsetY;
+
+    // === CANVAS SETUP ===
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.getElementById('canvas-wrapper');
+
+    function resizeCanvas() {
+      canvas.width = wrapper.clientWidth;
+      canvas.height = wrapper.clientHeight;
+      draw();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // === DRAWING ===
+    function draw() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const centerX = w / 2 + offsetX;
+      const centerY = h / 2 + offsetY;
+
+      // Clear
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+
+      // Quadrant colors (very subtle)
+      ctx.globalAlpha = 0.03;
+      ctx.fillStyle = '#3498db';
+      ctx.fillRect(centerX, 0, w - centerX, centerY); // I
+      ctx.fillStyle = '#27ae60';
+      ctx.fillRect(0, 0, centerX, centerY); // II
+      ctx.fillStyle = '#f39c12';
+      ctx.fillRect(0, centerY, centerX, h - centerY); // III
+      ctx.fillStyle = '#e74c3c';
+      ctx.fillRect(centerX, centerY, w - centerX, h - centerY); // IV
+      ctx.globalAlpha = 1;
+
+      // Grid
+      ctx.strokeStyle = '#e8e8e8';
+      ctx.lineWidth = 1;
+
+      // Vertical lines
+      const startX = centerX % scale;
+      for (let x = startX; x < w; x += scale) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+
+      // Horizontal lines
+      const startY = centerY % scale;
+      for (let y = startY; y < h; y += scale) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Axes
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 2;
+
+      // X axis
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(w, centerY);
+      ctx.stroke();
+
+      // Y axis
+      ctx.beginPath();
+      ctx.moveTo(centerX, 0);
+      ctx.lineTo(centerX, h);
+      ctx.stroke();
+
+      // Axis labels
+      ctx.fillStyle = '#2c3e50';
+      ctx.font = 'bold 14px Segoe UI';
+      ctx.fillText('x', w - 20, centerY - 10);
+      ctx.fillText('y', centerX + 10, 20);
+
+      // Numbers on axes
+      ctx.font = '11px Segoe UI';
+      ctx.fillStyle = '#666';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      // X axis numbers
+      const minXUnit = Math.floor((0 - centerX) / scale);
+      const maxXUnit = Math.ceil((w - centerX) / scale);
+      for (let i = minXUnit; i <= maxXUnit; i++) {
+        if (i === 0) continue;
+        const x = centerX + i * scale;
+        ctx.fillText(i.toString(), x, centerY + 5);
+      }
+
+      // Y axis numbers
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      const minYUnit = Math.floor((centerY - h) / scale);
+      const maxYUnit = Math.ceil(centerY / scale);
+      for (let i = minYUnit; i <= maxYUnit; i++) {
+        if (i === 0) continue;
+        const y = centerY - i * scale;
+        ctx.fillText(i.toString(), centerX - 8, y);
+      }
+
+      // Origin
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillText('O', centerX - 8, centerY + 5);
+
+      // Draw segments between selected points
+      if (selectedIndices.length >= 2) {
+        ctx.strokeStyle = 'rgba(52, 152, 219, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        
+        for (let i = 0; i < selectedIndices.length; i++) {
+          const p1 = points[selectedIndices[i]];
+          const p2 = points[selectedIndices[(i + 1) % selectedIndices.length]];
+          const x1 = centerX + p1.x * scale;
+          const y1 = centerY - p1.y * scale;
+          const x2 = centerX + p2.x * scale;
+          const y2 = centerY - p2.y * scale;
+          
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
+
+      // Draw points
+      points.forEach((point, index) => {
+        const x = centerX + point.x * scale;
+        const y = centerY - point.y * scale;
+        const isSelected = selectedIndices.includes(index);
+
+        // Point circle
+        ctx.beginPath();
+        ctx.arc(x, y, isSelected ? 10 : 8, 0, Math.PI * 2);
+        ctx.fillStyle = point.color;
+        ctx.fill();
+
+        if (isSelected) {
+          ctx.strokeStyle = '#2c3e50';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+
+        // Label
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 11px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(point.label, x, y);
+
+        // Coordinates
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Courier New';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        const coordText = `(${formatNum(point.x)}; ${formatNum(point.y)})`;
+        ctx.fillText(coordText, x + 12, y - 2);
+      });
+
+      // Draw midpoint if showing
+      if (window.showMidpoint) {
+        const x = centerX + window.showMidpoint.x * scale;
+        const y = centerY - window.showMidpoint.y * scale;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#9b59b6';
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 10px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('M', x, y);
+
+        ctx.fillStyle = '#9b59b6';
+        ctx.font = '12px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText(`(${formatNum(window.showMidpoint.x)}; ${formatNum(window.showMidpoint.y)})`, x + 12, y - 2);
+      }
+    }
+
+    function formatNum(n) {
+      if (Number.isInteger(n)) return n.toString();
+      return n.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    // === POINT MANAGEMENT ===
+    function getNextLabel() {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      return alphabet[points.length % 26];
+    }
+
+    function addPoint(x, y) {
+      // Round to nearest 0.5
+      x = Math.round(x * 2) / 2;
+      y = Math.round(y * 2) / 2;
+
+      points.push({
+        x: x,
+        y: y,
+        label: getNextLabel(),
+        color: COLORS[points.length % COLORS.length]
+      });
+
+      updatePointsList();
+      draw();
+    }
+
+    function addPointFromInput() {
+      const inputX = document.getElementById('input-x');
+      const inputY = document.getElementById('input-y');
+      
+      const x = parseFloat(inputX.value) || 0;
+      const y = parseFloat(inputY.value) || 0;
+      
+      addPoint(x, y);
+      
+      inputX.value = '';
+      inputY.value = '';
+      inputX.focus();
+    }
+
+    function deletePoint(index) {
+      points.splice(index, 1);
+      
+      // Update labels
+      points.forEach((p, i) => {
+        p.label = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i % 26];
+        p.color = COLORS[i % COLORS.length];
+      });
+
+      // Update selection
+      selectedIndices = selectedIndices
+        .filter(i => i !== index)
+        .map(i => i > index ? i - 1 : i);
+
+      updatePointsList();
+      clearCalcResult();
+      draw();
+    }
+
+    function clearAllPoints() {
+      if (points.length === 0) return;
+      if (!confirm('Cancellare tutti i punti?')) return;
+      
+      points = [];
+      selectedIndices = [];
+      window.showMidpoint = null;
+      updatePointsList();
+      clearCalcResult();
+      draw();
+    }
+
+    function togglePointSelection(index) {
+      const pos = selectedIndices.indexOf(index);
+      if (pos === -1) {
+        selectedIndices.push(index);
+      } else {
+        selectedIndices.splice(pos, 1);
+      }
+      window.showMidpoint = null;
+      updatePointsList();
+      clearCalcResult();
+      draw();
+    }
+
+    function clearSelection() {
+      selectedIndices = [];
+      window.showMidpoint = null;
+      updatePointsList();
+      clearCalcResult();
+      draw();
+    }
+
+    function updatePointsList() {
+      const list = document.getElementById('points-list');
+      const count = document.getElementById('points-count');
+      
+      count.textContent = `(${points.length})`;
+
+      if (points.length === 0) {
+        list.innerHTML = '<div class="empty-state">Nessun punto inserito</div>';
+        return;
+      }
+
+      list.innerHTML = points.map((p, i) => `
+        <div class="point-item ${selectedIndices.includes(i) ? 'selected' : ''}" onclick="togglePointSelection(${i})">
+          <div class="point-info">
+            <div class="point-marker" style="background: ${p.color}">${p.label}</div>
+            <span class="point-coords">(${formatNum(p.x)}; ${formatNum(p.y)})</span>
+          </div>
+          <button class="point-delete" onclick="event.stopPropagation(); deletePoint(${i})" title="Elimina">✕</button>
+        </div>
+      `).join('');
+
+      // Update selection info
+      const info = document.getElementById('selection-info');
+      if (selectedIndices.length === 0) {
+        info.style.display = 'block';
+        info.textContent = 'Seleziona i punti cliccandoli nella lista';
+      } else if (selectedIndices.length === 1) {
+        info.style.display = 'block';
+        const p = points[selectedIndices[0]];
+        info.textContent = `Selezionato: ${p.label}. Seleziona altri punti.`;
+      } else {
+        info.style.display = 'block';
+        const labels = selectedIndices.map(i => points[i].label).join(', ');
+        info.textContent = `Selezionati: ${labels}`;
+      }
+    }
+
+    // === CALCULATIONS ===
+    function clearCalcResult() {
+      document.getElementById('calc-result').classList.remove('active');
+    }
+
+    function showCalcResult(html) {
+      const result = document.getElementById('calc-result');
+      result.innerHTML = html;
+      result.classList.add('active');
+    }
+
+    function calcDistance() {
+      if (selectedIndices.length !== 2) {
+        alert('Seleziona esattamente 2 punti per calcolare la distanza.');
+        return;
+      }
+
+      const p1 = points[selectedIndices[0]];
+      const p2 = points[selectedIndices[1]];
+
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const html = `
+        <div class="calc-title">📏 Distanza ${p1.label}${p2.label}</div>
+        <div class="calc-steps">
+          <div class="step">
+            <strong>Formula:</strong> <span class="formula">d = √[(x₂−x₁)² + (y₂−y₁)²]</span>
+          </div>
+          <div class="step">
+            <strong>Coordinate:</strong><br>
+            ${p1.label}(${formatNum(p1.x)}; ${formatNum(p1.y)}) e ${p2.label}(${formatNum(p2.x)}; ${formatNum(p2.y)})
+          </div>
+          <div class="step">
+            <strong>Differenze:</strong><br>
+            x₂ − x₁ = ${formatNum(p2.x)} − ${formatNum(p1.x)} = ${formatNum(dx)}<br>
+            y₂ − y₁ = ${formatNum(p2.y)} − ${formatNum(p1.y)} = ${formatNum(dy)}
+          </div>
+          <div class="step">
+            <strong>Sotto radice:</strong><br>
+            (${formatNum(dx)})² + (${formatNum(dy)})² = ${formatNum(dx*dx)} + ${formatNum(dy*dy)} = ${formatNum(dx*dx + dy*dy)}
+          </div>
+          <div class="step result">
+            <strong>Distanza:</strong> √${formatNum(dx*dx + dy*dy)} = <strong>${formatNum(dist)} u</strong>
+          </div>
+        </div>
+      `;
+      showCalcResult(html);
+    }
+
+    function calcMidpoint() {
+      if (selectedIndices.length !== 2) {
+        alert('Seleziona esattamente 2 punti per calcolare il punto medio.');
+        return;
+      }
+
+      const p1 = points[selectedIndices[0]];
+      const p2 = points[selectedIndices[1]];
+
+      const mx = (p1.x + p2.x) / 2;
+      const my = (p1.y + p2.y) / 2;
+
+      window.showMidpoint = { x: mx, y: my };
+      draw();
+
+      const html = `
+        <div class="calc-title">⊙ Punto medio di ${p1.label}${p2.label}</div>
+        <div class="calc-steps">
+          <div class="step">
+            <strong>Formula:</strong> <span class="formula">M = ((x₁+x₂)/2 ; (y₁+y₂)/2)</span>
+          </div>
+          <div class="step">
+            <strong>Coordinate:</strong><br>
+            ${p1.label}(${formatNum(p1.x)}; ${formatNum(p1.y)}) e ${p2.label}(${formatNum(p2.x)}; ${formatNum(p2.y)})
+          </div>
+          <div class="step">
+            <strong>Calcolo xₘ:</strong><br>
+            (${formatNum(p1.x)} + ${formatNum(p2.x)}) : 2 = ${formatNum(p1.x + p2.x)} : 2 = ${formatNum(mx)}
+          </div>
+          <div class="step">
+            <strong>Calcolo yₘ:</strong><br>
+            (${formatNum(p1.y)} + ${formatNum(p2.y)}) : 2 = ${formatNum(p1.y + p2.y)} : 2 = ${formatNum(my)}
+          </div>
+          <div class="step result">
+            <strong>Punto medio M:</strong> (${formatNum(mx)}; ${formatNum(my)})
+          </div>
+        </div>
+      `;
+      showCalcResult(html);
+    }
+
+    function calcPerimeter() {
+      if (selectedIndices.length < 3) {
+        alert('Seleziona almeno 3 punti per calcolare il perimetro.');
+        return;
+      }
+
+      let perimeter = 0;
+      const sides = [];
+
+      for (let i = 0; i < selectedIndices.length; i++) {
+        const p1 = points[selectedIndices[i]];
+        const p2 = points[selectedIndices[(i + 1) % selectedIndices.length]];
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        perimeter += dist;
+        sides.push({ from: p1.label, to: p2.label, dist: dist });
+      }
+
+      const labels = selectedIndices.map(i => points[i].label).join('');
+
+      let stepsHtml = sides.map(s => 
+        `<div class="step">${s.from}${s.to} = ${formatNum(s.dist)} u</div>`
+      ).join('');
+
+      const html = `
+        <div class="calc-title">📐 Perimetro ${labels}</div>
+        <div class="calc-steps">
+          <div class="step">
+            <strong>Lati del poligono:</strong>
+          </div>
+          ${stepsHtml}
+          <div class="step result">
+            <strong>Perimetro:</strong> ${sides.map(s => formatNum(s.dist)).join(' + ')} = <strong>${formatNum(perimeter)} u</strong>
+          </div>
+        </div>
+      `;
+      showCalcResult(html);
+    }
+
+    function calcArea() {
+      if (selectedIndices.length < 3) {
+        alert('Seleziona almeno 3 punti per calcolare l\'area.');
+        return;
+      }
+
+      const n = selectedIndices.length;
+      const pts = selectedIndices.map(i => points[i]);
+      const labels = pts.map(p => p.label).join('');
+
+      if (n === 3) {
+        // TRIANGOLO
+        calcAreaTriangle(pts, labels);
+      } else if (n === 4) {
+        // QUADRILATERO - verifica se è rettangolo con lati paralleli agli assi
+        calcAreaQuadrilateral(pts, labels);
+      } else {
+        showCalcResult(`
+          <div class="calc-title">▢ Area ${labels}</div>
+          <div class="calc-steps">
+            <div class="step">
+              <strong>Figura con ${n} vertici</strong><br>
+              Per calcolare l'area, prova a scomporre la figura in triangoli o rettangoli.
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    function calcAreaTriangle(pts, labels) {
+      const [A, B, C] = pts;
+      
+      // Calcola i lati
+      const AB = Math.sqrt((B.x - A.x) ** 2 + (B.y - A.y) ** 2);
+      const BC = Math.sqrt((C.x - B.x) ** 2 + (C.y - B.y) ** 2);
+      const CA = Math.sqrt((A.x - C.x) ** 2 + (A.y - C.y) ** 2);
+
+      // Verifica se è rettangolo (prodotto scalare = 0 per un angolo)
+      // Vettori da ogni vertice
+      const dotA = (B.x - A.x) * (C.x - A.x) + (B.y - A.y) * (C.y - A.y);
+      const dotB = (A.x - B.x) * (C.x - B.x) + (A.y - B.y) * (C.y - B.y);
+      const dotC = (A.x - C.x) * (B.x - C.x) + (A.y - C.y) * (B.y - C.y);
+
+      const tolerance = 0.0001;
+      let html = '';
+
+      if (Math.abs(dotA) < tolerance) {
+        // Angolo retto in A
+        const cat1 = AB;
+        const cat2 = CA;
+        const area = (cat1 * cat2) / 2;
+        html = buildTriangleRectHtml(pts, labels, A.label, cat1, cat2, area, B.label, C.label);
+      } else if (Math.abs(dotB) < tolerance) {
+        // Angolo retto in B
+        const cat1 = AB;
+        const cat2 = BC;
+        const area = (cat1 * cat2) / 2;
+        html = buildTriangleRectHtml(pts, labels, B.label, cat1, cat2, area, A.label, C.label);
+      } else if (Math.abs(dotC) < tolerance) {
+        // Angolo retto in C
+        const cat1 = CA;
+        const cat2 = BC;
+        const area = (cat1 * cat2) / 2;
+        html = buildTriangleRectHtml(pts, labels, C.label, cat1, cat2, area, A.label, B.label);
+      } else {
+        // Triangolo generico: base × altezza / 2
+        // Uso AB come base, calcolo altezza da C
+        const base = AB;
+        // Altezza = distanza di C dalla retta AB
+        const height = Math.abs((B.y - A.y) * C.x - (B.x - A.x) * C.y + B.x * A.y - B.y * A.x) / AB;
+        const area = (base * height) / 2;
+        html = buildTriangleGenericHtml(pts, labels, A.label, B.label, C.label, base, height, area);
+      }
+
+      showCalcResult(html);
+    }
+
+    function buildTriangleRectHtml(pts, labels, vertexRect, cat1, cat2, area, v1, v2) {
+      const coords = pts.map(p => `${p.label}(${formatNum(p.x)}; ${formatNum(p.y)})`).join(', ');
+      return `
+        <div class="calc-title">▲ Area triangolo ${labels}</div>
+        <div class="calc-steps">
+          <div class="step">
+            <strong>Vertici:</strong> ${coords}
+          </div>
+          <div class="step">
+            <strong>Tipo:</strong> Triangolo rettangolo (angolo retto in ${vertexRect})
+          </div>
+          <div class="step">
+            <strong>Formula:</strong> <span class="formula">A = (cateto₁ × cateto₂) : 2</span>
+          </div>
+          <div class="step">
+            <strong>Cateti:</strong><br>
+            cateto₁ = ${formatNum(cat1)} u<br>
+            cateto₂ = ${formatNum(cat2)} u
+          </div>
+          <div class="step">
+            <strong>Calcolo:</strong><br>
+            A = (${formatNum(cat1)} × ${formatNum(cat2)}) : 2<br>
+            A = ${formatNum(cat1 * cat2)} : 2
+          </div>
+          <div class="step result">
+            <strong>Area:</strong> <strong>${formatNum(area)} u²</strong>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildTriangleGenericHtml(pts, labels, vA, vB, vC, base, height, area) {
+      const coords = pts.map(p => `${p.label}(${formatNum(p.x)}; ${formatNum(p.y)})`).join(', ');
+      return `
+        <div class="calc-title">▲ Area triangolo ${labels}</div>
+        <div class="calc-steps">
+          <div class="step">
+            <strong>Vertici:</strong> ${coords}
+          </div>
+          <div class="step">
+            <strong>Formula:</strong> <span class="formula">A = (base × altezza) : 2</span>
+          </div>
+          <div class="step">
+            <strong>Base ${vA}${vB}:</strong> ${formatNum(base)} u
+          </div>
+          <div class="step">
+            <strong>Altezza</strong> (distanza di ${vC} dalla base):<br>
+            h = ${formatNum(height)} u
+          </div>
+          <div class="step">
+            <strong>Calcolo:</strong><br>
+            A = (${formatNum(base)} × ${formatNum(height)}) : 2<br>
+            A = ${formatNum(base * height)} : 2
+          </div>
+          <div class="step result">
+            <strong>Area:</strong> <strong>${formatNum(area)} u²</strong>
+          </div>
+        </div>
+      `;
+    }
+
+    function calcAreaQuadrilateral(pts, labels) {
+      // Ordina i punti per formare un quadrilatero coerente (convex hull semplificato)
+      // Verifica se è un rettangolo con lati paralleli agli assi
+      
+      const xs = pts.map(p => p.x).sort((a, b) => a - b);
+      const ys = pts.map(p => p.y).sort((a, b) => a - b);
+      
+      const minX = xs[0], maxX = xs[3];
+      const minY = ys[0], maxY = ys[3];
+
+      // Verifica se i 4 punti sono ai 4 angoli di un rettangolo
+      const corners = [
+        { x: minX, y: minY },
+        { x: minX, y: maxY },
+        { x: maxX, y: minY },
+        { x: maxX, y: maxY }
+      ];
+
+      const isRectangle = corners.every(corner => 
+        pts.some(p => Math.abs(p.x - corner.x) < 0.001 && Math.abs(p.y - corner.y) < 0.001)
+      );
+
+      const coords = pts.map(p => `${p.label}(${formatNum(p.x)}; ${formatNum(p.y)})`).join(', ');
+
+      if (isRectangle) {
+        const base = maxX - minX;
+        const altezza = maxY - minY;
+        const area = base * altezza;
+
+        showCalcResult(`
+          <div class="calc-title">▢ Area rettangolo ${labels}</div>
+          <div class="calc-steps">
+            <div class="step">
+              <strong>Vertici:</strong> ${coords}
+            </div>
+            <div class="step">
+              <strong>Tipo:</strong> Rettangolo (lati paralleli agli assi)
+            </div>
+            <div class="step">
+              <strong>Formula:</strong> <span class="formula">A = base × altezza</span>
+            </div>
+            <div class="step">
+              <strong>Dimensioni:</strong><br>
+              base = ${formatNum(maxX)} − ${formatNum(minX)} = ${formatNum(base)} u<br>
+              altezza = ${formatNum(maxY)} − ${formatNum(minY)} = ${formatNum(altezza)} u
+            </div>
+            <div class="step">
+              <strong>Calcolo:</strong><br>
+              A = ${formatNum(base)} × ${formatNum(altezza)}
+            </div>
+            <div class="step result">
+              <strong>Area:</strong> <strong>${formatNum(area)} u²</strong>
+            </div>
+          </div>
+        `);
+      } else {
+        // Non è un rettangolo standard
+        showCalcResult(`
+          <div class="calc-title">▢ Area quadrilatero ${labels}</div>
+          <div class="calc-steps">
+            <div class="step">
+              <strong>Vertici:</strong> ${coords}
+            </div>
+            <div class="step">
+              <strong>Nota:</strong> Questa figura non è un rettangolo con lati paralleli agli assi.<br><br>
+              Suggerimenti:<br>
+              • Scomponi in due triangoli<br>
+              • Identifica la figura (parallelogramma, trapezio...) e applica la formula appropriata
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    // === CANVAS INTERACTIONS ===
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartOffsetX = offsetX;
+      dragStartOffsetY = offsetY;
+      canvas.style.cursor = 'grabbing';
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = e.clientX - rect.left;
+      const canvasY = e.clientY - rect.top;
+      const centerX = canvas.width / 2 + offsetX;
+      const centerY = canvas.height / 2 + offsetY;
+
+      const mathX = (canvasX - centerX) / scale;
+      const mathY = (centerY - canvasY) / scale;
+
+      document.getElementById('coords-display').textContent = 
+        `x: ${mathX.toFixed(1)} , y: ${mathY.toFixed(1)}`;
+
+      if (isDragging) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        offsetX = dragStartOffsetX + dx;
+        offsetY = dragStartOffsetY + dy;
+        draw();
+      }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+      if (isDragging) {
+        const dx = Math.abs(e.clientX - dragStartX);
+        const dy = Math.abs(e.clientY - dragStartY);
+        
+        // If minimal movement, treat as click to add point
+        if (dx < 5 && dy < 5) {
+          const rect = canvas.getBoundingClientRect();
+          const canvasX = e.clientX - rect.left;
+          const canvasY = e.clientY - rect.top;
+          const centerX = canvas.width / 2 + offsetX;
+          const centerY = canvas.height / 2 + offsetY;
+
+          const mathX = (canvasX - centerX) / scale;
+          const mathY = (centerY - canvasY) / scale;
+
+          addPoint(mathX, mathY);
+        }
+      }
+      isDragging = false;
+      canvas.style.cursor = 'crosshair';
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      isDragging = false;
+      canvas.style.cursor = 'crosshair';
+      document.getElementById('coords-display').textContent = 'x: — , y: —';
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      isDragging = true;
+      dragStartX = touch.clientX;
+      dragStartY = touch.clientY;
+      dragStartOffsetX = offsetX;
+      dragStartOffsetY = offsetY;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (isDragging) {
+        const touch = e.touches[0];
+        const dx = touch.clientX - dragStartX;
+        const dy = touch.clientY - dragStartY;
+        offsetX = dragStartOffsetX + dx;
+        offsetY = dragStartOffsetY + dy;
+        draw();
+      }
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (isDragging) {
+        const touch = e.changedTouches[0];
+        const dx = Math.abs(touch.clientX - dragStartX);
+        const dy = Math.abs(touch.clientY - dragStartY);
+        
+        if (dx < 10 && dy < 10) {
+          const rect = canvas.getBoundingClientRect();
+          const canvasX = touch.clientX - rect.left;
+          const canvasY = touch.clientY - rect.top;
+          const centerX = canvas.width / 2 + offsetX;
+          const centerY = canvas.height / 2 + offsetY;
+
+          const mathX = (canvasX - centerX) / scale;
+          const mathY = (centerY - canvasY) / scale;
+
+          addPoint(mathX, mathY);
+        }
+      }
+      isDragging = false;
+    });
+
+    // === ZOOM ===
+    function zoomIn() {
+      scale = Math.min(scale * 1.25, 100);
+      draw();
+    }
+
+    function zoomOut() {
+      scale = Math.max(scale / 1.25, 15);
+      draw();
+    }
+
+    function resetView() {
+      scale = 40;
+      offsetX = 0;
+      offsetY = 0;
+      draw();
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '+' || e.key === '=') zoomIn();
+      if (e.key === '-') zoomOut();
+      if (e.key === 'Escape') clearSelection();
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedIndices.length > 0 && document.activeElement.tagName !== 'INPUT') {
+          selectedIndices.sort((a, b) => b - a).forEach(i => deletePoint(i));
+        }
+      }
+    });
+
+    // Enter to add point
+    document.getElementById('input-x').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('input-y').focus();
+      }
+    });
+
+    document.getElementById('input-y').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addPointFromInput();
+      }
+    });
+
+    // Initial draw
+    draw();
+  </script>
+</body>
+</html>
