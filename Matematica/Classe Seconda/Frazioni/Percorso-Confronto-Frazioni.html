@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percorso Didattico: Confronto tra Frazioni</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e5128 0%, #4e9f3d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .progress-step {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        .progress-step.active {
+            background: #27ae60;
+            color: white;
+            transform: scale(1.1);
+        }
+        .progress-step.completed {
+            background: #1e5128;
+            color: white;
+        }
+        .phase { display: none; padding: 30px; }
+        .phase.active { display: block; }
+        .phase-title {
+            font-size: 1.5em;
+            color: #1e5128;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .phase-subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        .card-counter {
+            background: #e8f5e9;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #2e7d32;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            position: relative;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .card.viewed { border-color: #27ae60; background: linear-gradient(145deg, #e8f5e9, #c8e6c9); }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title { font-weight: bold; color: #1e5128; font-size: 1.1em; }
+        .card-check {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        .card.viewed .card-check { background: #27ae60; }
+        .card-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            color: #495057;
+            line-height: 1.6;
+        }
+        .card.expanded .card-content { display: block; }
+        .card-hint { font-size: 0.85em; color: #7f8c8d; margin-top: 8px; }
+        .accordion {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 18px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .accordion-header:hover { background: #e9ecef; }
+        .accordion.viewed .accordion-header { background: #e8f5e9; }
+        .accordion-title { font-weight: 600; color: #1e5128; }
+        .accordion-icon { transition: transform 0.3s; font-size: 1.2em; }
+        .accordion.expanded .accordion-icon { transform: rotate(180deg); }
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            line-height: 1.7;
+        }
+        .accordion.expanded .accordion-content { display: block; }
+        .quiz-question {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .quiz-question.answered-correct { background: #d4edda; border: 2px solid #27ae60; }
+        .quiz-question.answered-wrong { background: #f8d7da; border: 2px solid #e74c3c; }
+        .question-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        .question-number {
+            background: #27ae60;
+            color: white;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .question-text { color: #1e5128; font-size: 1.05em; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option:hover:not(.disabled) { border-color: #27ae60; background: #e8f5e9; }
+        .option.selected { border-color: #27ae60; background: #e8f5e9; }
+        .option.correct { border-color: #27ae60; background: #d4edda; }
+        .option.wrong { border-color: #e74c3c; background: #f8d7da; }
+        .option.disabled { cursor: not-allowed; opacity: 0.7; }
+        .option-letter {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .option.selected .option-letter { background: #27ae60; color: white; }
+        .option.correct .option-letter { background: #27ae60; color: white; }
+        .option.wrong .option-letter { background: #e74c3c; color: white; }
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(39,174,96,0.4); }
+        .btn-primary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(39,174,96,0.4); }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .review-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .review-section h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .review-section.needs-review { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .review-section.mastered { background: #d4edda; border-left: 4px solid #27ae60; }
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 25px;
+        }
+        .score-display .score { font-size: 3em; font-weight: bold; }
+        .score-display .score-label { font-size: 1.2em; opacity: 0.9; }
+        .formula-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .example-box {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .highlight { color: #e74c3c; font-weight: bold; }
+        .method-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .fraction-display {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 8px;
+            vertical-align: middle;
+        }
+        .fraction-display .num { border-bottom: 2px solid #1e5128; padding: 0 5px; }
+        .fraction-display .den { padding: 0 5px; }
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+            .header, .progress-bar, .nav-buttons, .btn { display: none !important; }
+            .phase { display: none !important; }
+            #phase5 { display: block !important; }
+            .review-section { break-inside: avoid; }
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4em; }
+            .phase { padding: 20px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .btn { width: 100%; justify-content: center; }
+            .nav-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Confronto tra Frazioni</h1>
+            <p>Percorso didattico interattivo</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-step active" data-step="1">1</div>
+            <div class="progress-step" data-step="2">2</div>
+            <div class="progress-step" data-step="3">3</div>
+            <div class="progress-step" data-step="4">4</div>
+            <div class="progress-step" data-step="5">5</div>
+        </div>
+
+        <!-- FASE 1: Principio e Metodo 1 -->
+        <div id="phase1" class="phase active">
+            <div class="phase-title">📘 Fase 1: Principio Generale e Stesso Denominatore</div>
+            <div class="phase-subtitle">Clicca su ogni card per scoprire i concetti</div>
+            <div class="card-counter">Card visualizzate: <span id="counter1">0</span>/4</div>
+            
+            <div class="cards-grid">
+                <div class="card" data-card="1">
+                    <div class="card-header">
+                        <span class="card-title">Principio Generale</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Per confrontare due frazioni dobbiamo capire quale rappresenta la <strong>quantità maggiore</strong>.<br><br>
+                        Il metodo da usare dipende dalla situazione:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Stesso denominatore</li>
+                            <li>Stesso numeratore</li>
+                            <li>Frazioni con termini diversi</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card" data-card="2">
+                    <div class="card-header">
+                        <span class="card-title">Metodo 1: Stesso DEN</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Se due frazioni hanno lo <strong>stesso denominatore</strong>, è maggiore quella con il <strong>numeratore maggiore</strong>.
+                        <div class="formula-box">
+                            Stesso DEN → confronta i NUM
+                        </div>
+                        <div class="example-box">
+                            <span class="fraction-display"><span class="num">5</span><span class="den">7</span></span> e <span class="fraction-display"><span class="num">3</span><span class="den">7</span></span><br>
+                            5 &gt; 3 quindi <span class="fraction-display"><span class="num">5</span><span class="den">7</span></span> &gt; <span class="fraction-display"><span class="num">3</span><span class="den">7</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="3">
+                    <div class="card-header">
+                        <span class="card-title">Perché Funziona?</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Se le «fette» sono della <strong>stessa dimensione</strong> (stesso denominatore), chi ne ha di più (numeratore maggiore) ha la <strong>quantità maggiore</strong>.<br><br>
+                        <div class="example-box">
+                            Immagina due torte tagliate in 7 fette uguali:<br>
+                            • Chi prende 5 fette ha più torta<br>
+                            • Chi prende 3 fette ha meno torta
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="4">
+                    <div class="card-header">
+                        <span class="card-title">Esempi Pratici</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        <strong>Confronta:</strong><br><br>
+                        • <span class="fraction-display"><span class="num">2</span><span class="den">5</span></span> e <span class="fraction-display"><span class="num">4</span><span class="den">5</span></span> → 2 &lt; 4 → <span class="fraction-display"><span class="num">2</span><span class="den">5</span></span> &lt; <span class="fraction-display"><span class="num">4</span><span class="den">5</span></span><br><br>
+                        • <span class="fraction-display"><span class="num">7</span><span class="den">9</span></span> e <span class="fraction-display"><span class="num">5</span><span class="den">9</span></span> → 7 &gt; 5 → <span class="fraction-display"><span class="num">7</span><span class="den">9</span></span> &gt; <span class="fraction-display"><span class="num">5</span><span class="den">9</span></span><br><br>
+                        • <span class="fraction-display"><span class="num">3</span><span class="den">8</span></span> e <span class="fraction-display"><span class="num">3</span><span class="den">8</span></span> → uguali!
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="next1" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Metodo 2 e 3 -->
+        <div id="phase2" class="phase">
+            <div class="phase-title">📗 Fase 2: Altri Metodi di Confronto</div>
+            <div class="phase-subtitle">Clicca su ogni card per scoprire gli altri metodi</div>
+            <div class="card-counter">Card visualizzate: <span id="counter2">0</span>/4</div>
+            
+            <div class="cards-grid">
+                <div class="card" data-card="5">
+                    <div class="card-header">
+                        <span class="card-title">Metodo 2: Stesso NUM</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Se due frazioni hanno lo <strong>stesso numeratore</strong>, è maggiore quella con il <strong>denominatore minore</strong>.
+                        <div class="formula-box">
+                            Stesso NUM → DEN minore = Maggiore
+                        </div>
+                        <div class="example-box">
+                            <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span> e <span class="fraction-display"><span class="num">3</span><span class="den">8</span></span><br>
+                            4 &lt; 8 quindi <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span> &gt; <span class="fraction-display"><span class="num">3</span><span class="den">8</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="6">
+                    <div class="card-header">
+                        <span class="card-title">Perché Funziona?</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Se prendo lo <strong>stesso numero di fette</strong>, sono più grandi quelle tagliate in <strong>meno pezzi</strong> (denominatore minore).<br><br>
+                        <div class="example-box">
+                            • Torta in 4 fette: ogni fetta è grande<br>
+                            • Torta in 8 fette: ogni fetta è piccola<br><br>
+                            3 fette grandi &gt; 3 fette piccole
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="7">
+                    <div class="card-header">
+                        <span class="card-title">Metodo 3: DEN Diversi</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Se le frazioni hanno <strong>denominatori diversi</strong>, bisogna prima ridurle allo <strong>stesso denominatore</strong> usando il <strong>m.c.m.</strong>
+                        <div class="method-box">
+                            <strong>Procedimento:</strong><br>
+                            1. Calcola il m.c.m. dei denominatori<br>
+                            2. Trasforma in frazioni equivalenti<br>
+                            3. Confronta i numeratori (Metodo 1)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="8">
+                    <div class="card-header">
+                        <span class="card-title">Esempio Metodo 3</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        <strong>Confronta:</strong> <span class="fraction-display"><span class="num">2</span><span class="den">3</span></span> e <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span><br><br>
+                        <strong>1.</strong> m.c.m.(3; 4) = 12<br><br>
+                        <strong>2.</strong> <span class="fraction-display"><span class="num">2</span><span class="den">3</span></span> = <span class="fraction-display"><span class="num">8</span><span class="den">12</span></span> &nbsp;&nbsp; <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span> = <span class="fraction-display"><span class="num">9</span><span class="den">12</span></span><br><br>
+                        <strong>3.</strong> 8 &lt; 9 → <span class="fraction-display"><span class="num">2</span><span class="den">3</span></span> &lt; <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti Chiave -->
+        <div id="phase3" class="phase">
+            <div class="phase-title">📙 Fase 3: Concetti Chiave</div>
+            <div class="phase-subtitle">Espandi ogni sezione per approfondire</div>
+            <div class="card-counter">Sezioni visualizzate: <span id="counter3">0</span>/5</div>
+
+            <div class="accordion" data-acc="1">
+                <div class="accordion-header">
+                    <span class="accordion-title">🚀 Scorciatoia: Usa la Classificazione</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    Prima di fare calcoli, verifica se puoi usare la <strong>classificazione</strong>:<br><br>
+                    • Una frazione <strong>impropria</strong> è sempre &gt; di una <strong>propria</strong><br>
+                    • Una frazione <strong>propria</strong> è sempre &lt; 1<br>
+                    • Una frazione <strong>impropria</strong> è sempre &gt; 1<br><br>
+                    <div class="example-box">
+                        <span class="fraction-display"><span class="num">5</span><span class="den">3</span></span> (impropria) e <span class="fraction-display"><span class="num">2</span><span class="den">7</span></span> (propria)<br>
+                        → <span class="fraction-display"><span class="num">5</span><span class="den">3</span></span> &gt; <span class="fraction-display"><span class="num">2</span><span class="den">7</span></span> senza calcoli!
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="2">
+                <div class="accordion-header">
+                    <span class="accordion-title">🔀 Schema Decisionale</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>Come scegliere il metodo:</strong><br><br>
+                    1. <strong>Stesso DEN?</strong> → Confronta i NUM (Metodo 1)<br><br>
+                    2. <strong>Stesso NUM?</strong> → DEN minore = Maggiore (Metodo 2)<br><br>
+                    3. <strong>Nessuno dei due?</strong> → Riduci allo stesso DEN con m.c.m. (Metodo 3)<br><br>
+                    <em>Ricorda: prima verifica se una è propria e l'altra impropria!</em>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="3">
+                <div class="accordion-header">
+                    <span class="accordion-title">🔢 Calcolo del m.c.m.</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    Per trovare il <strong>m.c.m.</strong> (minimo comune multiplo) di due numeri:<br><br>
+                    1. Scomponi in fattori primi<br>
+                    2. Prendi tutti i fattori con esponente <strong>massimo</strong><br><br>
+                    <div class="example-box">
+                        m.c.m.(3; 4):<br>
+                        3 = 3<br>
+                        4 = 2²<br>
+                        m.c.m. = 2² × 3 = 12
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="4">
+                <div class="accordion-header">
+                    <span class="accordion-title">🔄 Trasformazione in Frazioni Equivalenti</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    Per trasformare una frazione al nuovo denominatore:<br><br>
+                    1. Dividi il nuovo DEN per il vecchio DEN<br>
+                    2. Moltiplica il NUM per questo risultato<br><br>
+                    <div class="example-box">
+                        <span class="fraction-display"><span class="num">2</span><span class="den">3</span></span> con DEN = 12<br>
+                        12 : 3 = 4<br>
+                        2 × 4 = 8<br>
+                        Risultato: <span class="fraction-display"><span class="num">8</span><span class="den">12</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="5">
+                <div class="accordion-header">
+                    <span class="accordion-title">⚠️ Errori Comuni da Evitare</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>Attenzione a non confondersi!</strong><br><br>
+                    ❌ Pensare che NUM grande = frazione grande (dipende dal DEN!)<br><br>
+                    ❌ Pensare che DEN grande = frazione grande (è il contrario!)<br><br>
+                    ❌ Dimenticare di ridurre allo stesso DEN prima di confrontare<br><br>
+                    ✓ Ricorda: stesso DEN → confronta NUM; stesso NUM → DEN minore vince
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled>Vai alla Verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <div class="phase-title">📝 Fase 4: Verifica delle Conoscenze</div>
+            <div class="phase-subtitle">Rispondi a tutte le domande, poi clicca "Verifica Risposte"</div>
+
+            <div id="quiz-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">✓ Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <div class="phase-title">📊 Fase 5: Ripasso Personalizzato</div>
+            <div class="phase-subtitle">Ecco il tuo riepilogo basato sui risultati della verifica</div>
+
+            <div class="score-display">
+                <div class="score"><span id="finalScore">0</span>/10</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div id="review-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-success" onclick="location.reload()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Categoria 1: Metodi di Confronto (5 domande)
+            {
+                category: "Metodi di Confronto",
+                question: "Due frazioni hanno lo stesso denominatore. Quale è maggiore?",
+                options: [
+                    "Quella con numeratore minore",
+                    "Quella con numeratore maggiore",
+                    "Sono sempre uguali",
+                    "Dipende dal denominatore"
+                ],
+                correct: 1,
+                explanation: "Con stesso DEN, è maggiore la frazione con NUM maggiore (più fette della stessa dimensione)."
+            },
+            {
+                category: "Metodi di Confronto",
+                question: "Due frazioni hanno lo stesso numeratore. Quale è maggiore?",
+                options: [
+                    "Quella con denominatore maggiore",
+                    "Quella con denominatore minore",
+                    "Sono sempre uguali",
+                    "Dipende dal numeratore"
+                ],
+                correct: 1,
+                explanation: "Con stesso NUM, è maggiore quella con DEN minore (fette più grandi)."
+            },
+            {
+                category: "Metodi di Confronto",
+                question: "Confronta 5/8 e 3/8. Qual è maggiore?",
+                options: [
+                    "3/8",
+                    "5/8",
+                    "Sono uguali",
+                    "Non si può stabilire"
+                ],
+                correct: 1,
+                explanation: "Stesso DEN (8), confronto i NUM: 5 > 3, quindi 5/8 > 3/8."
+            },
+            {
+                category: "Metodi di Confronto",
+                question: "Confronta 2/5 e 2/9. Qual è maggiore?",
+                options: [
+                    "2/9",
+                    "2/5",
+                    "Sono uguali",
+                    "Non si può stabilire"
+                ],
+                correct: 1,
+                explanation: "Stesso NUM (2), DEN minore = maggiore: 5 < 9, quindi 2/5 > 2/9."
+            },
+            {
+                category: "Metodi di Confronto",
+                question: "Per confrontare 2/3 e 3/5, quale metodo usi?",
+                options: [
+                    "Confronto diretto dei numeratori",
+                    "Confronto diretto dei denominatori",
+                    "Riduzione allo stesso denominatore con m.c.m.",
+                    "Non si possono confrontare"
+                ],
+                correct: 2,
+                explanation: "Con DEN e NUM diversi, devi ridurre allo stesso DEN usando il m.c.m."
+            },
+            // Categoria 2: Applicazioni e Scorciatoie (5 domande)
+            {
+                category: "Applicazioni e Scorciatoie",
+                question: "Qual è il m.c.m. di 4 e 6?",
+                options: [
+                    "24",
+                    "12",
+                    "2",
+                    "10"
+                ],
+                correct: 1,
+                explanation: "m.c.m.(4; 6): 4=2², 6=2×3, m.c.m.=2²×3=12."
+            },
+            {
+                category: "Applicazioni e Scorciatoie",
+                question: "Una frazione impropria confrontata con una propria:",
+                options: [
+                    "È sempre minore",
+                    "È sempre maggiore",
+                    "Dipende dai numeri",
+                    "Sono sempre uguali"
+                ],
+                correct: 1,
+                explanation: "Impropria > 1, Propria < 1, quindi Impropria è sempre maggiore."
+            },
+            {
+                category: "Applicazioni e Scorciatoie",
+                question: "Confronta 7/4 e 5/6 usando la classificazione:",
+                options: [
+                    "5/6 > 7/4",
+                    "7/4 > 5/6",
+                    "Sono uguali",
+                    "Servono calcoli"
+                ],
+                correct: 1,
+                explanation: "7/4 è impropria (>1), 5/6 è propria (<1). Impropria > Propria sempre."
+            },
+            {
+                category: "Applicazioni e Scorciatoie",
+                question: "Trasforma 3/4 con denominatore 12:",
+                options: [
+                    "3/12",
+                    "6/12",
+                    "9/12",
+                    "12/12"
+                ],
+                correct: 2,
+                explanation: "12:4=3, poi 3×3=9. Quindi 3/4 = 9/12."
+            },
+            {
+                category: "Applicazioni e Scorciatoie",
+                question: "Confronta 3/4 e 5/6 riducendo allo stesso DEN:",
+                options: [
+                    "3/4 > 5/6",
+                    "3/4 < 5/6",
+                    "3/4 = 5/6",
+                    "Non si può calcolare"
+                ],
+                correct: 1,
+                explanation: "m.c.m.(4; 6)=12. 3/4=9/12, 5/6=10/12. 9<10, quindi 3/4 < 5/6."
+            }
+        ];
+
+        let currentPhase = 1;
+        let viewedCards = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let selectedAnswers = {};
+        let quizVerified = false;
+        let categoryScores = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCards();
+            initAccordions();
+            initQuiz();
+        });
+
+        function initCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const cardId = card.dataset.card;
+                    const phase = cardId <= 4 ? 1 : 2;
+                    
+                    card.classList.toggle('expanded');
+                    
+                    if (!viewedCards[phase].has(cardId)) {
+                        viewedCards[phase].add(cardId);
+                        card.classList.add('viewed');
+                        updateCounter(phase);
+                    }
+                });
+            });
+        }
+
+        function initAccordions() {
+            document.querySelectorAll('.accordion').forEach(acc => {
+                acc.querySelector('.accordion-header').addEventListener('click', () => {
+                    const accId = acc.dataset.acc;
+                    
+                    acc.classList.toggle('expanded');
+                    
+                    if (!viewedCards[3].has(accId)) {
+                        viewedCards[3].add(accId);
+                        acc.classList.add('viewed');
+                        updateCounter(3);
+                    }
+                });
+            });
+        }
+
+        function updateCounter(phase) {
+            const total = phase === 1 ? 4 : phase === 2 ? 4 : 5;
+            document.getElementById(`counter${phase}`).textContent = viewedCards[phase].size;
+            
+            const nextBtn = document.getElementById(`next${phase}`);
+            if (viewedCards[phase].size >= total) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => goToPhase(phase + 1);
+            }
+        }
+
+        function initQuiz() {
+            const container = document.getElementById('quiz-container');
+            let currentCategory = '';
+            
+            quizData.forEach((q, index) => {
+                if (q.category !== currentCategory) {
+                    currentCategory = q.category;
+                    container.innerHTML += `<h3 style="margin: 20px 0 15px; color: #1e5128;">${currentCategory}</h3>`;
+                }
+                
+                container.innerHTML += `
+                    <div class="quiz-question" data-question="${index}">
+                        <div class="question-header">
+                            <span class="question-number">${index + 1}</span>
+                            <span class="question-text">${q.question}</span>
+                        </div>
+                        <div class="options">
+                            ${q.options.map((opt, i) => `
+                                <div class="option" data-option="${i}" onclick="selectOption(${index}, ${i})">
+                                    <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+                                    <span>${opt}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="feedback" id="feedback-${index}"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            if (quizVerified) return;
+            
+            const question = document.querySelector(`.quiz-question[data-question="${questionIndex}"]`);
+            question.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            question.querySelector(`.option[data-option="${optionIndex}"]`).classList.add('selected');
+            selectedAnswers[questionIndex] = optionIndex;
+        }
+
+        function verifyQuiz() {
+            const unanswered = [];
+            quizData.forEach((_, index) => {
+                if (selectedAnswers[index] === undefined) {
+                    unanswered.push(index + 1);
+                }
+            });
+
+            if (unanswered.length > 0) {
+                alert(`Rispondi a tutte le domande prima di verificare.\nDomande mancanti: ${unanswered.join(', ')}`);
+                const firstUnanswered = document.querySelector(`.quiz-question[data-question="${unanswered[0] - 1}"]`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            quizVerified = true;
+            let correctCount = 0;
+            categoryScores = {};
+
+            quizData.forEach((q, index) => {
+                const question = document.querySelector(`.quiz-question[data-question="${index}"]`);
+                const selectedOpt = question.querySelector(`.option[data-option="${selectedAnswers[index]}"]`);
+                const correctOpt = question.querySelector(`.option[data-option="${q.correct}"]`);
+                const feedback = document.getElementById(`feedback-${index}`);
+                
+                if (!categoryScores[q.category]) {
+                    categoryScores[q.category] = { correct: 0, total: 0 };
+                }
+                categoryScores[q.category].total++;
+
+                question.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+                if (selectedAnswers[index] === q.correct) {
+                    correctCount++;
+                    categoryScores[q.category].correct++;
+                    selectedOpt.classList.add('correct');
+                    question.classList.add('answered-correct');
+                    feedback.className = 'feedback show correct';
+                    feedback.textContent = '✓ Corretto! ' + q.explanation;
+                } else {
+                    selectedOpt.classList.add('wrong');
+                    correctOpt.classList.add('correct');
+                    question.classList.add('answered-wrong');
+                    feedback.className = 'feedback show wrong';
+                    feedback.textContent = '✗ Sbagliato. ' + q.explanation;
+                }
+            });
+
+            document.getElementById('finalScore').textContent = correctCount;
+            
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.textContent = 'Vai al Ripasso →';
+            verifyBtn.onclick = () => goToPhase(5);
+            
+            generateReview();
+        }
+
+        function generateReview() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            // Raccogli domande errate per categoria
+            const wrongByCategory = {};
+            quizData.forEach((q, index) => {
+                if (selectedAnswers[index] !== q.correct) {
+                    if (!wrongByCategory[q.category]) {
+                        wrongByCategory[q.category] = [];
+                    }
+                    wrongByCategory[q.category].push({
+                        question: q.question,
+                        yourAnswer: q.options[selectedAnswers[index]],
+                        correctAnswer: q.options[q.correct],
+                        explanation: q.explanation
+                    });
+                }
+            });
+
+            const cat1 = categoryScores['Metodi di Confronto'];
+            const cat1Mastered = cat1.correct >= 3;
+            
+            let cat1Html = `
+                <div class="review-section ${cat1Mastered ? 'mastered' : 'needs-review'}">
+                    <h3>${cat1Mastered ? '✓ Hai capito bene' : '⚠ Da rivedere'}: Metodi di Confronto</h3>
+                    <p><strong>Punteggio:</strong> ${cat1.correct}/${cat1.total}</p>
+                    ${cat1Mastered ? `
+                        <p>Ottimo! Sai applicare i tre metodi di confronto tra frazioni.</p>
+                    ` : `
+                        <p><strong>Ricorda i tre metodi:</strong></p>
+                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                            <li><strong>Stesso DEN:</strong> confronta i NUM (maggiore NUM = maggiore)</li>
+                            <li><strong>Stesso NUM:</strong> confronta i DEN (minore DEN = maggiore)</li>
+                            <li><strong>Diversi:</strong> riduci allo stesso DEN con m.c.m.</li>
+                        </ul>
+                    `}`;
+            
+            if (wrongByCategory['Metodi di Confronto']) {
+                cat1Html += `<div style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 10px;">
+                    <strong>📋 Le tue risposte errate:</strong>`;
+                wrongByCategory['Metodi di Confronto'].forEach(w => {
+                    cat1Html += `<div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #e74c3c;">
+                        <p><strong>Domanda:</strong> ${w.question}</p>
+                        <p style="color: #e74c3c;">❌ Tua risposta: ${w.yourAnswer}</p>
+                        <p style="color: #27ae60;">✓ Risposta corretta: ${w.correctAnswer}</p>
+                        <p style="font-size: 0.9em; color: #666;">${w.explanation}</p>
+                    </div>`;
+                });
+                cat1Html += `</div>`;
+            }
+            cat1Html += `</div>`;
+            container.innerHTML += cat1Html;
+
+            const cat2 = categoryScores['Applicazioni e Scorciatoie'];
+            const cat2Mastered = cat2.correct >= 3;
+            
+            let cat2Html = `
+                <div class="review-section ${cat2Mastered ? 'mastered' : 'needs-review'}">
+                    <h3>${cat2Mastered ? '✓ Hai capito bene' : '⚠ Da rivedere'}: Applicazioni e Scorciatoie</h3>
+                    <p><strong>Punteggio:</strong> ${cat2.correct}/${cat2.total}</p>
+                    ${cat2Mastered ? `
+                        <p>Ottimo! Sai usare le scorciatoie e calcolare il m.c.m.</p>
+                    ` : `
+                        <p><strong>Ricorda:</strong></p>
+                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                            <li><strong>Scorciatoia:</strong> Impropria è sempre > Propria</li>
+                            <li><strong>m.c.m.:</strong> fattori comuni e non comuni con esponente massimo</li>
+                            <li><strong>Trasformazione:</strong> nuovo DEN : vecchio DEN × NUM</li>
+                        </ul>
+                    `}`;
+            
+            if (wrongByCategory['Applicazioni e Scorciatoie']) {
+                cat2Html += `<div style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 10px;">
+                    <strong>📋 Le tue risposte errate:</strong>`;
+                wrongByCategory['Applicazioni e Scorciatoie'].forEach(w => {
+                    cat2Html += `<div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #e74c3c;">
+                        <p><strong>Domanda:</strong> ${w.question}</p>
+                        <p style="color: #e74c3c;">❌ Tua risposta: ${w.yourAnswer}</p>
+                        <p style="color: #27ae60;">✓ Risposta corretta: ${w.correctAnswer}</p>
+                        <p style="font-size: 0.9em; color: #666;">${w.explanation}</p>
+                    </div>`;
+                });
+                cat2Html += `</div>`;
+            }
+            cat2Html += `</div>`;
+            container.innerHTML += cat2Html;
+        }
+
+        function goToPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${phase}`).classList.add('active');
+            
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 < phase) step.classList.add('completed');
+                if (index + 1 === phase) step.classList.add('active');
+            });
+            
+            currentPhase = phase;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

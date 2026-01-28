@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percorso Didattico: Riduzione ai Minimi Termini</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .progress-step {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        .progress-step.active {
+            background: #e74c3c;
+            color: white;
+            transform: scale(1.1);
+        }
+        .progress-step.completed {
+            background: #27ae60;
+            color: white;
+        }
+        .phase { display: none; padding: 30px; }
+        .phase.active { display: block; }
+        .phase-title {
+            font-size: 1.5em;
+            color: #c0392b;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .phase-subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        .card-counter {
+            background: #fce4e4;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #c0392b;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            position: relative;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .card.viewed { border-color: #27ae60; background: linear-gradient(145deg, #e8f5e9, #c8e6c9); }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title { font-weight: bold; color: #c0392b; font-size: 1.1em; }
+        .card-check {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        .card.viewed .card-check { background: #27ae60; }
+        .card-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            color: #495057;
+            line-height: 1.6;
+        }
+        .card.expanded .card-content { display: block; }
+        .card-hint { font-size: 0.85em; color: #7f8c8d; margin-top: 8px; }
+        .accordion {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 18px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .accordion-header:hover { background: #e9ecef; }
+        .accordion.viewed .accordion-header { background: #e8f5e9; }
+        .accordion-title { font-weight: 600; color: #c0392b; }
+        .accordion-icon { transition: transform 0.3s; font-size: 1.2em; }
+        .accordion.expanded .accordion-icon { transform: rotate(180deg); }
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            line-height: 1.7;
+        }
+        .accordion.expanded .accordion-content { display: block; }
+        .quiz-question {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .quiz-question.answered-correct { background: #d4edda; border: 2px solid #27ae60; }
+        .quiz-question.answered-wrong { background: #f8d7da; border: 2px solid #e74c3c; }
+        .question-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        .question-number {
+            background: #e74c3c;
+            color: white;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .question-text { color: #c0392b; font-size: 1.05em; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option:hover:not(.disabled) { border-color: #e74c3c; background: #fce4e4; }
+        .option.selected { border-color: #e74c3c; background: #fce4e4; }
+        .option.correct { border-color: #27ae60; background: #d4edda; }
+        .option.wrong { border-color: #e74c3c; background: #f8d7da; }
+        .option.disabled { cursor: not-allowed; opacity: 0.7; }
+        .option-letter {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .option.selected .option-letter { background: #e74c3c; color: white; }
+        .option.correct .option-letter { background: #27ae60; color: white; }
+        .option.wrong .option-letter { background: #e74c3c; color: white; }
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; }
+        .feedback.wrong { background: #f8d7da; color: #721c24; }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(231,76,60,0.4); }
+        .btn-primary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(39,174,96,0.4); }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .review-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .review-section h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .review-section.needs-review { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .review-section.mastered { background: #d4edda; border-left: 4px solid #27ae60; }
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 25px;
+        }
+        .score-display .score { font-size: 3em; font-weight: bold; }
+        .score-display .score-label { font-size: 1.2em; opacity: 0.9; }
+        .formula-box {
+            background: #fce4e4;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .example-box {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        .method-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .warning-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .highlight { color: #e74c3c; font-weight: bold; }
+        .fraction-display {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 8px;
+            vertical-align: middle;
+        }
+        .fraction-display .num { border-bottom: 2px solid #c0392b; padding: 0 5px; }
+        .fraction-display .den { padding: 0 5px; }
+        .arrow { margin: 0 10px; color: #27ae60; font-weight: bold; }
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+            .header, .progress-bar, .nav-buttons, .btn { display: none !important; }
+            .phase { display: none !important; }
+            #phase5 { display: block !important; }
+            .review-section { break-inside: avoid; }
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4em; }
+            .phase { padding: 20px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .btn { width: 100%; justify-content: center; }
+            .nav-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✂️ Riduzione ai Minimi Termini</h1>
+            <p>Percorso didattico interattivo</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-step active" data-step="1">1</div>
+            <div class="progress-step" data-step="2">2</div>
+            <div class="progress-step" data-step="3">3</div>
+            <div class="progress-step" data-step="4">4</div>
+            <div class="progress-step" data-step="5">5</div>
+        </div>
+
+        <!-- FASE 1: Definizione e Metodo 1 -->
+        <div id="phase1" class="phase active">
+            <div class="phase-title">📘 Fase 1: Definizione e Metodo delle Divisioni</div>
+            <div class="phase-subtitle">Clicca su ogni card per scoprire i concetti</div>
+            <div class="card-counter">Card visualizzate: <span id="counter1">0</span>/4</div>
+            
+            <div class="cards-grid">
+                <div class="card" data-card="1">
+                    <div class="card-header">
+                        <span class="card-title">Cos'è una Frazione Irriducibile?</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Una frazione si dice <strong>irriducibile</strong> (o "ridotta ai minimi termini") quando NUM e DEN <strong>non hanno più nessun divisore in comune</strong> (tranne l'1).<br><br>
+                        In pratica: i due numeri sono <strong>primi tra loro</strong>.
+                        <div class="example-box">
+                            <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span> è irriducibile (M.C.D. = 1)<br><br>
+                            <span class="fraction-display"><span class="num">6</span><span class="den">8</span></span> <strong>non</strong> è irriducibile (M.C.D. = 2)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="2">
+                    <div class="card-header">
+                        <span class="card-title">Metodo 1: Divisioni Successive</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Metodo <strong>intuitivo</strong>: dividi ripetutamente NUM e DEN per uno stesso divisore comune, finché non è più possibile.
+                        <div class="method-box">
+                            <strong>Pro:</strong> Intuitivo, non serve calcolare M.C.D.<br>
+                            <strong>Contro:</strong> Può richiedere più passaggi
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="3">
+                    <div class="card-header">
+                        <span class="card-title">Esempio Metodo 1</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        <strong>Riduci:</strong> <span class="fraction-display"><span class="num">18</span><span class="den">12</span></span><br><br>
+                        <span class="fraction-display"><span class="num">18</span><span class="den">12</span></span> <span class="arrow">→ :2 →</span> <span class="fraction-display"><span class="num">9</span><span class="den">6</span></span> <span class="arrow">→ :3 →</span> <span class="fraction-display"><span class="num">3</span><span class="den">2</span></span><br><br>
+                        ✓ <strong>Irriducibile!</strong> (3 e 2 sono primi tra loro)
+                    </div>
+                </div>
+
+                <div class="card" data-card="4">
+                    <div class="card-header">
+                        <span class="card-title">Come Trovare i Divisori?</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Cerca divisori comuni partendo dai più semplici:<br><br>
+                        • <strong>Entrambi pari?</strong> Dividi per 2<br>
+                        • <strong>Somma cifre divisibile per 3?</strong> Dividi per 3<br>
+                        • <strong>Finiscono per 0 o 5?</strong> Dividi per 5<br><br>
+                        Continua finché NUM e DEN non hanno più divisori comuni.
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="next1" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Metodo 2 -->
+        <div id="phase2" class="phase">
+            <div class="phase-title">📗 Fase 2: Metodo dell'M.C.D.</div>
+            <div class="phase-subtitle">Clicca su ogni card per scoprire il metodo rapido</div>
+            <div class="card-counter">Card visualizzate: <span id="counter2">0</span>/4</div>
+            
+            <div class="cards-grid">
+                <div class="card" data-card="5">
+                    <div class="card-header">
+                        <span class="card-title">Metodo 2: Via Diretta</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Metodo <strong>rapido</strong>: dividi NUM e DEN direttamente per il loro <strong>M.C.D.</strong> in un solo passaggio.
+                        <div class="formula-box">
+                            <span class="fraction-display"><span class="num">NUM</span><span class="den">DEN</span></span> = <span class="fraction-display"><span class="num">NUM : M.C.D.</span><span class="den">DEN : M.C.D.</span></span>
+                        </div>
+                        <div class="method-box">
+                            <strong>Pro:</strong> Un solo passaggio<br>
+                            <strong>Contro:</strong> Serve calcolare M.C.D.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="6">
+                    <div class="card-header">
+                        <span class="card-title">Come Calcolare l'M.C.D.</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Per trovare il <strong>M.C.D.</strong> (Massimo Comune Divisore):<br><br>
+                        1. Scomponi i numeri in fattori primi<br>
+                        2. Prendi i fattori <strong>comuni</strong> con esponente <strong>minimo</strong>
+                        <div class="example-box">
+                            M.C.D.(24; 36):<br>
+                            24 = 2³ × 3<br>
+                            36 = 2² × 3²<br>
+                            M.C.D. = 2² × 3 = 4 × 3 = <strong>12</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" data-card="7">
+                    <div class="card-header">
+                        <span class="card-title">Esempio Metodo 2</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        <strong>Riduci:</strong> <span class="fraction-display"><span class="num">24</span><span class="den">36</span></span><br><br>
+                        <strong>1.</strong> M.C.D.(24; 36) = 12<br><br>
+                        <strong>2.</strong> <span class="fraction-display"><span class="num">24</span><span class="den">36</span></span> = <span class="fraction-display"><span class="num">24 : 12</span><span class="den">36 : 12</span></span> = <span class="fraction-display"><span class="num">2</span><span class="den">3</span></span><br><br>
+                        ✓ <strong>Un solo passaggio!</strong>
+                    </div>
+                </div>
+
+                <div class="card" data-card="8">
+                    <div class="card-header">
+                        <span class="card-title">Quale Metodo Scegliere?</span>
+                        <span class="card-check">✓</span>
+                    </div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        <strong>Vedo subito un divisore comune?</strong><br><br>
+                        • <strong>Sì</strong> → Metodo 1 (divisioni successive)<br><br>
+                        • <strong>No</strong> → Metodo 2 (calcola M.C.D.)<br><br>
+                        Entrambi portano allo stesso risultato: la <strong>frazione irriducibile</strong>!
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Errori Comuni -->
+        <div id="phase3" class="phase">
+            <div class="phase-title">📙 Fase 3: Errori Comuni da Evitare</div>
+            <div class="phase-subtitle">Espandi ogni sezione per conoscere gli errori tipici</div>
+            <div class="card-counter">Sezioni visualizzate: <span id="counter3">0</span>/5</div>
+
+            <div class="accordion" data-acc="1">
+                <div class="accordion-header">
+                    <span class="accordion-title">✂️ Errore «Dimezzato»</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>L'errore:</strong> Dividere solo il NUM o solo il DEN.<br><br>
+                    <div class="warning-box">
+                        Se divido il NUM per 2, <strong>devo</strong> dividere anche il DEN per 2!
+                    </div>
+                    <div class="example-box">
+                        ❌ <span class="fraction-display"><span class="num">6</span><span class="den">8</span></span> → <span class="fraction-display"><span class="num">3</span><span class="den">8</span></span> (sbagliato!)<br><br>
+                        ✓ <span class="fraction-display"><span class="num">6</span><span class="den">8</span></span> → <span class="fraction-display"><span class="num">3</span><span class="den">4</span></span> (corretto!)
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="2">
+                <div class="accordion-header">
+                    <span class="accordion-title">⏱️ Errore «Frettoloso»</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>L'errore:</strong> Fermarsi troppo presto (Metodo 1).<br><br>
+                    <div class="warning-box">
+                        Controlla sempre se ci sono <strong>altri divisori comuni</strong>!
+                    </div>
+                    <div class="example-box">
+                        ❌ <span class="fraction-display"><span class="num">18</span><span class="den">12</span></span> → <span class="fraction-display"><span class="num">9</span><span class="den">6</span></span> (non finito!)<br><br>
+                        ✓ <span class="fraction-display"><span class="num">9</span><span class="den">6</span></span> → <span class="fraction-display"><span class="num">3</span><span class="den">2</span></span> (ora è irriducibile!)
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="3">
+                <div class="accordion-header">
+                    <span class="accordion-title">🔀 Errore «Confuso»</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>L'errore:</strong> Confondere M.C.D. con m.c.m.<br><br>
+                    <div class="warning-box">
+                        Per ridurre si usa l'<strong>M.C.D.</strong> (Massimo Comune Divisore), non il m.c.m.!
+                    </div>
+                    <div class="example-box">
+                        M.C.D.(24; 36) = <strong>12</strong> ✓ (usa questo!)<br><br>
+                        m.c.m.(24; 36) = 72 ❌ (questo serve per altro)
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="4">
+                <div class="accordion-header">
+                    <span class="accordion-title">⚖️ M.C.D. vs m.c.m.: Quando Usarli</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <strong>M.C.D. (Massimo Comune Divisore):</strong><br>
+                    • Per <strong>ridurre</strong> le frazioni ai minimi termini<br>
+                    • Fattori <strong>comuni</strong> con esponente <strong>minimo</strong><br><br>
+                    <strong>m.c.m. (minimo comune multiplo):</strong><br>
+                    • Per <strong>confrontare</strong> frazioni con DEN diversi<br>
+                    • Per <strong>sommare/sottrarre</strong> frazioni<br>
+                    • Fattori comuni e non comuni con esponente <strong>massimo</strong>
+                </div>
+            </div>
+
+            <div class="accordion" data-acc="5">
+                <div class="accordion-header">
+                    <span class="accordion-title">✅ Verifica Finale</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    Come verificare che una frazione sia irriducibile:<br><br>
+                    1. Controlla se NUM e DEN sono entrambi pari → se sì, non è irriducibile<br><br>
+                    2. Controlla se sono entrambi divisibili per 3 → se sì, non è irriducibile<br><br>
+                    3. In generale: M.C.D.(NUM; DEN) deve essere = 1<br><br>
+                    <div class="method-box">
+                        <span class="fraction-display"><span class="num">3</span><span class="den">2</span></span> → M.C.D.(3; 2) = 1 → ✓ Irriducibile!
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled>Vai alla Verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <div class="phase-title">📝 Fase 4: Verifica delle Conoscenze</div>
+            <div class="phase-subtitle">Rispondi a tutte le domande, poi clicca "Verifica Risposte"</div>
+
+            <div id="quiz-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">✓ Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <div class="phase-title">📊 Fase 5: Ripasso Personalizzato</div>
+            <div class="phase-subtitle">Ecco il tuo riepilogo basato sui risultati della verifica</div>
+
+            <div class="score-display">
+                <div class="score"><span id="finalScore">0</span>/10</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div id="review-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-success" onclick="location.reload()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Categoria 1: Definizioni e Metodo 1 (5 domande)
+            {
+                category: "Definizioni e Metodo 1",
+                question: "Una frazione è irriducibile quando:",
+                options: [
+                    "NUM è maggiore di DEN",
+                    "NUM e DEN non hanno divisori comuni (tranne 1)",
+                    "NUM e DEN sono entrambi pari",
+                    "La frazione vale meno di 1"
+                ],
+                correct: 1,
+                explanation: "Irriducibile significa che NUM e DEN sono primi tra loro (M.C.D. = 1)."
+            },
+            {
+                category: "Definizioni e Metodo 1",
+                question: "La frazione 15/20 è irriducibile?",
+                options: [
+                    "Sì, perché 15 < 20",
+                    "No, perché sono entrambi divisibili per 5",
+                    "Sì, perché 15 è dispari",
+                    "No, perché 20 è pari"
+                ],
+                correct: 1,
+                explanation: "15 e 20 sono entrambi divisibili per 5, quindi la frazione non è irriducibile."
+            },
+            {
+                category: "Definizioni e Metodo 1",
+                question: "Riduci 12/18 con il metodo delle divisioni successive:",
+                options: [
+                    "6/9",
+                    "4/6",
+                    "2/3",
+                    "1/2"
+                ],
+                correct: 2,
+                explanation: "12/18 → :2 → 6/9 → :3 → 2/3. La frazione irriducibile è 2/3."
+            },
+            {
+                category: "Definizioni e Metodo 1",
+                question: "Nel metodo delle divisioni successive, devi:",
+                options: [
+                    "Dividere solo il numeratore",
+                    "Dividere solo il denominatore",
+                    "Dividere NUM e DEN per lo stesso numero",
+                    "Moltiplicare NUM e DEN"
+                ],
+                correct: 2,
+                explanation: "Devi dividere ENTRAMBI (NUM e DEN) per lo stesso divisore comune."
+            },
+            {
+                category: "Definizioni e Metodo 1",
+                question: "Quale frazione è già irriducibile?",
+                options: [
+                    "8/12",
+                    "9/15",
+                    "7/10",
+                    "6/9"
+                ],
+                correct: 2,
+                explanation: "7/10: M.C.D.(7; 10) = 1, quindi è irriducibile. Le altre hanno divisori comuni."
+            },
+            // Categoria 2: Metodo M.C.D. e Errori (5 domande)
+            {
+                category: "Metodo M.C.D. e Errori",
+                question: "Per ridurre una frazione con il metodo dell'M.C.D., devi:",
+                options: [
+                    "Moltiplicare per il m.c.m.",
+                    "Dividere NUM e DEN per il loro M.C.D.",
+                    "Sommare NUM e DEN",
+                    "Dividere solo il DEN per l'M.C.D."
+                ],
+                correct: 1,
+                explanation: "Si dividono NUM e DEN per il loro M.C.D. per ottenere la frazione irriducibile."
+            },
+            {
+                category: "Metodo M.C.D. e Errori",
+                question: "Qual è l'M.C.D. di 24 e 36?",
+                options: [
+                    "6",
+                    "12",
+                    "72",
+                    "4"
+                ],
+                correct: 1,
+                explanation: "24=2³×3, 36=2²×3². M.C.D. = 2²×3 = 12."
+            },
+            {
+                category: "Metodo M.C.D. e Errori",
+                question: "Riduci 24/36 usando l'M.C.D.:",
+                options: [
+                    "4/6",
+                    "2/3",
+                    "8/12",
+                    "12/18"
+                ],
+                correct: 1,
+                explanation: "M.C.D.(24; 36) = 12. Quindi 24/36 = (24:12)/(36:12) = 2/3."
+            },
+            {
+                category: "Metodo M.C.D. e Errori",
+                question: "L'errore «frettoloso» consiste nel:",
+                options: [
+                    "Usare l'M.C.D. invece del m.c.m.",
+                    "Dividere solo il numeratore",
+                    "Fermarsi prima che la frazione sia irriducibile",
+                    "Confondere NUM con DEN"
+                ],
+                correct: 2,
+                explanation: "L'errore frettoloso è fermarsi troppo presto, quando ci sono ancora divisori comuni."
+            },
+            {
+                category: "Metodo M.C.D. e Errori",
+                question: "Per ridurre le frazioni si usa:",
+                options: [
+                    "Il m.c.m.",
+                    "L'M.C.D.",
+                    "La somma",
+                    "Il prodotto"
+                ],
+                correct: 1,
+                explanation: "Si usa l'M.C.D. (Massimo Comune Divisore). Il m.c.m. serve per confrontare o sommare frazioni."
+            }
+        ];
+
+        let currentPhase = 1;
+        let viewedCards = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let selectedAnswers = {};
+        let quizVerified = false;
+        let categoryScores = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCards();
+            initAccordions();
+            initQuiz();
+        });
+
+        function initCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const cardId = card.dataset.card;
+                    const phase = cardId <= 4 ? 1 : 2;
+                    
+                    card.classList.toggle('expanded');
+                    
+                    if (!viewedCards[phase].has(cardId)) {
+                        viewedCards[phase].add(cardId);
+                        card.classList.add('viewed');
+                        updateCounter(phase);
+                    }
+                });
+            });
+        }
+
+        function initAccordions() {
+            document.querySelectorAll('.accordion').forEach(acc => {
+                acc.querySelector('.accordion-header').addEventListener('click', () => {
+                    const accId = acc.dataset.acc;
+                    
+                    acc.classList.toggle('expanded');
+                    
+                    if (!viewedCards[3].has(accId)) {
+                        viewedCards[3].add(accId);
+                        acc.classList.add('viewed');
+                        updateCounter(3);
+                    }
+                });
+            });
+        }
+
+        function updateCounter(phase) {
+            const total = phase === 1 ? 4 : phase === 2 ? 4 : 5;
+            document.getElementById(`counter${phase}`).textContent = viewedCards[phase].size;
+            
+            const nextBtn = document.getElementById(`next${phase}`);
+            if (viewedCards[phase].size >= total) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => goToPhase(phase + 1);
+            }
+        }
+
+        function initQuiz() {
+            const container = document.getElementById('quiz-container');
+            let currentCategory = '';
+            
+            quizData.forEach((q, index) => {
+                if (q.category !== currentCategory) {
+                    currentCategory = q.category;
+                    container.innerHTML += `<h3 style="margin: 20px 0 15px; color: #c0392b;">${currentCategory}</h3>`;
+                }
+                
+                container.innerHTML += `
+                    <div class="quiz-question" data-question="${index}">
+                        <div class="question-header">
+                            <span class="question-number">${index + 1}</span>
+                            <span class="question-text">${q.question}</span>
+                        </div>
+                        <div class="options">
+                            ${q.options.map((opt, i) => `
+                                <div class="option" data-option="${i}" onclick="selectOption(${index}, ${i})">
+                                    <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+                                    <span>${opt}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="feedback" id="feedback-${index}"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            if (quizVerified) return;
+            
+            const question = document.querySelector(`.quiz-question[data-question="${questionIndex}"]`);
+            question.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            question.querySelector(`.option[data-option="${optionIndex}"]`).classList.add('selected');
+            selectedAnswers[questionIndex] = optionIndex;
+        }
+
+        function verifyQuiz() {
+            const unanswered = [];
+            quizData.forEach((_, index) => {
+                if (selectedAnswers[index] === undefined) {
+                    unanswered.push(index + 1);
+                }
+            });
+
+            if (unanswered.length > 0) {
+                alert(`Rispondi a tutte le domande prima di verificare.\nDomande mancanti: ${unanswered.join(', ')}`);
+                const firstUnanswered = document.querySelector(`.quiz-question[data-question="${unanswered[0] - 1}"]`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            quizVerified = true;
+            let correctCount = 0;
+            categoryScores = {};
+
+            quizData.forEach((q, index) => {
+                const question = document.querySelector(`.quiz-question[data-question="${index}"]`);
+                const selectedOpt = question.querySelector(`.option[data-option="${selectedAnswers[index]}"]`);
+                const correctOpt = question.querySelector(`.option[data-option="${q.correct}"]`);
+                const feedback = document.getElementById(`feedback-${index}`);
+                
+                if (!categoryScores[q.category]) {
+                    categoryScores[q.category] = { correct: 0, total: 0 };
+                }
+                categoryScores[q.category].total++;
+
+                question.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+                if (selectedAnswers[index] === q.correct) {
+                    correctCount++;
+                    categoryScores[q.category].correct++;
+                    selectedOpt.classList.add('correct');
+                    question.classList.add('answered-correct');
+                    feedback.className = 'feedback show correct';
+                    feedback.textContent = '✓ Corretto! ' + q.explanation;
+                } else {
+                    selectedOpt.classList.add('wrong');
+                    correctOpt.classList.add('correct');
+                    question.classList.add('answered-wrong');
+                    feedback.className = 'feedback show wrong';
+                    feedback.textContent = '✗ Sbagliato. ' + q.explanation;
+                }
+            });
+
+            document.getElementById('finalScore').textContent = correctCount;
+            
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.textContent = 'Vai al Ripasso →';
+            verifyBtn.onclick = () => goToPhase(5);
+            
+            generateReview();
+        }
+
+        function generateReview() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            // Raccogli domande errate per categoria
+            const wrongByCategory = {};
+            quizData.forEach((q, index) => {
+                if (selectedAnswers[index] !== q.correct) {
+                    if (!wrongByCategory[q.category]) {
+                        wrongByCategory[q.category] = [];
+                    }
+                    wrongByCategory[q.category].push({
+                        question: q.question,
+                        yourAnswer: q.options[selectedAnswers[index]],
+                        correctAnswer: q.options[q.correct],
+                        explanation: q.explanation
+                    });
+                }
+            });
+
+            const cat1 = categoryScores['Definizioni e Metodo 1'];
+            const cat1Mastered = cat1.correct >= 3;
+            
+            let cat1Html = `
+                <div class="review-section ${cat1Mastered ? 'mastered' : 'needs-review'}">
+                    <h3>${cat1Mastered ? '✓ Hai capito bene' : '⚠ Da rivedere'}: Definizioni e Metodo 1</h3>
+                    <p><strong>Punteggio:</strong> ${cat1.correct}/${cat1.total}</p>
+                    ${cat1Mastered ? `
+                        <p>Ottimo! Sai cos'è una frazione irriducibile e come usare il metodo delle divisioni successive.</p>
+                    ` : `
+                        <p><strong>Ricorda:</strong></p>
+                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                            <li><strong>Irriducibile:</strong> NUM e DEN non hanno divisori comuni (M.C.D. = 1)</li>
+                            <li><strong>Metodo 1:</strong> dividi NUM e DEN per lo stesso divisore, ripeti fino a irriducibile</li>
+                            <li>Devi dividere <strong>sempre entrambi</strong> (NUM e DEN) per lo stesso numero</li>
+                        </ul>
+                    `}`;
+            
+            if (wrongByCategory['Definizioni e Metodo 1']) {
+                cat1Html += `<div style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 10px;">
+                    <strong>📋 Le tue risposte errate:</strong>`;
+                wrongByCategory['Definizioni e Metodo 1'].forEach(w => {
+                    cat1Html += `<div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #e74c3c;">
+                        <p><strong>Domanda:</strong> ${w.question}</p>
+                        <p style="color: #e74c3c;">❌ Tua risposta: ${w.yourAnswer}</p>
+                        <p style="color: #27ae60;">✓ Risposta corretta: ${w.correctAnswer}</p>
+                        <p style="font-size: 0.9em; color: #666;">${w.explanation}</p>
+                    </div>`;
+                });
+                cat1Html += `</div>`;
+            }
+            cat1Html += `</div>`;
+            container.innerHTML += cat1Html;
+
+            const cat2 = categoryScores['Metodo M.C.D. e Errori'];
+            const cat2Mastered = cat2.correct >= 3;
+            
+            let cat2Html = `
+                <div class="review-section ${cat2Mastered ? 'mastered' : 'needs-review'}">
+                    <h3>${cat2Mastered ? '✓ Hai capito bene' : '⚠ Da rivedere'}: Metodo M.C.D. e Errori</h3>
+                    <p><strong>Punteggio:</strong> ${cat2.correct}/${cat2.total}</p>
+                    ${cat2Mastered ? `
+                        <p>Ottimo! Sai usare l'M.C.D. e conosci gli errori da evitare.</p>
+                    ` : `
+                        <p><strong>Ricorda:</strong></p>
+                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                            <li><strong>Metodo 2:</strong> dividi NUM e DEN per il loro M.C.D.</li>
+                            <li><strong>M.C.D.:</strong> fattori comuni con esponente minimo</li>
+                            <li><strong>Errore dimezzato:</strong> devi dividere ENTRAMBI</li>
+                            <li><strong>Errore frettoloso:</strong> controlla che non ci siano altri divisori</li>
+                            <li><strong>Errore confuso:</strong> usa M.C.D. (non m.c.m.) per ridurre</li>
+                        </ul>
+                    `}`;
+            
+            if (wrongByCategory['Metodo M.C.D. e Errori']) {
+                cat2Html += `<div style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 10px;">
+                    <strong>📋 Le tue risposte errate:</strong>`;
+                wrongByCategory['Metodo M.C.D. e Errori'].forEach(w => {
+                    cat2Html += `<div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #e74c3c;">
+                        <p><strong>Domanda:</strong> ${w.question}</p>
+                        <p style="color: #e74c3c;">❌ Tua risposta: ${w.yourAnswer}</p>
+                        <p style="color: #27ae60;">✓ Risposta corretta: ${w.correctAnswer}</p>
+                        <p style="font-size: 0.9em; color: #666;">${w.explanation}</p>
+                    </div>`;
+                });
+                cat2Html += `</div>`;
+            }
+            cat2Html += `</div>`;
+            container.innerHTML += cat2Html;
+        }
+
+        function goToPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${phase}`).classList.add('active');
+            
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 < phase) step.classList.add('completed');
+                if (index + 1 === phase) step.classList.add('active');
+            });
+            
+            currentPhase = phase;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
