@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Metodo Scientifico - Percorso Didattico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #2962a3 0%, #1e4d7b 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(41, 98, 163, 0.3);
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e0e0e0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #888;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-step.active {
+            background: #2962a3;
+            color: white;
+            box-shadow: 0 2px 10px rgba(41, 98, 163, 0.4);
+        }
+
+        .progress-step.completed {
+            background: #2e8b57;
+            color: white;
+        }
+
+        .progress-step.completed::after {
+            content: '✓';
+            position: absolute;
+            font-size: 0.8em;
+        }
+
+        .progress-step.completed span {
+            display: none;
+        }
+
+        /* Phases */
+        .phase {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .phase.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            font-size: 1.4em;
+            color: #2962a3;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-title .icon {
+            font-size: 1.2em;
+        }
+
+        .phase-instruction {
+            background: #f0f7ff;
+            border-left: 4px solid #2962a3;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        /* Interactive Cards - Phase 1 & 2 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .interactive-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .interactive-card:hover {
+            border-color: #2962a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(41, 98, 163, 0.15);
+        }
+
+        .interactive-card.viewed {
+            border-color: #2e8b57;
+            background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+        }
+
+        .interactive-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #2e8b57;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-number {
+            background: #2962a3;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .card-content {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #ddd;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .interactive-card.expanded .card-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .card-hint {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .interactive-card.expanded .card-hint {
+            display: none;
+        }
+
+        /* Concept Cards - Phase 3 */
+        .concept-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .concept-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card.viewed {
+            border-color: #2e8b57;
+        }
+
+        .concept-header {
+            padding: 15px 18px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .concept-card:hover .concept-header {
+            background: #f0f7ff;
+        }
+
+        .concept-card.viewed .concept-header {
+            background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+        }
+
+        .concept-title {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-title .emoji {
+            font-size: 1.2em;
+        }
+
+        .concept-arrow {
+            transition: transform 0.3s ease;
+            color: #888;
+        }
+
+        .concept-card.expanded .concept-arrow {
+            transform: rotate(180deg);
+        }
+
+        .concept-card.viewed .concept-title::after {
+            content: '✓';
+            background: #2e8b57;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            margin-left: 8px;
+        }
+
+        .concept-body {
+            display: none;
+            padding: 0 18px 18px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .concept-card.expanded .concept-body {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .concept-example {
+            background: #fff8e6;
+            border-left: 3px solid #e67e22;
+            padding: 10px 12px;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9em;
+        }
+
+        .concept-example strong {
+            color: #e67e22;
+        }
+
+        /* Quiz - Phase 4 */
+        .quiz-section {
+            margin-bottom: 20px;
+        }
+
+        .quiz-category {
+            margin-bottom: 25px;
+        }
+
+        .quiz-category-title {
+            font-size: 1.1em;
+            color: #2962a3;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .question {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #2962a3;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            font-size: 0.85em;
+            margin-right: 8px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #2962a3;
+            background: #f0f7ff;
+        }
+
+        .option.selected {
+            border-color: #2962a3;
+            background: #e8f0fa;
+        }
+
+        .option.correct {
+            border-color: #2e8b57;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option-marker {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: all 0.2s ease;
+        }
+
+        .option.selected .option-marker {
+            border-color: #2962a3;
+            background: #2962a3;
+            color: white;
+        }
+
+        .option.correct .option-marker {
+            border-color: #2e8b57;
+            background: #2e8b57;
+            color: white;
+        }
+
+        .option.incorrect .option-marker {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 4px solid #2e8b57;
+            color: #2e7d32;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 4px solid #dc3545;
+            color: #c62828;
+        }
+
+        .missing-answer {
+            border: 2px solid #ff9800 !important;
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Review - Phase 5 */
+        .review-section {
+            margin-bottom: 20px;
+        }
+
+        .review-area {
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .review-area.needs-review {
+            background: #fff8e6;
+            border-left: 4px solid #ff9800;
+        }
+
+        .review-area.mastered {
+            background: #e8f5e9;
+            border-left: 4px solid #2e8b57;
+        }
+
+        .review-area-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-area.needs-review .review-area-title {
+            color: #e65100;
+        }
+
+        .review-area.mastered .review-area-title {
+            color: #2e7d32;
+        }
+
+        .review-badge {
+            font-size: 0.75em;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: normal;
+        }
+
+        .review-area.needs-review .review-badge {
+            background: #ff9800;
+            color: white;
+        }
+
+        .review-area.mastered .review-badge {
+            background: #2e8b57;
+            color: white;
+        }
+
+        .review-content {
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .review-content ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .review-content li {
+            margin-bottom: 5px;
+        }
+
+        .score-summary {
+            background: linear-gradient(135deg, #2962a3 0%, #1e4d7b 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            opacity: 0.9;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2962a3;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1e4d7b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(41, 98, 163, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #2e8b57;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #247048;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .counter {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            header, .progress-container, .btn-group, .phase:not(#phase5) {
+                display: none !important;
+            }
+
+            #phase5 {
+                display: block !important;
+                box-shadow: none;
+            }
+
+            .review-area {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .score-summary {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                padding: 20px 15px;
+            }
+
+            header h1 {
+                font-size: 1.4em;
+            }
+
+            .phase {
+                padding: 18px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-step {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85em;
+            }
+
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.95em;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn-group .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Il Metodo Scientifico</h1>
+            <p>Percorso didattico interattivo</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-step active" data-phase="1"><span>1</span></div>
+                <div class="progress-step" data-phase="2"><span>2</span></div>
+                <div class="progress-step" data-phase="3"><span>3</span></div>
+                <div class="progress-step" data-phase="4"><span>4</span></div>
+                <div class="progress-step" data-phase="5"><span>5</span></div>
+            </div>
+        </div>
+
+        <!-- FASE 1: Le Sei Fasi del Metodo Scientifico -->
+        <div id="phase1" class="phase active">
+            <h2 class="phase-title"><span class="icon">📋</span> Fase 1: Le Sei Fasi del Metodo Scientifico</h2>
+            <div class="phase-instruction">
+                Clicca su ogni fase per scoprirne la definizione e il significato. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter1">Schede visualizzate: 0/6</div>
+
+            <div class="cards-grid" id="cards-phase1">
+                <div class="interactive-card" data-card="1">
+                    <div class="card-header">
+                        <div class="card-number">1</div>
+                        <div class="card-title">Osservazione</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Raccolta attenta dei dati iniziali</strong> attraverso i sensi o strumenti di misura. Lo scienziato nota un fenomeno e si pone delle domande. È il punto di partenza di ogni indagine scientifica: ci si chiede «perché succede questo?» oppure «come funziona?».
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="2">
+                    <div class="card-header">
+                        <div class="card-number">2</div>
+                        <div class="card-title">Ipotesi</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Formulazione di una spiegazione provvisoria</strong> del fenomeno osservato. L'ipotesi è una possibile risposta alla domanda iniziale, ma deve poter essere verificata attraverso un esperimento. Non è ancora una certezza, è una supposizione ragionata.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="3">
+                    <div class="card-header">
+                        <div class="card-number">3</div>
+                        <div class="card-title">Esperimento</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Verifica dell'ipotesi in condizioni controllate.</strong> Si modifica una sola variabile alla volta per capire la relazione causa-effetto. L'esperimento deve essere riproducibile: altri scienziati devono poter ottenere gli stessi risultati ripetendolo.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="4">
+                    <div class="card-header">
+                        <div class="card-number">4</div>
+                        <div class="card-title">Analisi dei dati</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Elaborazione dei risultati</strong> ottenuti dall'esperimento. I dati vengono organizzati in tabelle, rappresentati con grafici e analizzati con calcoli. Questa fase trasforma le osservazioni grezze in informazioni significative.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="5">
+                    <div class="card-header">
+                        <div class="card-number">5</div>
+                        <div class="card-title">Verifica</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Confronto tra l'ipotesi iniziale e i risultati sperimentali.</strong> Si risponde alla domanda: i dati confermano o confutano l'ipotesi? Questa fase è cruciale perché determina se proseguire nella stessa direzione o ricominciare con una nuova ipotesi.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="6">
+                    <div class="card-header">
+                        <div class="card-number">6</div>
+                        <div class="card-title">Conclusione</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Se l'ipotesi è confermata, può diventare una teoria scientifica.</strong> Se invece è confutata, si formula una nuova ipotesi e il ciclo ricomincia. La scienza procede proprio così: per tentativi ed errori, avvicinandosi sempre di più alla verità.
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btn-next-1" disabled onclick="goToPhase(2)">
+                    Avanti <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Galileo Galilei -->
+        <div id="phase2" class="phase">
+            <h2 class="phase-title"><span class="icon">🔭</span> Fase 2: Galileo Galilei e la Scienza Moderna</h2>
+            <div class="phase-instruction">
+                Clicca su ogni scheda per scoprire la vita e le scoperte di Galileo. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter2">Schede visualizzate: 0/5</div>
+
+            <div class="cards-grid" id="cards-phase2">
+                <div class="interactive-card" data-card="1">
+                    <div class="card-header">
+                        <div class="card-number">📖</div>
+                        <div class="card-title">Vita e Formazione</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <strong>Galileo Galilei</strong> nacque a Pisa il 15 febbraio 1564 e morì ad Arcetri l'8 gennaio 1642. Figlio di un musicista, studiò medicina all'Università di Pisa ma si appassionò alla matematica e alla fisica. Fu professore a Pisa e poi a Padova, dove trascorse «i migliori anni della sua vita».
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="2">
+                    <div class="card-header">
+                        <div class="card-number">🔭</div>
+                        <div class="card-title">Il Cannocchiale</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        Nel <strong>1609</strong> Galileo perfezionò uno strumento ottico inventato in Olanda e lo puntò verso il cielo. Fu il primo a usare sistematicamente il cannocchiale per osservazioni astronomiche, compiendo scoperte che avrebbero cambiato per sempre la nostra visione dell'universo.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="3">
+                    <div class="card-header">
+                        <div class="card-number">🌙</div>
+                        <div class="card-title">Le Grandi Scoperte</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        Galileo scoprì i <strong>quattro satelliti di Giove</strong> — oggi chiamati «satelliti galileiani» — dimostrando che non tutti i corpi celesti ruotano attorno alla Terra. Osservò inoltre le <strong>fasi di Venere</strong>, prova che il pianeta orbita attorno al Sole, e le montagne sulla Luna.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="4">
+                    <div class="card-header">
+                        <div class="card-number">☀️</div>
+                        <div class="card-title">La Teoria Eliocentrica</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        Galileo sostenne la <strong>teoria eliocentrica</strong> di Copernico: è la Terra a girare attorno al Sole, non viceversa. Questa idea contraddiceva la <strong>teoria geocentrica</strong> — sostenuta dalla Chiesa — secondo cui la Terra era immobile al centro dell'universo.
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="5">
+                    <div class="card-header">
+                        <div class="card-number">⚖️</div>
+                        <div class="card-title">Il Processo e l'Eredità</div>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        Nel <strong>1633</strong> fu processato dall'Inquisizione e costretto ad abiurare. Trascorse gli ultimi anni agli arresti domiciliari. Tuttavia, il suo metodo — osservare, misurare, sperimentare, verificare — ha fondato la <strong>scienza moderna</strong>. Per questo è chiamato «il padre della scienza».
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-primary" id="btn-next-2" disabled onclick="goToPhase(3)">
+                    Avanti <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti Chiave -->
+        <div id="phase3" class="phase">
+            <h2 class="phase-title"><span class="icon">💡</span> Fase 3: Concetti Chiave</h2>
+            <div class="phase-instruction">
+                Espandi ogni scheda per approfondire i concetti fondamentali. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter3">Concetti visualizzati: 0/5</div>
+
+            <div class="concept-cards" id="concepts-phase3">
+                <div class="concept-card" data-concept="1">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span class="emoji">🧪</span>
+                            Condizioni Controllate
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Un esperimento si svolge in <strong>condizioni controllate</strong> quando si modifica <strong>una sola variabile alla volta</strong>, mantenendo costanti tutte le altre. Solo così si può stabilire con certezza quale sia la causa di un effetto osservato.</p>
+                        <div class="concept-example">
+                            <strong>Esempio:</strong> Per verificare se la luce influenza la crescita delle piante, si prendono due piante identiche, si dà loro la stessa acqua e lo stesso terreno, ma una viene esposta alla luce e l'altra no. L'unica differenza è la luce.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="2">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span class="emoji">📐</span>
+                            Ipotesi vs Teoria
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>L'<strong>ipotesi</strong> è una spiegazione provvisoria, ancora da verificare. La <strong>teoria</strong> è invece un'ipotesi che è stata confermata da numerosi esperimenti e osservazioni. Attenzione: nel linguaggio comune «teoria» spesso significa «supposizione», ma in scienza indica una spiegazione solida e ben documentata!</p>
+                        <div class="concept-example">
+                            <strong>Esempio:</strong> La teoria dell'evoluzione di Darwin non è una semplice ipotesi: è supportata da milioni di prove fossili, genetiche e osservazionali.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="3">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span class="emoji">🔄</span>
+                            La Ciclicità del Metodo
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Il metodo scientifico non è lineare ma <strong>ciclico</strong>. Se l'esperimento confuta l'ipotesi, si torna indietro: si formula una nuova ipotesi e si ricomincia. Anche una teoria consolidata può essere rivista se emergono nuove prove. La scienza non è mai «finita».</p>
+                        <div class="concept-example">
+                            <strong>Esempio:</strong> Per secoli si è creduto che la luce viaggiasse istantaneamente. Poi esperimenti sempre più precisi hanno dimostrato che ha una velocità finita, portando a riscrivere la fisica.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="4">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span class="emoji">🌍</span>
+                            Eliocentrismo vs Geocentrismo
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>La <strong>teoria geocentrica</strong> poneva la Terra immobile al centro dell'universo, con tutti i corpi celesti che le ruotavano attorno. La <strong>teoria eliocentrica</strong>, sostenuta da Copernico e difesa da Galileo, pone invece il Sole al centro, con i pianeti — Terra compresa — che gli orbitano attorno.</p>
+                        <div class="concept-example">
+                            <strong>Perché è importante:</strong> Il passaggio dal geocentrismo all'eliocentrismo rappresenta una delle più grandi rivoluzioni scientifiche della storia, simbolo del trionfo dell'osservazione sulla tradizione.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="5">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span class="emoji">👤</span>
+                            Siamo Tutti Scienziati
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Ogni giorno, senza rendercene conto, applichiamo il metodo scientifico. Quando cerchiamo il telecomando, quando capiamo perché una pianta sta appassendo, quando proviamo una nuova ricetta: <strong>osserviamo, ipotizziamo, sperimentiamo, verifichiamo</strong>.</p>
+                        <div class="concept-example">
+                            <strong>Esempio quotidiano:</strong> La pianta ha le foglie gialle → ipotizzo che abbia bisogno di più acqua → la annaffio per una settimana → le foglie tornano verdi → la mia ipotesi era corretta!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-primary" id="btn-next-3" disabled onclick="goToPhase(4)">
+                    Vai alla Verifica <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <h2 class="phase-title"><span class="icon">✏️</span> Fase 4: Verifica le tue Conoscenze</h2>
+            <div class="phase-instruction">
+                Rispondi a tutte le domande e poi clicca su «Verifica Risposte». Non preoccuparti degli errori: servono per capire cosa ripassare!
+            </div>
+
+            <div class="quiz-section">
+                <!-- Categoria 1: Il Metodo Scientifico -->
+                <div class="quiz-category" data-category="metodo">
+                    <h3 class="quiz-category-title">📋 Il Metodo Scientifico</h3>
+
+                    <div class="question" data-question="1" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">1</span>
+                            Qual è la prima fase del metodo scientifico?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q1" value="a">
+                                <span class="option-marker"></span>
+                                <span>Formulare un'ipotesi</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="b">
+                                <span class="option-marker"></span>
+                                <span>Osservare un fenomeno</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="c">
+                                <span class="option-marker"></span>
+                                <span>Condurre un esperimento</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="d">
+                                <span class="option-marker"></span>
+                                <span>Trarre una conclusione</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Esatto! L'osservazione è sempre il punto di partenza: ci si accorge di un fenomeno e ci si pone delle domande.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Osservare un fenomeno». Il metodo scientifico inizia sempre dall'osservazione: prima si nota qualcosa, poi si cerca di spiegarlo.</div>
+                    </div>
+
+                    <div class="question" data-question="2" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">2</span>
+                            Cosa significa condurre un esperimento in «condizioni controllate»?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q2" value="a">
+                                <span class="option-marker"></span>
+                                <span>Ripetere l'esperimento molte volte</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="b">
+                                <span class="option-marker"></span>
+                                <span>Usare strumenti di misura precisi</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="c">
+                                <span class="option-marker"></span>
+                                <span>Modificare una sola variabile alla volta</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="d">
+                                <span class="option-marker"></span>
+                                <span>Fare l'esperimento in laboratorio</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Perfetto! In condizioni controllate si cambia una sola variabile, tenendo costanti tutte le altre, per capire la relazione causa-effetto.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Modificare una sola variabile alla volta». Solo così si può capire quale fattore causa un certo effetto.</div>
+                    </div>
+
+                    <div class="question" data-question="3" data-correct="a">
+                        <div class="question-text">
+                            <span class="question-number">3</span>
+                            Cosa succede se un esperimento confuta l'ipotesi?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q3" value="a">
+                                <span class="option-marker"></span>
+                                <span>Si formula una nuova ipotesi e si ricomincia</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="b">
+                                <span class="option-marker"></span>
+                                <span>Si abbandona la ricerca</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="c">
+                                <span class="option-marker"></span>
+                                <span>L'ipotesi diventa comunque una teoria</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="d">
+                                <span class="option-marker"></span>
+                                <span>Si modificano i dati dell'esperimento</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Giusto! Il metodo scientifico è ciclico: se l'ipotesi è sbagliata, se ne formula una nuova e si ricomincia.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Si formula una nuova ipotesi e si ricomincia». La scienza procede per tentativi ed errori.</div>
+                    </div>
+
+                    <div class="question" data-question="4" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">4</span>
+                            Qual è la differenza tra ipotesi e teoria?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q4" value="a">
+                                <span class="option-marker"></span>
+                                <span>Sono la stessa cosa, solo con nomi diversi</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="b">
+                                <span class="option-marker"></span>
+                                <span>L'ipotesi è provvisoria, la teoria è confermata da molti esperimenti</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="c">
+                                <span class="option-marker"></span>
+                                <span>L'ipotesi è certa, la teoria è solo un'opinione</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="d">
+                                <span class="option-marker"></span>
+                                <span>La teoria viene prima dell'ipotesi</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Esatto! L'ipotesi è una spiegazione provvisoria da verificare, mentre la teoria è stata confermata da numerosi esperimenti e osservazioni.</div>
+                        <div class="feedback incorrect">La risposta corretta è «L'ipotesi è provvisoria, la teoria è confermata da molti esperimenti». In scienza, «teoria» indica una spiegazione solida e ben documentata.</div>
+                    </div>
+
+                    <div class="question" data-question="5" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">5</span>
+                            Nella fase di «analisi dei dati», cosa fa lo scienziato?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q5" value="a">
+                                <span class="option-marker"></span>
+                                <span>Formula una nuova ipotesi</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="b">
+                                <span class="option-marker"></span>
+                                <span>Ripete l'esperimento più volte</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="c">
+                                <span class="option-marker"></span>
+                                <span>Elabora i risultati con tabelle, grafici e calcoli</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="d">
+                                <span class="option-marker"></span>
+                                <span>Osserva il fenomeno per la prima volta</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Perfetto! L'analisi dei dati trasforma le osservazioni grezze in informazioni significative attraverso tabelle, grafici e calcoli.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Elabora i risultati con tabelle, grafici e calcoli». L'analisi dei dati serve a organizzare e interpretare i risultati dell'esperimento.</div>
+                    </div>
+                </div>
+
+                <!-- Categoria 2: Galileo Galilei -->
+                <div class="quiz-category" data-category="galileo">
+                    <h3 class="quiz-category-title">🔭 Galileo Galilei</h3>
+
+                    <div class="question" data-question="6" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">6</span>
+                            Quale importante strumento Galileo perfezionò e puntò verso il cielo?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q6" value="a">
+                                <span class="option-marker"></span>
+                                <span>Il microscopio</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q6" value="b">
+                                <span class="option-marker"></span>
+                                <span>Il cannocchiale</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q6" value="c">
+                                <span class="option-marker"></span>
+                                <span>Il barometro</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q6" value="d">
+                                <span class="option-marker"></span>
+                                <span>Il termometro</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Esatto! Nel 1609 Galileo perfezionò il cannocchiale e lo usò per osservare il cielo, compiendo scoperte rivoluzionarie.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Il cannocchiale». Galileo lo perfezionò e fu il primo a usarlo sistematicamente per osservazioni astronomiche.</div>
+                    </div>
+
+                    <div class="question" data-question="7" data-correct="d">
+                        <div class="question-text">
+                            <span class="question-number">7</span>
+                            Quale scoperta di Galileo dimostrò che non tutti i corpi celesti ruotano attorno alla Terra?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q7" value="a">
+                                <span class="option-marker"></span>
+                                <span>Le macchie solari</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q7" value="b">
+                                <span class="option-marker"></span>
+                                <span>Le montagne sulla Luna</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q7" value="c">
+                                <span class="option-marker"></span>
+                                <span>Gli anelli di Saturno</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q7" value="d">
+                                <span class="option-marker"></span>
+                                <span>I satelliti di Giove</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Perfetto! I quattro satelliti di Giove (oggi chiamati «galileiani») orbitano attorno a Giove, non alla Terra: una prova contro il geocentrismo.</div>
+                        <div class="feedback incorrect">La risposta corretta è «I satelliti di Giove». Scoprendo che quattro lune orbitano attorno a Giove, Galileo dimostrò che non tutto ruota attorno alla Terra.</div>
+                    </div>
+
+                    <div class="question" data-question="8" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">8</span>
+                            Cosa sostiene la teoria eliocentrica difesa da Galileo?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q8" value="a">
+                                <span class="option-marker"></span>
+                                <span>La Terra è al centro dell'universo</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q8" value="b">
+                                <span class="option-marker"></span>
+                                <span>La Luna ruota attorno al Sole</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q8" value="c">
+                                <span class="option-marker"></span>
+                                <span>La Terra ruota attorno al Sole</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q8" value="d">
+                                <span class="option-marker"></span>
+                                <span>Il Sole ruota attorno alla Terra</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Giusto! La teoria eliocentrica pone il Sole al centro, con i pianeti — inclusa la Terra — che gli orbitano attorno.</div>
+                        <div class="feedback incorrect">La risposta corretta è «La Terra ruota attorno al Sole». Eliocentrico significa «con il Sole al centro» (dal greco hélios = Sole).</div>
+                    </div>
+
+                    <div class="question" data-question="9" data-correct="a">
+                        <div class="question-text">
+                            <span class="question-number">9</span>
+                            Perché Galileo è chiamato «il padre della scienza moderna»?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q9" value="a">
+                                <span class="option-marker"></span>
+                                <span>Introdusse il metodo sperimentale: osservare, misurare, verificare</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q9" value="b">
+                                <span class="option-marker"></span>
+                                <span>Fu il primo scienziato della storia</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q9" value="c">
+                                <span class="option-marker"></span>
+                                <span>Inventò il cannocchiale</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q9" value="d">
+                                <span class="option-marker"></span>
+                                <span>Scrisse molti libri di scienza</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Esatto! Galileo introdusse l'idea rivoluzionaria che per capire la natura servono osservazioni ed esperimenti, non solo ragionamenti filosofici.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Introdusse il metodo sperimentale». Il suo contributo fondamentale fu stabilire che la scienza si basa su osservazione, misura e verifica.</div>
+                    </div>
+
+                    <div class="question" data-question="10" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">10</span>
+                            In quale anno Galileo fu processato dall'Inquisizione e costretto ad abiurare?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q10" value="a">
+                                <span class="option-marker"></span>
+                                <span>1609</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q10" value="b">
+                                <span class="option-marker"></span>
+                                <span>1633</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q10" value="c">
+                                <span class="option-marker"></span>
+                                <span>1564</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q10" value="d">
+                                <span class="option-marker"></span>
+                                <span>1642</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Esatto! Nel 1633 Galileo fu processato e costretto a rinnegare pubblicamente le sue idee sull'eliocentrismo.</div>
+                        <div class="feedback incorrect">La risposta corretta è «1633». Il 1609 è l'anno del cannocchiale, il 1564 la nascita, il 1642 la morte.</div>
+                    </div>
+
+                    <div class="question" data-question="11" data-correct="a">
+                        <div class="question-text">
+                            <span class="question-number">11</span>
+                            Dove nacque Galileo Galilei?
+                        </div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q11" value="a">
+                                <span class="option-marker"></span>
+                                <span>Pisa</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q11" value="b">
+                                <span class="option-marker"></span>
+                                <span>Firenze</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q11" value="c">
+                                <span class="option-marker"></span>
+                                <span>Padova</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q11" value="d">
+                                <span class="option-marker"></span>
+                                <span>Roma</span>
+                            </label>
+                        </div>
+                        <div class="feedback correct">Giusto! Galileo nacque a Pisa il 15 febbraio 1564.</div>
+                        <div class="feedback incorrect">La risposta corretta è «Pisa». Galileo nacque a Pisa nel 1564, poi fu professore a Padova e morì ad Arcetri (vicino Firenze).</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-success" id="btn-verify" onclick="verifyQuiz()">
+                    Verifica Risposte
+                </button>
+                <button class="btn btn-primary" id="btn-next-4" style="display: none;" onclick="goToPhase(5)">
+                    Vai al Ripasso <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <h2 class="phase-title"><span class="icon">📚</span> Fase 5: Il Tuo Ripasso Personalizzato</h2>
+
+            <div class="score-summary" id="score-summary">
+                <div class="score-value" id="score-value">0/11</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div class="review-section" id="review-section">
+                <!-- Contenuto generato dinamicamente -->
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">
+                    <span>←</span> Rivedi Errori
+                </button>
+                <button class="btn btn-primary" onclick="window.print()">
+                    🖨️ Stampa Ripasso
+                </button>
+                <button class="btn btn-success" onclick="restart()">
+                    🔄 Ricomincia
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let state = {
+            currentPhase: 1,
+            phase1Viewed: new Set(),
+            phase2Viewed: new Set(),
+            phase3Viewed: new Set(),
+            quizAnswers: {},
+            quizVerified: false,
+            quizResults: { metodo: { correct: 0, total: 5 }, galileo: { correct: 0, total: 6 } }
+        };
+
+        // Phase navigation
+        function goToPhase(phaseNum) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
+            
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 < phaseNum) {
+                    step.classList.add('completed');
+                } else if (index + 1 === phaseNum) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('completed');
+                }
+            });
+
+            state.currentPhase = phaseNum;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (phaseNum === 5 && state.quizVerified) {
+                generateReview();
+            }
+        }
+
+        // Phase 1 & 2: Interactive cards
+        function setupInteractiveCards(phaseId, viewedSet, counterId, btnId, totalCards) {
+            const container = document.getElementById('cards-' + phaseId);
+            const cards = container.querySelectorAll('.interactive-card');
+
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const cardNum = this.dataset.card;
+                    
+                    // Toggle expanded state for this card only
+                    this.classList.toggle('expanded');
+
+                    // Mark as viewed
+                    if (!viewedSet.has(cardNum)) {
+                        viewedSet.add(cardNum);
+                        this.classList.add('viewed');
+                        updateCounter(counterId, viewedSet.size, totalCards);
+                        
+                        if (viewedSet.size === totalCards) {
+                            document.getElementById(btnId).disabled = false;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Phase 3: Concept cards
+        function setupConceptCards() {
+            const cards = document.querySelectorAll('#concepts-phase3 .concept-card');
+
+            cards.forEach(card => {
+                const header = card.querySelector('.concept-header');
+                header.addEventListener('click', function() {
+                    const conceptNum = card.dataset.concept;
+                    
+                    // Toggle expanded for this card only
+                    card.classList.toggle('expanded');
+
+                    // Mark as viewed
+                    if (!state.phase3Viewed.has(conceptNum)) {
+                        state.phase3Viewed.add(conceptNum);
+                        card.classList.add('viewed');
+                        updateCounter('counter3', state.phase3Viewed.size, 5);
+                        
+                        if (state.phase3Viewed.size === 5) {
+                            document.getElementById('btn-next-3').disabled = false;
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateCounter(counterId, current, total) {
+            const counter = document.getElementById(counterId);
+            const label = counterId === 'counter3' ? 'Concetti visualizzati' : 'Schede visualizzate';
+            counter.textContent = `${label}: ${current}/${total}`;
+        }
+
+        // Phase 4: Quiz
+        function setupQuiz() {
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    if (this.classList.contains('disabled')) return;
+                    
+                    const question = this.closest('.question');
+                    const questionNum = question.dataset.question;
+                    const value = this.querySelector('input').value;
+
+                    // Deselect all in this question
+                    question.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    
+                    // Select this one
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                    
+                    // Remove missing answer highlight
+                    question.classList.remove('missing-answer');
+
+                    state.quizAnswers[questionNum] = value;
+                });
+            });
+        }
+
+        function verifyQuiz() {
+            const questions = document.querySelectorAll('.question');
+            let allAnswered = true;
+            let firstMissing = null;
+
+            // Check if all questions answered
+            questions.forEach(q => {
+                const qNum = q.dataset.question;
+                if (!state.quizAnswers[qNum]) {
+                    allAnswered = false;
+                    q.classList.add('missing-answer');
+                    if (!firstMissing) firstMissing = q;
+                }
+            });
+
+            if (!allAnswered) {
+                firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Calculate results
+            state.quizResults = { metodo: { correct: 0, total: 5 }, galileo: { correct: 0, total: 6 } };
+            
+            questions.forEach(q => {
+                const qNum = q.dataset.question;
+                const correct = q.dataset.correct;
+                const userAnswer = state.quizAnswers[qNum];
+                const category = q.closest('.quiz-category').dataset.category;
+                
+                // Disable options
+                q.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+
+                // Show feedback
+                const selectedOption = q.querySelector('.option.selected');
+                const correctOption = q.querySelector(`input[value="${correct}"]`).closest('.option');
+
+                if (userAnswer === correct) {
+                    selectedOption.classList.add('correct');
+                    q.querySelector('.feedback.correct').style.display = 'block';
+                    state.quizResults[category].correct++;
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    correctOption.classList.add('correct');
+                    q.querySelector('.feedback.incorrect').style.display = 'block';
+                }
+            });
+
+            state.quizVerified = true;
+            
+            // Update buttons
+            document.getElementById('btn-verify').style.display = 'none';
+            document.getElementById('btn-next-4').style.display = 'inline-flex';
+        }
+
+        function generateReview() {
+            const reviewSection = document.getElementById('review-section');
+            const totalCorrect = state.quizResults.metodo.correct + state.quizResults.galileo.correct;
+            const totalQuestions = state.quizResults.metodo.total + state.quizResults.galileo.total;
+            
+            document.getElementById('score-value').textContent = `${totalCorrect}/${totalQuestions}`;
+
+            let html = '';
+
+            // Metodo Scientifico area
+            const metodoMastered = state.quizResults.metodo.correct === state.quizResults.metodo.total;
+            html += `
+                <div class="review-area ${metodoMastered ? 'mastered' : 'needs-review'}">
+                    <div class="review-area-title">
+                        📋 Il Metodo Scientifico
+                        <span class="review-badge">${metodoMastered ? 'Hai capito bene!' : 'Da rivedere'}</span>
+                    </div>
+                    <div class="review-content">
+                        ${metodoMastered ? 
+                            '<p>Ottimo lavoro! Hai compreso le sei fasi del metodo scientifico e il concetto di condizioni controllate.</p>' :
+                            `<p>Ripassa questi concetti fondamentali:</p>
+                            <ul>
+                                <li><strong>Le sei fasi:</strong> Osservazione → Ipotesi → Esperimento → Analisi dei dati → Verifica → Conclusione</li>
+                                <li><strong>Condizioni controllate:</strong> modificare una sola variabile alla volta per capire la relazione causa-effetto</li>
+                                <li><strong>Ciclicità:</strong> se l'ipotesi è confutata, se ne formula una nuova e si ricomincia</li>
+                            </ul>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            // Galileo area
+            const galileoMastered = state.quizResults.galileo.correct === state.quizResults.galileo.total;
+            html += `
+                <div class="review-area ${galileoMastered ? 'mastered' : 'needs-review'}">
+                    <div class="review-area-title">
+                        🔭 Galileo Galilei
+                        <span class="review-badge">${galileoMastered ? 'Hai capito bene!' : 'Da rivedere'}</span>
+                    </div>
+                    <div class="review-content">
+                        ${galileoMastered ? 
+                            '<p>Ottimo! Conosci bene la vita di Galileo, le sue scoperte e il suo contributo alla scienza moderna.</p>' :
+                            `<p>Ripassa questi punti chiave:</p>
+                            <ul>
+                                <li><strong>Il cannocchiale (1609):</strong> Galileo lo perfezionò e fu il primo a usarlo per osservazioni astronomiche</li>
+                                <li><strong>I satelliti di Giove:</strong> dimostrarono che non tutto ruota attorno alla Terra</li>
+                                <li><strong>Teoria eliocentrica:</strong> la Terra ruota attorno al Sole (elio = Sole)</li>
+                                <li><strong>Padre della scienza moderna:</strong> introdusse il metodo sperimentale basato su osservazione, misura e verifica</li>
+                            </ul>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            reviewSection.innerHTML = html;
+        }
+
+        function restart() {
+            // Reset state
+            state = {
+                currentPhase: 1,
+                phase1Viewed: new Set(),
+                phase2Viewed: new Set(),
+                phase3Viewed: new Set(),
+                quizAnswers: {},
+                quizVerified: false,
+                quizResults: { metodo: { correct: 0, total: 5 }, galileo: { correct: 0, total: 6 } }
+            };
+
+            // Reset UI - Phase 1
+            document.querySelectorAll('#cards-phase1 .interactive-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter1').textContent = 'Schede visualizzate: 0/6';
+            document.getElementById('btn-next-1').disabled = true;
+
+            // Reset UI - Phase 2
+            document.querySelectorAll('#cards-phase2 .interactive-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter2').textContent = 'Schede visualizzate: 0/5';
+            document.getElementById('btn-next-2').disabled = true;
+
+            // Reset UI - Phase 3
+            document.querySelectorAll('#concepts-phase3 .concept-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter3').textContent = 'Concetti visualizzati: 0/5';
+            document.getElementById('btn-next-3').disabled = true;
+
+            // Reset UI - Quiz
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('missing-answer');
+                q.querySelectorAll('.option').forEach(o => {
+                    o.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                    o.querySelector('input').checked = false;
+                });
+                q.querySelectorAll('.feedback').forEach(f => f.style.display = 'none');
+            });
+            document.getElementById('btn-verify').style.display = 'inline-flex';
+            document.getElementById('btn-next-4').style.display = 'none';
+
+            // Reset progress bar
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index === 0) step.classList.add('active');
+            });
+
+            goToPhase(1);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupInteractiveCards('phase1', state.phase1Viewed, 'counter1', 'btn-next-1', 6);
+            setupInteractiveCards('phase2', state.phase2Viewed, 'counter2', 'btn-next-2', 5);
+            setupConceptCards();
+            setupQuiz();
+        });
+    </script>
+</body>
+</html>
