@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le 4 Operazioni - Percorso Didattico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #5d4e8c 0%, #3d3266 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(93, 78, 140, 0.3);
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.05em;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e0e0e0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #888;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: #5d4e8c;
+            color: white;
+            box-shadow: 0 2px 10px rgba(93, 78, 140, 0.4);
+        }
+
+        .progress-step.completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .progress-step.completed::after {
+            content: '✓';
+            position: absolute;
+            font-size: 0.8em;
+        }
+
+        .progress-step.completed span {
+            display: none;
+        }
+
+        /* Phases */
+        .phase {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .phase.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .phase-title {
+            font-size: 1.4em;
+            color: #5d4e8c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-instruction {
+            background: #f3f0ff;
+            border-left: 4px solid #5d4e8c;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        /* Interactive Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .interactive-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .interactive-card:hover {
+            border-color: #5d4e8c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 78, 140, 0.15);
+        }
+
+        .interactive-card.viewed {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+        }
+
+        .interactive-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #27ae60;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .card-icon {
+            font-size: 1.5em;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .card-content {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #ddd;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .interactive-card.expanded .card-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card-hint {
+            font-size: 0.85em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .interactive-card.expanded .card-hint {
+            display: none;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 8px 0;
+            display: inline-block;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Concept Cards */
+        .concept-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .concept-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card.viewed {
+            border-color: #27ae60;
+        }
+
+        .concept-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .concept-card:hover .concept-header {
+            background: #f3f0ff;
+        }
+
+        .concept-card.viewed .concept-header {
+            background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+        }
+
+        .concept-title {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-arrow {
+            transition: transform 0.3s ease;
+            color: #888;
+        }
+
+        .concept-card.expanded .concept-arrow {
+            transform: rotate(180deg);
+        }
+
+        .concept-card.viewed .concept-title::after {
+            content: '✓';
+            background: #27ae60;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            margin-left: 8px;
+        }
+
+        .concept-body {
+            display: none;
+            padding: 0 16px 16px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .concept-card.expanded .concept-body {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .concept-example {
+            background: #e8f4fd;
+            border-left: 3px solid #3498db;
+            padding: 10px 12px;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9em;
+        }
+
+        /* Quiz */
+        .quiz-section {
+            margin-bottom: 20px;
+        }
+
+        .quiz-category {
+            margin-bottom: 25px;
+        }
+
+        .quiz-category-title {
+            font-size: 1.1em;
+            color: #5d4e8c;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .question {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #5d4e8c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 0.8em;
+            margin-right: 8px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #5d4e8c;
+            background: #f3f0ff;
+        }
+
+        .option.selected {
+            border-color: #5d4e8c;
+            background: #ebe7f5;
+        }
+
+        .option.correct {
+            border-color: #27ae60;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: #ffebee;
+        }
+
+        .option.disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option-marker {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-marker {
+            border-color: #5d4e8c;
+            background: #5d4e8c;
+            color: white;
+        }
+
+        .option.correct .option-marker {
+            border-color: #27ae60;
+            background: #27ae60;
+            color: white;
+        }
+
+        .option.incorrect .option-marker {
+            border-color: #e74c3c;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .feedback {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.is-correct {
+            background: #e8f5e9;
+            border-left: 4px solid #27ae60;
+            color: #1b5e20;
+        }
+
+        .feedback.is-incorrect {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            color: #b71c1c;
+        }
+
+        .missing-answer {
+            border: 2px solid #f39c12 !important;
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+        }
+
+        /* Review */
+        .review-section {
+            margin-bottom: 20px;
+        }
+
+        .review-area {
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .review-area.needs-review {
+            background: #fff8e6;
+            border-left: 4px solid #f39c12;
+        }
+
+        .review-area.mastered {
+            background: #e8f5e9;
+            border-left: 4px solid #27ae60;
+        }
+
+        .review-area-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-area.needs-review .review-area-title {
+            color: #e65100;
+        }
+
+        .review-area.mastered .review-area-title {
+            color: #1b5e20;
+        }
+
+        .review-badge {
+            font-size: 0.75em;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: normal;
+        }
+
+        .review-area.needs-review .review-badge {
+            background: #f39c12;
+            color: white;
+        }
+
+        .review-area.mastered .review-badge {
+            background: #27ae60;
+            color: white;
+        }
+
+        .review-content {
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .review-content ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .review-content li {
+            margin-bottom: 5px;
+        }
+
+        .score-summary {
+            background: linear-gradient(135deg, #5d4e8c 0%, #3d3266 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            opacity: 0.9;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #5d4e8c;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #4a3d70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 78, 140, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #1e8449;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .counter {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; }
+            header, .progress-container, .btn-group, .phase:not(#phase5) { display: none !important; }
+            #phase5 { display: block !important; box-shadow: none; }
+            .review-area { break-inside: avoid; }
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            header { padding: 20px 15px; }
+            header h1 { font-size: 1.4em; }
+            .phase { padding: 18px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .progress-step { width: 32px; height: 32px; font-size: 0.85em; }
+            .btn { padding: 10px 18px; font-size: 0.95em; }
+            .btn-group { flex-direction: column; }
+            .btn-group .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>➕ ➖ ✕ ➗ Le 4 Operazioni</h1>
+            <p>Percorso didattico interattivo</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-step active" data-phase="1"><span>1</span></div>
+                <div class="progress-step" data-phase="2"><span>2</span></div>
+                <div class="progress-step" data-phase="3"><span>3</span></div>
+                <div class="progress-step" data-phase="4"><span>4</span></div>
+                <div class="progress-step" data-phase="5"><span>5</span></div>
+            </div>
+        </div>
+
+        <!-- FASE 1: Addizione e Sottrazione -->
+        <div id="phase1" class="phase active">
+            <h2 class="phase-title">Fase 1: Addizione e Sottrazione</h2>
+            <div class="phase-instruction">
+                Clicca su ogni scheda per scoprire le proprietà delle operazioni. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter1">Schede visualizzate: 0/4</div>
+
+            <div class="cards-grid" id="cards-phase1">
+                <div class="interactive-card" data-card="1">
+                    <div class="card-header">
+                        <span class="card-icon">➕</span>
+                        <span class="card-title">Addizione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <div class="formula">addendo + addendo = somma</div>
+                        <p>L'addizione è un'<strong>operazione diretta</strong>. Serve per unire due o più quantità in un'unica quantità totale.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="2">
+                    <div class="card-header">
+                        <span class="card-icon">🔄</span>
+                        <span class="card-title">Proprietà dell'addizione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <p><strong>Commutativa:</strong> cambiando l'ordine degli addendi, la somma non cambia.</p>
+                        <div class="formula">a + b = b + a</div>
+                        <p><strong>Associativa:</strong> sostituendo a più addendi la loro somma, il risultato non cambia.</p>
+                        <div class="formula">(a + b) + c = a + (b + c)</div>
+                        <p><strong>Elemento neutro:</strong> lo <span class="highlight">zero</span>.</p>
+                        <div class="formula">a + 0 = a</div>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="3">
+                    <div class="card-header">
+                        <span class="card-icon">➖</span>
+                        <span class="card-title">Sottrazione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <div class="formula">minuendo − sottraendo = differenza</div>
+                        <p>La sottrazione è l'<strong>operazione inversa</strong> dell'addizione. Annulla l'effetto dell'addizione, restituendo il numero di partenza.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="4">
+                    <div class="card-header">
+                        <span class="card-icon">⚖️</span>
+                        <span class="card-title">Proprietà della sottrazione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <p><strong>Invariantiva:</strong> sommando o sottraendo lo stesso numero sia al minuendo sia al sottraendo, la differenza non cambia.</p>
+                        <div class="formula">a − b = (a + c) − (b + c)</div>
+                        <p><strong>Elemento neutro:</strong> lo <span class="highlight">zero</span>, ma solo se è il sottraendo.</p>
+                        <div class="formula">a − 0 = a</div>
+                        <p><em>Attenzione: la sottrazione NON è commutativa né associativa!</em></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btn-next-1" disabled onclick="goToPhase(2)">
+                    Avanti <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Moltiplicazione e Divisione -->
+        <div id="phase2" class="phase">
+            <h2 class="phase-title">Fase 2: Moltiplicazione e Divisione</h2>
+            <div class="phase-instruction">
+                Clicca su ogni scheda per scoprire le proprietà delle operazioni. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter2">Schede visualizzate: 0/4</div>
+
+            <div class="cards-grid" id="cards-phase2">
+                <div class="interactive-card" data-card="1">
+                    <div class="card-header">
+                        <span class="card-icon">✕</span>
+                        <span class="card-title">Moltiplicazione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <div class="formula">fattore × fattore = prodotto</div>
+                        <p>La moltiplicazione è un'<strong>operazione diretta</strong>. È un modo rapido per sommare lo stesso numero più volte.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="2">
+                    <div class="card-header">
+                        <span class="card-icon">🔄</span>
+                        <span class="card-title">Proprietà della moltiplicazione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <p><strong>Commutativa:</strong> invertendo l'ordine dei fattori, il prodotto non cambia.</p>
+                        <div class="formula">a × b = b × a</div>
+                        <p><strong>Associativa:</strong> sostituendo a più fattori il loro prodotto, il risultato non cambia.</p>
+                        <div class="formula">(a × b) × c = a × (b × c)</div>
+                        <p><strong>Elemento neutro:</strong> l'<span class="highlight">uno</span>.</p>
+                        <div class="formula">a × 1 = a</div>
+                        <p><strong>Elemento assorbente:</strong> lo <span class="highlight">zero</span>.</p>
+                        <div class="formula">a × 0 = 0</div>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="3">
+                    <div class="card-header">
+                        <span class="card-icon">➗</span>
+                        <span class="card-title">Divisione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <div class="formula">dividendo : divisore = quoziente</div>
+                        <p>La divisione è l'<strong>operazione inversa</strong> della moltiplicazione. Serve per distribuire una quantità in parti uguali.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-card" data-card="4">
+                    <div class="card-header">
+                        <span class="card-icon">⚠️</span>
+                        <span class="card-title">Proprietà della divisione</span>
+                    </div>
+                    <div class="card-hint">Clicca per scoprire...</div>
+                    <div class="card-content">
+                        <p><strong>Invariantiva:</strong> moltiplicando o dividendo sia il dividendo sia il divisore per lo stesso numero, il quoziente non cambia.</p>
+                        <div class="formula">a : b = (a × c) : (b × c)</div>
+                        <p><strong>Elemento neutro:</strong> l'<span class="highlight">uno</span>.</p>
+                        <div class="formula">a : 1 = a</div>
+                        <p><strong>Elemento assorbente:</strong> lo <span class="highlight">zero</span> (solo come dividendo).</p>
+                        <div class="formula">0 : a = 0 (con a ≠ 0)</div>
+                        <p style="background:#ffe0e0; padding:8px; border-radius:6px; margin-top:10px;"><strong>⛔ NON SI PUÒ MAI DIVIDERE PER ZERO!</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-primary" id="btn-next-2" disabled onclick="goToPhase(3)">
+                    Avanti <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Concetti Chiave -->
+        <div id="phase3" class="phase">
+            <h2 class="phase-title">Fase 3: Concetti Chiave</h2>
+            <div class="phase-instruction">
+                Espandi ogni scheda per approfondire i concetti fondamentali. Devi aprire tutte le schede per proseguire.
+            </div>
+
+            <div class="counter" id="counter3">Concetti visualizzati: 0/5</div>
+
+            <div class="concept-cards" id="concepts-phase3">
+                <div class="concept-card" data-concept="1">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span>🔢</span> Numero Naturale
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Un <strong>numero naturale</strong> è un numero intero non negativo: 0, 1, 2, 3, 4, 5, ...</p>
+                        <p>I numeri naturali formano l'insieme <strong>N</strong> e possono essere rappresentati sulla <strong>retta dei numeri</strong>.</p>
+                        <div class="concept-example">
+                            <strong>Esempio:</strong> 7 è un numero naturale. −3 non è un numero naturale (è negativo). 2,5 non è un numero naturale (non è intero).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="2">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span>↩️</span> Operazione Inversa
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>Un'<strong>operazione inversa</strong> annulla l'effetto dell'operazione diretta, restituendo il numero di partenza.</p>
+                        <p>La <strong>sottrazione</strong> è l'inversa dell'addizione. La <strong>divisione</strong> è l'inversa della moltiplicazione.</p>
+                        <div class="concept-example">
+                            <strong>Esempio:</strong> Se 5 + 3 = 8, allora 8 − 3 = 5. L'operazione inversa «annulla» e torna al numero iniziale.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="3">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span>⭕</span> Elemento Neutro
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>L'<strong>elemento neutro</strong> è il numero che, combinato con un altro in un'operazione, lascia quest'ultimo invariato.</p>
+                        <p>Per <strong>addizione e sottrazione</strong>: l'elemento neutro è lo <strong>0</strong>.</p>
+                        <p>Per <strong>moltiplicazione e divisione</strong>: l'elemento neutro è l'<strong>1</strong>.</p>
+                        <div class="concept-example">
+                            <strong>Esempi:</strong> 7 + 0 = 7 | 7 − 0 = 7 | 7 × 1 = 7 | 7 : 1 = 7
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="4">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span>🕳️</span> Elemento Assorbente
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p>L'<strong>elemento assorbente</strong> è il numero che, combinato con qualsiasi altro, dà sempre se stesso come risultato. È presente solo nella moltiplicazione e nella divisione.</p>
+                        <p>Nella <strong>moltiplicazione</strong>: lo <strong>0</strong> è assorbente (qualsiasi numero × 0 = 0).</p>
+                        <p>Nella <strong>divisione</strong>: lo <strong>0</strong> è assorbente solo come dividendo (0 : qualsiasi numero = 0).</p>
+                        <div class="concept-example">
+                            <strong>Esempi:</strong> 1000 × 0 = 0 | 0 : 25 = 0
+                        </div>
+                    </div>
+                </div>
+
+                <div class="concept-card" data-concept="5">
+                    <div class="concept-header">
+                        <div class="concept-title">
+                            <span>⛔</span> Divisione per Zero
+                        </div>
+                        <span class="concept-arrow">▼</span>
+                    </div>
+                    <div class="concept-body">
+                        <p><strong>Non si può MAI dividere per zero.</strong></p>
+                        <p>Perché? La divisione chiede: «quante volte il divisore sta nel dividendo?» Ma zero non può stare in nessun numero un numero definito di volte, quindi l'operazione è <strong>impossibile</strong>.</p>
+                        <div class="concept-example">
+                            <strong>Ricorda:</strong> 5 : 0 = IMPOSSIBILE | 0 : 0 = IMPOSSIBILE | Ma 0 : 5 = 0 (questo è permesso!)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-primary" id="btn-next-3" disabled onclick="goToPhase(4)">
+                    Vai alla Verifica <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <h2 class="phase-title">Fase 4: Verifica le tue Conoscenze</h2>
+            <div class="phase-instruction">
+                Rispondi a tutte le domande e poi clicca su «Verifica Risposte».
+            </div>
+
+            <div class="quiz-section">
+                <!-- Categoria 1: Addizione e Sottrazione -->
+                <div class="quiz-category" data-category="addsub">
+                    <h3 class="quiz-category-title">➕➖ Addizione e Sottrazione</h3>
+
+                    <div class="question" data-question="1" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">1</span>
+                            Qual è l'elemento neutro dell'addizione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q1" value="a"><span class="option-marker"></span><span>1</span></label>
+                            <label class="option"><input type="radio" name="q1" value="b"><span class="option-marker"></span><span>Il numero stesso</span></label>
+                            <label class="option"><input type="radio" name="q1" value="c"><span class="option-marker"></span><span>0</span></label>
+                            <label class="option"><input type="radio" name="q1" value="d"><span class="option-marker"></span><span>Non esiste</span></label>
+                        </div>
+                        <div class="feedback is-correct">Esatto! Sommando zero a qualsiasi numero, il risultato è il numero stesso.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «0». Infatti a + 0 = a per qualsiasi numero.</div>
+                    </div>
+
+                    <div class="question" data-question="2" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">2</span>
+                            La sottrazione è l'operazione inversa di quale operazione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q2" value="a"><span class="option-marker"></span><span>Moltiplicazione</span></label>
+                            <label class="option"><input type="radio" name="q2" value="b"><span class="option-marker"></span><span>Addizione</span></label>
+                            <label class="option"><input type="radio" name="q2" value="c"><span class="option-marker"></span><span>Divisione</span></label>
+                            <label class="option"><input type="radio" name="q2" value="d"><span class="option-marker"></span><span>Nessuna</span></label>
+                        </div>
+                        <div class="feedback is-correct">Giusto! La sottrazione annulla l'effetto dell'addizione.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «Addizione». Se 5 + 3 = 8, allora 8 − 3 = 5.</div>
+                    </div>
+
+                    <div class="question" data-question="3" data-correct="a">
+                        <div class="question-text">
+                            <span class="question-number">3</span>
+                            Cosa afferma la proprietà commutativa dell'addizione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q3" value="a"><span class="option-marker"></span><span>Cambiando l'ordine degli addendi, la somma non cambia</span></label>
+                            <label class="option"><input type="radio" name="q3" value="b"><span class="option-marker"></span><span>Sommando zero, il risultato non cambia</span></label>
+                            <label class="option"><input type="radio" name="q3" value="c"><span class="option-marker"></span><span>Si possono raggruppare gli addendi</span></label>
+                            <label class="option"><input type="radio" name="q3" value="d"><span class="option-marker"></span><span>La somma è sempre positiva</span></label>
+                        </div>
+                        <div class="feedback is-correct">Perfetto! a + b = b + a</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «Cambiando l'ordine degli addendi, la somma non cambia». La commutativa riguarda l'ordine.</div>
+                    </div>
+
+                    <div class="question" data-question="4" data-correct="d">
+                        <div class="question-text">
+                            <span class="question-number">4</span>
+                            Quale proprietà ha la sottrazione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q4" value="a"><span class="option-marker"></span><span>Commutativa</span></label>
+                            <label class="option"><input type="radio" name="q4" value="b"><span class="option-marker"></span><span>Associativa</span></label>
+                            <label class="option"><input type="radio" name="q4" value="c"><span class="option-marker"></span><span>Distributiva</span></label>
+                            <label class="option"><input type="radio" name="q4" value="d"><span class="option-marker"></span><span>Invariantiva</span></label>
+                        </div>
+                        <div class="feedback is-correct">Esatto! La proprietà invariantiva dice che sommando o sottraendo lo stesso numero a minuendo e sottraendo, la differenza non cambia.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «Invariantiva». La sottrazione NON è commutativa né associativa.</div>
+                    </div>
+
+                    <div class="question" data-question="5" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">5</span>
+                            Nella sottrazione, quando lo zero è elemento neutro?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q5" value="a"><span class="option-marker"></span><span>Sempre</span></label>
+                            <label class="option"><input type="radio" name="q5" value="b"><span class="option-marker"></span><span>Quando è il minuendo</span></label>
+                            <label class="option"><input type="radio" name="q5" value="c"><span class="option-marker"></span><span>Quando è il sottraendo</span></label>
+                            <label class="option"><input type="radio" name="q5" value="d"><span class="option-marker"></span><span>Mai</span></label>
+                        </div>
+                        <div class="feedback is-correct">Giusto! a − 0 = a, ma 0 − a ≠ a.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «Quando è il sottraendo». Infatti a − 0 = a.</div>
+                    </div>
+                </div>
+
+                <!-- Categoria 2: Moltiplicazione e Divisione -->
+                <div class="quiz-category" data-category="muldiv">
+                    <h3 class="quiz-category-title">✕➗ Moltiplicazione e Divisione</h3>
+
+                    <div class="question" data-question="6" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">6</span>
+                            Qual è l'elemento neutro della moltiplicazione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q6" value="a"><span class="option-marker"></span><span>0</span></label>
+                            <label class="option"><input type="radio" name="q6" value="b"><span class="option-marker"></span><span>1</span></label>
+                            <label class="option"><input type="radio" name="q6" value="c"><span class="option-marker"></span><span>Il numero stesso</span></label>
+                            <label class="option"><input type="radio" name="q6" value="d"><span class="option-marker"></span><span>Non esiste</span></label>
+                        </div>
+                        <div class="feedback is-correct">Esatto! Moltiplicando per 1 qualsiasi numero, il risultato è il numero stesso.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «1». Infatti a × 1 = a.</div>
+                    </div>
+
+                    <div class="question" data-question="7" data-correct="a">
+                        <div class="question-text">
+                            <span class="question-number">7</span>
+                            Qual è l'elemento assorbente della moltiplicazione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q7" value="a"><span class="option-marker"></span><span>0</span></label>
+                            <label class="option"><input type="radio" name="q7" value="b"><span class="option-marker"></span><span>1</span></label>
+                            <label class="option"><input type="radio" name="q7" value="c"><span class="option-marker"></span><span>−1</span></label>
+                            <label class="option"><input type="radio" name="q7" value="d"><span class="option-marker"></span><span>Non esiste</span></label>
+                        </div>
+                        <div class="feedback is-correct">Perfetto! Qualsiasi numero moltiplicato per zero dà sempre zero.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «0». Infatti a × 0 = 0 per qualsiasi a.</div>
+                    </div>
+
+                    <div class="question" data-question="8" data-correct="c">
+                        <div class="question-text">
+                            <span class="question-number">8</span>
+                            Quale affermazione sulla divisione per zero è corretta?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q8" value="a"><span class="option-marker"></span><span>Il risultato è sempre zero</span></label>
+                            <label class="option"><input type="radio" name="q8" value="b"><span class="option-marker"></span><span>Il risultato è sempre infinito</span></label>
+                            <label class="option"><input type="radio" name="q8" value="c"><span class="option-marker"></span><span>Non si può mai dividere per zero</span></label>
+                            <label class="option"><input type="radio" name="q8" value="d"><span class="option-marker"></span><span>Si può fare solo con numeri piccoli</span></label>
+                        </div>
+                        <div class="feedback is-correct">Esatto! La divisione per zero è sempre impossibile.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «Non si può mai dividere per zero». È una regola fondamentale!</div>
+                    </div>
+
+                    <div class="question" data-question="9" data-correct="d">
+                        <div class="question-text">
+                            <span class="question-number">9</span>
+                            Cosa afferma la proprietà invariantiva della divisione?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q9" value="a"><span class="option-marker"></span><span>Si può invertire l'ordine di dividendo e divisore</span></label>
+                            <label class="option"><input type="radio" name="q9" value="b"><span class="option-marker"></span><span>Dividendo per 1, il risultato non cambia</span></label>
+                            <label class="option"><input type="radio" name="q9" value="c"><span class="option-marker"></span><span>Il quoziente è sempre intero</span></label>
+                            <label class="option"><input type="radio" name="q9" value="d"><span class="option-marker"></span><span>Moltiplicando dividendo e divisore per lo stesso numero, il quoziente non cambia</span></label>
+                        </div>
+                        <div class="feedback is-correct">Giusto! a : b = (a × c) : (b × c)</div>
+                        <div class="feedback is-incorrect">La risposta corretta riguarda moltiplicare o dividere entrambi i termini per lo stesso numero.</div>
+                    </div>
+
+                    <div class="question" data-question="10" data-correct="b">
+                        <div class="question-text">
+                            <span class="question-number">10</span>
+                            Quanto fa 0 : 7?
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q10" value="a"><span class="option-marker"></span><span>7</span></label>
+                            <label class="option"><input type="radio" name="q10" value="b"><span class="option-marker"></span><span>0</span></label>
+                            <label class="option"><input type="radio" name="q10" value="c"><span class="option-marker"></span><span>Impossibile</span></label>
+                            <label class="option"><input type="radio" name="q10" value="d"><span class="option-marker"></span><span>1</span></label>
+                        </div>
+                        <div class="feedback is-correct">Esatto! Zero diviso qualsiasi numero (diverso da zero) dà sempre zero.</div>
+                        <div class="feedback is-incorrect">La risposta corretta è «0». Attenzione: 0 : 7 = 0, ma 7 : 0 è impossibile!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">
+                    <span>←</span> Indietro
+                </button>
+                <button class="btn btn-success" id="btn-verify" onclick="verifyQuiz()">
+                    Verifica Risposte
+                </button>
+                <button class="btn btn-primary" id="btn-next-4" style="display: none;" onclick="goToPhase(5)">
+                    Vai al Ripasso <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <h2 class="phase-title">Fase 5: Il Tuo Ripasso Personalizzato</h2>
+
+            <div class="score-summary">
+                <div class="score-value" id="score-value">0/10</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+
+            <div class="review-section" id="review-section"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">
+                    <span>←</span> Rivedi Errori
+                </button>
+                <button class="btn btn-primary" onclick="window.print()">
+                    🖨️ Stampa Ripasso
+                </button>
+                <button class="btn btn-success" onclick="restart()">
+                    🔄 Ricomincia
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            currentPhase: 1,
+            phase1Viewed: new Set(),
+            phase2Viewed: new Set(),
+            phase3Viewed: new Set(),
+            quizAnswers: {},
+            quizVerified: false,
+            quizResults: { addsub: { correct: 0, total: 5 }, muldiv: { correct: 0, total: 5 } }
+        };
+
+        // Navigation
+        function goToPhase(phaseNum) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
+            
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 < phaseNum) {
+                    step.classList.add('completed');
+                } else if (index + 1 === phaseNum) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('completed');
+                }
+            });
+
+            state.currentPhase = phaseNum;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (phaseNum === 5 && state.quizVerified) {
+                generateReview();
+            }
+        }
+
+        // Interactive cards
+        function setupInteractiveCards(phaseId, viewedSet, counterId, btnId, totalCards) {
+            const container = document.getElementById('cards-' + phaseId);
+            const cards = container.querySelectorAll('.interactive-card');
+
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const cardNum = this.dataset.card;
+                    this.classList.toggle('expanded');
+
+                    if (!viewedSet.has(cardNum)) {
+                        viewedSet.add(cardNum);
+                        this.classList.add('viewed');
+                        updateCounter(counterId, viewedSet.size, totalCards);
+                        
+                        if (viewedSet.size === totalCards) {
+                            document.getElementById(btnId).disabled = false;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Concept cards
+        function setupConceptCards() {
+            const cards = document.querySelectorAll('#concepts-phase3 .concept-card');
+
+            cards.forEach(card => {
+                const header = card.querySelector('.concept-header');
+                header.addEventListener('click', function() {
+                    const conceptNum = card.dataset.concept;
+                    card.classList.toggle('expanded');
+
+                    if (!state.phase3Viewed.has(conceptNum)) {
+                        state.phase3Viewed.add(conceptNum);
+                        card.classList.add('viewed');
+                        updateCounter('counter3', state.phase3Viewed.size, 5);
+                        
+                        if (state.phase3Viewed.size === 5) {
+                            document.getElementById('btn-next-3').disabled = false;
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateCounter(counterId, current, total) {
+            const counter = document.getElementById(counterId);
+            const label = counterId === 'counter3' ? 'Concetti visualizzati' : 'Schede visualizzate';
+            counter.textContent = `${label}: ${current}/${total}`;
+        }
+
+        // Quiz
+        function setupQuiz() {
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    if (this.classList.contains('disabled')) return;
+                    
+                    const question = this.closest('.question');
+                    const questionNum = question.dataset.question;
+                    const value = this.querySelector('input').value;
+
+                    question.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                    question.classList.remove('missing-answer');
+
+                    state.quizAnswers[questionNum] = value;
+                });
+            });
+        }
+
+        function verifyQuiz() {
+            const questions = document.querySelectorAll('.question');
+            let allAnswered = true;
+            let firstMissing = null;
+
+            questions.forEach(q => {
+                const qNum = q.dataset.question;
+                if (!state.quizAnswers[qNum]) {
+                    allAnswered = false;
+                    q.classList.add('missing-answer');
+                    if (!firstMissing) firstMissing = q;
+                }
+            });
+
+            if (!allAnswered) {
+                firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            state.quizResults = { addsub: { correct: 0, total: 5 }, muldiv: { correct: 0, total: 5 } };
+            
+            questions.forEach(q => {
+                const qNum = q.dataset.question;
+                const correct = q.dataset.correct;
+                const userAnswer = state.quizAnswers[qNum];
+                const category = q.closest('.quiz-category').dataset.category;
+                
+                q.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+
+                const selectedOption = q.querySelector('.option.selected');
+                const correctOption = q.querySelector(`input[value="${correct}"]`).closest('.option');
+
+                if (userAnswer === correct) {
+                    selectedOption.classList.add('correct');
+                    q.querySelector('.feedback.is-correct').classList.add('show');
+                    state.quizResults[category].correct++;
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    correctOption.classList.add('correct');
+                    q.querySelector('.feedback.is-incorrect').classList.add('show');
+                }
+            });
+
+            state.quizVerified = true;
+            document.getElementById('btn-verify').style.display = 'none';
+            document.getElementById('btn-next-4').style.display = 'inline-flex';
+        }
+
+        function generateReview() {
+            const reviewSection = document.getElementById('review-section');
+            const totalCorrect = state.quizResults.addsub.correct + state.quizResults.muldiv.correct;
+            const totalQuestions = state.quizResults.addsub.total + state.quizResults.muldiv.total;
+            
+            document.getElementById('score-value').textContent = `${totalCorrect}/${totalQuestions}`;
+
+            let html = '';
+
+            const addsubMastered = state.quizResults.addsub.correct === state.quizResults.addsub.total;
+            html += `
+                <div class="review-area ${addsubMastered ? 'mastered' : 'needs-review'}">
+                    <div class="review-area-title">
+                        ➕➖ Addizione e Sottrazione
+                        <span class="review-badge">${addsubMastered ? 'Hai capito bene!' : 'Da rivedere'}</span>
+                    </div>
+                    <div class="review-content">
+                        ${addsubMastered ? 
+                            '<p>Ottimo! Hai compreso le proprietà di addizione e sottrazione.</p>' :
+                            `<p>Ripassa questi concetti:</p>
+                            <ul>
+                                <li><strong>Addizione:</strong> operazione diretta con proprietà commutativa e associativa</li>
+                                <li><strong>Sottrazione:</strong> operazione inversa dell'addizione, ha solo la proprietà invariantiva</li>
+                                <li><strong>Elemento neutro:</strong> lo zero (nella sottrazione, solo come sottraendo)</li>
+                            </ul>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            const muldivMastered = state.quizResults.muldiv.correct === state.quizResults.muldiv.total;
+            html += `
+                <div class="review-area ${muldivMastered ? 'mastered' : 'needs-review'}">
+                    <div class="review-area-title">
+                        ✕➗ Moltiplicazione e Divisione
+                        <span class="review-badge">${muldivMastered ? 'Hai capito bene!' : 'Da rivedere'}</span>
+                    </div>
+                    <div class="review-content">
+                        ${muldivMastered ? 
+                            '<p>Ottimo! Hai compreso le proprietà di moltiplicazione e divisione.</p>' :
+                            `<p>Ripassa questi concetti:</p>
+                            <ul>
+                                <li><strong>Moltiplicazione:</strong> operazione diretta, elemento neutro = 1, elemento assorbente = 0</li>
+                                <li><strong>Divisione:</strong> operazione inversa, ha la proprietà invariantiva</li>
+                                <li><strong>Regola fondamentale:</strong> NON si può MAI dividere per zero</li>
+                                <li><strong>Attenzione:</strong> 0 : a = 0, ma a : 0 = IMPOSSIBILE</li>
+                            </ul>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            reviewSection.innerHTML = html;
+        }
+
+        function restart() {
+            state = {
+                currentPhase: 1,
+                phase1Viewed: new Set(),
+                phase2Viewed: new Set(),
+                phase3Viewed: new Set(),
+                quizAnswers: {},
+                quizVerified: false,
+                quizResults: { addsub: { correct: 0, total: 5 }, muldiv: { correct: 0, total: 5 } }
+            };
+
+            document.querySelectorAll('#cards-phase1 .interactive-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter1').textContent = 'Schede visualizzate: 0/4';
+            document.getElementById('btn-next-1').disabled = true;
+
+            document.querySelectorAll('#cards-phase2 .interactive-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter2').textContent = 'Schede visualizzate: 0/4';
+            document.getElementById('btn-next-2').disabled = true;
+
+            document.querySelectorAll('#concepts-phase3 .concept-card').forEach(c => {
+                c.classList.remove('viewed', 'expanded');
+            });
+            document.getElementById('counter3').textContent = 'Concetti visualizzati: 0/5';
+            document.getElementById('btn-next-3').disabled = true;
+
+            document.querySelectorAll('.question').forEach(q => {
+                q.classList.remove('missing-answer');
+                q.querySelectorAll('.option').forEach(o => {
+                    o.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                    o.querySelector('input').checked = false;
+                });
+                q.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+            });
+            document.getElementById('btn-verify').style.display = 'inline-flex';
+            document.getElementById('btn-next-4').style.display = 'none';
+
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index === 0) step.classList.add('active');
+            });
+
+            goToPhase(1);
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', function() {
+            setupInteractiveCards('phase1', state.phase1Viewed, 'counter1', 'btn-next-1', 4);
+            setupInteractiveCards('phase2', state.phase2Viewed, 'counter2', 'btn-next-2', 4);
+            setupConceptCards();
+            setupQuiz();
+        });
+    </script>
+</body>
+</html>
