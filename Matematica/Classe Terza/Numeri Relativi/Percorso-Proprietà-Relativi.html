@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Proprietà delle Potenze - Percorso Didattico</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$', right: '$', display: false}]});"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 1.8em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; padding: 20px; background: #f8f9fa; flex-wrap: wrap; }
+        .progress-step { width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; transition: all 0.3s; }
+        .progress-step.active { background: #667eea; color: white; transform: scale(1.1); }
+        .progress-step.completed { background: #27ae60; color: white; }
+        .phase { display: none; padding: 30px; }
+        .phase.active { display: block; }
+        .phase-title { font-size: 1.4em; color: #333; margin-bottom: 10px; }
+        .phase-subtitle { color: #666; margin-bottom: 20px; }
+        .card-counter { background: #ede7f6; padding: 10px 15px; border-radius: 10px; margin-bottom: 20px; color: #5e35b1; font-weight: 500; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: linear-gradient(145deg, #f5f7fa 0%, #e8ecf1 100%); border-radius: 15px; padding: 20px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .card.viewed { border-color: #667eea; background: linear-gradient(145deg, #ede7f6 0%, #d1c4e9 100%); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-title { font-weight: bold; color: #333; font-size: 1.05em; }
+        .card-check { color: #667eea; font-size: 1.3em; opacity: 0; transition: opacity 0.3s; }
+        .card.viewed .card-check { opacity: 1; }
+        .card-hint { color: #888; font-size: 0.85em; }
+        .card-content { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; color: #444; line-height: 1.7; }
+        .card.expanded .card-content { display: block; }
+        .card.expanded .card-hint { display: none; }
+        .formula-box { background: #fff3e0; border-left: 4px solid #ff9800; padding: 12px 15px; margin: 10px 0; border-radius: 0 8px 8px 0; font-family: 'Courier New', monospace; font-size: 1.1em; text-align: center; }
+        .example-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .warning-box { background: #ffebee; border-left: 4px solid #f44336; padding: 12px 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .accordion { margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; }
+        .accordion-header { background: #f5f7fa; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header:hover { background: #e8ecf1; }
+        .accordion.viewed .accordion-header { background: #ede7f6; }
+        .accordion-title { font-weight: 600; color: #333; }
+        .accordion-icon { transition: transform 0.3s; }
+        .accordion.expanded .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { display: none; padding: 20px; background: white; line-height: 1.7; }
+        .accordion.expanded .accordion-content { display: block; }
+        .quiz-question { background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .quiz-question h3 { color: #333; margin-bottom: 15px; font-size: 1.05em; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-option { padding: 12px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .quiz-option:hover:not(.disabled) { border-color: #667eea; background: #ede7f6; }
+        .quiz-option.selected { border-color: #667eea; background: #d1c4e9; }
+        .quiz-option.correct { border-color: #27ae60; background: #e8f5e9; }
+        .quiz-option.wrong { border-color: #e74c3c; background: #ffebee; }
+        .quiz-option.disabled { pointer-events: none; }
+        .feedback { padding: 10px 15px; border-radius: 8px; margin-top: 10px; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #e8f5e9; color: #2e7d32; }
+        .feedback.wrong { background: #ffebee; color: #c62828; }
+        .category-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 15px; border-radius: 10px; margin: 20px 0 15px 0; font-weight: 600; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 25px; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 12px 30px; border: none; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-secondary:hover { background: #d0d0d0; }
+        .btn-success { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; }
+        .score-display { text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; margin-bottom: 25px; }
+        .score { font-size: 3em; font-weight: bold; }
+        .score-label { font-size: 1.1em; opacity: 0.9; }
+        .review-section { background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
+        .review-section h3 { color: #333; margin-bottom: 10px; }
+        .review-section.mastered { border-left: 4px solid #27ae60; }
+        .review-section.needs-review { border-left: 4px solid #ff9800; }
+        .wrong-item { margin-top: 10px; padding: 12px; background: white; border-radius: 8px; border-left: 3px solid #e74c3c; }
+        @media print { body { background: white; } .container { box-shadow: none; } .header, .progress-bar, .nav-buttons { display: none; } .phase { display: none !important; } #phase5 { display: block !important; } }
+        @media (max-width: 600px) { .header h1 { font-size: 1.4em; } .phase { padding: 20px; } .cards-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📐 Le Proprietà delle Potenze</h1>
+            <p>Numeri Relativi e Frazioni</p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-step active">1</div>
+            <div class="progress-step">2</div>
+            <div class="progress-step">3</div>
+            <div class="progress-step">4</div>
+            <div class="progress-step">5</div>
+        </div>
+
+        <!-- FASE 1: Proprietà STESSA BASE -->
+        <div id="phase1" class="phase active">
+            <div class="phase-title">📘 Fase 1: Proprietà con la STESSA BASE</div>
+            <div class="phase-subtitle">Clicca su ogni card per scoprire le proprietà</div>
+            <div class="card-counter">Card visualizzate: <span id="counter1">0</span>/3</div>
+            <div class="cards-grid">
+                <div class="card" data-card="1">
+                    <div class="card-header"><span class="card-title">1. Prodotto (stessa base)</span><span class="card-check">✓</span></div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Si riscrive la base e si <strong>sommano</strong> gli esponenti.
+                        <div class="formula-box">aⁿ · aᵐ = aⁿ⁺ᵐ</div>
+                        <div class="example-box">
+                            <strong>Interi:</strong> $(+3)^2 \cdot (+3)^5 = (+3)^{2+5} = (+3)^7$<br><br>
+                            <strong>Frazioni:</strong> $(+\frac{1}{2})^3 \cdot (+\frac{1}{2})^4 = (+\frac{1}{2})^7$
+                        </div>
+                    </div>
+                </div>
+                <div class="card" data-card="2">
+                    <div class="card-header"><span class="card-title">2. Quoziente (stessa base)</span><span class="card-check">✓</span></div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Si riscrive la base e si <strong>sottraggono</strong> gli esponenti.
+                        <div class="formula-box">aⁿ : aᵐ = aⁿ⁻ᵐ</div>
+                        <div class="example-box">
+                            <strong>Interi:</strong> $(-5)^8 : (-5)^6 = (-5)^{8-6} = (-5)^2$<br><br>
+                            <strong>Frazioni:</strong> $(-\frac{3}{4})^5 : (-\frac{3}{4})^2 = (-\frac{3}{4})^3$
+                        </div>
+                    </div>
+                </div>
+                <div class="card" data-card="3">
+                    <div class="card-header"><span class="card-title">3. Potenza di Potenza</span><span class="card-check">✓</span></div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Si riscrive la base e si <strong>moltiplicano</strong> gli esponenti.
+                        <div class="formula-box">(aⁿ)ᵐ = aⁿ·ᵐ</div>
+                        <div class="example-box">
+                            <strong>Interi:</strong> $[(-3)^2]^3 = (-3)^{2 \cdot 3} = (-3)^6$<br><br>
+                            <strong>Frazioni:</strong> $[(-\frac{2}{3})^2]^2 = (-\frac{2}{3})^4$
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="next1" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Proprietà STESSO ESPONENTE -->
+        <div id="phase2" class="phase">
+            <div class="phase-title">📗 Fase 2: Proprietà con lo STESSO ESPONENTE</div>
+            <div class="phase-subtitle">Clicca su ogni card per approfondire</div>
+            <div class="card-counter">Card visualizzate: <span id="counter2">0</span>/2</div>
+            <div class="cards-grid">
+                <div class="card" data-card="4">
+                    <div class="card-header"><span class="card-title">4. Prodotto (stesso esponente)</span><span class="card-check">✓</span></div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Si <strong>moltiplicano</strong> le basi e si <strong>mantiene</strong> l'esponente.
+                        <div class="formula-box">aⁿ · bⁿ = (a · b)ⁿ</div>
+                        <div class="example-box">
+                            <strong>Interi:</strong> $(-2)^3 \cdot (+5)^3 = [(-2) \cdot (+5)]^3 = (-10)^3$<br><br>
+                            <strong>Frazioni:</strong> $(-\frac{1}{2})^2 \cdot (+\frac{2}{3})^2 = [(-\frac{1}{2}) \cdot (+\frac{2}{3})]^2 = (-\frac{1}{3})^2$
+                        </div>
+                    </div>
+                </div>
+                <div class="card" data-card="5">
+                    <div class="card-header"><span class="card-title">5. Quoziente (stesso esponente)</span><span class="card-check">✓</span></div>
+                    <div class="card-hint">Clicca per espandere</div>
+                    <div class="card-content">
+                        Si <strong>dividono</strong> le basi e si <strong>mantiene</strong> l'esponente.
+                        <div class="formula-box">aⁿ : bⁿ = (a : b)ⁿ</div>
+                        <div class="example-box">
+                            <strong>Interi:</strong> $(+15)^2 : (-3)^2 = [(+15) : (-3)]^2 = (-5)^2$
+                        </div>
+                        <div class="warning-box">
+                            <strong>⚠️ Con le frazioni:</strong> la divisione diventa moltiplicazione per l'inverso!<br><br>
+                            $(+\frac{3}{4})^3 : (-\frac{7}{8})^3 = [(+\frac{3}{4}) \cdot (-\frac{8}{7})]^3 = (-\frac{6}{7})^3$
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="next2" disabled>Prosegui →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Riepilogo -->
+        <div id="phase3" class="phase">
+            <div class="phase-title">📙 Fase 3: Schema Riassuntivo</div>
+            <div class="phase-subtitle">Espandi ogni sezione per consolidare</div>
+            <div class="card-counter">Sezioni visualizzate: <span id="counter3">0</span>/2</div>
+
+            <div class="accordion" data-acc="1">
+                <div class="accordion-header"><span class="accordion-title">📋 Proprietà STESSA BASE</span><span class="accordion-icon">▼</span></div>
+                <div class="accordion-content">
+                    <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                        <tr style="background: #ede7f6;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">Operazione</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Formula</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Esponenti</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Prodotto</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">aⁿ · aᵐ = aⁿ⁺ᵐ</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>si sommano</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Quoziente</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">aⁿ : aᵐ = aⁿ⁻ᵐ</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>si sottraggono</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Potenza di potenza</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">(aⁿ)ᵐ = aⁿ·ᵐ</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>si moltiplicano</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="accordion" data-acc="2">
+                <div class="accordion-header"><span class="accordion-title">📋 Proprietà STESSO ESPONENTE</span><span class="accordion-icon">▼</span></div>
+                <div class="accordion-content">
+                    <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                        <tr style="background: #ede7f6;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">Operazione</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Formula</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Basi</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Prodotto</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">aⁿ · bⁿ = (a·b)ⁿ</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>si moltiplicano</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">Quoziente</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">aⁿ : bⁿ = (a:b)ⁿ</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>si dividono</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="next3" disabled>Vai alla Verifica →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Verifica -->
+        <div id="phase4" class="phase">
+            <div class="phase-title">📝 Fase 4: Verifica delle Conoscenze</div>
+            <div class="phase-subtitle">Rispondi a tutte le domande, poi clicca "Verifica Risposte"</div>
+            <div id="quiz-container"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">✓ Verifica Risposte</button>
+            </div>
+        </div>
+
+        <!-- FASE 5: Ripasso -->
+        <div id="phase5" class="phase">
+            <div class="phase-title">📊 Fase 5: Ripasso Personalizzato</div>
+            <div class="phase-subtitle">Riepilogo basato sui tuoi risultati</div>
+            <div class="score-display">
+                <div class="score"><span id="finalScore">0</span>/10</div>
+                <div class="score-label">Risposte corrette</div>
+            </div>
+            <div id="review-container"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { category: "Stessa Base", question: "Come si calcola (+2)³ · (+2)⁵?", options: ["(+2)¹⁵", "(+2)⁸", "(+2)²", "(+4)⁸"], correct: 1, explanation: "Stessa base → somma esponenti: (+2)³⁺⁵ = (+2)⁸" },
+            { category: "Stessa Base", question: "Come si calcola (−3)⁷ : (−3)⁴?", options: ["(−3)²⁸", "(−3)¹¹", "(−3)³", "(−3)⁴"], correct: 2, explanation: "Stessa base → sottrai esponenti: (−3)⁷⁻⁴ = (−3)³" },
+            { category: "Stessa Base", question: "Come si calcola [(−2)³]⁴?", options: ["(−2)⁷", "(−2)¹²", "(−2)⁸¹", "(−2)⁶⁴"], correct: 1, explanation: "Potenza di potenza → moltiplica esponenti: (−2)³·⁴ = (−2)¹²" },
+            { category: "Stessa Base", question: "Quanto fa (+5)⁴ · (+5)⁰?", options: ["(+5)⁴", "(+5)⁰", "0", "1"], correct: 0, explanation: "(+5)⁴ · (+5)⁰ = (+5)⁴⁺⁰ = (+5)⁴ (ricorda: a⁰ = 1)" },
+            { category: "Stesso Esponente", question: "Come si calcola (−2)⁴ · (+3)⁴?", options: ["(−6)⁸", "(−6)⁴", "(+6)⁴", "(−5)⁴"], correct: 1, explanation: "Stesso esponente → moltiplica basi: [(−2)·(+3)]⁴ = (−6)⁴" },
+            { category: "Stesso Esponente", question: "Come si calcola (+12)³ : (−4)³?", options: ["(−3)³", "(+3)³", "(−48)³", "(+3)⁶"], correct: 0, explanation: "Stesso esponente → dividi basi: [(+12):(−4)]³ = (−3)³" },
+            { category: "Stesso Esponente", question: "Come si calcola (−5)² · (−2)²?", options: ["(−7)⁴", "(+10)²", "(−10)²", "(−3)²"], correct: 1, explanation: "Stesso esp. → moltiplica basi: [(−5)·(−2)]² = (+10)²" },
+            { category: "Stesso Esponente", question: "Quando si applica la proprietà aⁿ·bⁿ = (a·b)ⁿ?", options: ["Quando le basi sono uguali", "Quando gli esponenti sono uguali", "Sempre", "Mai con i negativi"], correct: 1, explanation: "Questa proprietà si applica quando gli esponenti sono uguali." },
+            { category: "Miste", question: "Come si semplifica [(+2)²]³ · (+2)⁴?", options: ["(+2)¹⁰", "(+2)²⁴", "(+2)⁹", "(+2)¹²"], correct: 0, explanation: "Prima: [(+2)²]³ = (+2)⁶. Poi: (+2)⁶ · (+2)⁴ = (+2)¹⁰" },
+            { category: "Miste", question: "Come si calcola (−3)⁵ · (−3)² : (−3)⁴?", options: ["(−3)³", "(−3)¹¹", "(−3)⁷", "(−3)⁴⁰"], correct: 0, explanation: "(−3)⁵⁺²⁻⁴ = (−3)³" }
+        ];
+
+        let viewedCards = { 1: new Set(), 2: new Set(), 3: new Set() };
+        let selectedAnswers = {};
+        let quizVerified = false;
+        let categoryScores = { 
+            'Stessa Base': { correct: 0, total: 4 }, 
+            'Stesso Esponente': { correct: 0, total: 4 },
+            'Miste': { correct: 0, total: 2 }
+        };
+
+        function initCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                    if (!card.classList.contains('viewed')) {
+                        card.classList.add('viewed');
+                        const cardNum = parseInt(card.dataset.card);
+                        const phase = cardNum <= 3 ? 1 : 2;
+                        viewedCards[phase].add(cardNum);
+                        updateCounter(phase);
+                    }
+                    if (typeof renderMathInElement !== 'undefined') {
+                        renderMathInElement(card, {delimiters: [{left: '$', right: '$', display: false}]});
+                    }
+                });
+            });
+        }
+
+        function initAccordions() {
+            document.querySelectorAll('.accordion').forEach(acc => {
+                acc.querySelector('.accordion-header').addEventListener('click', () => {
+                    acc.classList.toggle('expanded');
+                    if (!acc.classList.contains('viewed')) {
+                        acc.classList.add('viewed');
+                        viewedCards[3].add(parseInt(acc.dataset.acc));
+                        updateCounter(3);
+                    }
+                    if (typeof renderMathInElement !== 'undefined') {
+                        renderMathInElement(acc, {delimiters: [{left: '$', right: '$', display: false}]});
+                    }
+                });
+            });
+        }
+
+        function updateCounter(phase) {
+            const total = phase === 1 ? 3 : phase === 2 ? 2 : 2;
+            document.getElementById(`counter${phase}`).textContent = viewedCards[phase].size;
+            const nextBtn = document.getElementById(`next${phase}`);
+            if (viewedCards[phase].size >= total) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => goToPhase(phase + 1);
+            }
+        }
+
+        function initQuiz() {
+            const container = document.getElementById('quiz-container');
+            let currentCat = '';
+            quizData.forEach((q, idx) => {
+                if (q.category !== currentCat) {
+                    currentCat = q.category;
+                    container.innerHTML += `<div class="category-header">${currentCat}</div>`;
+                }
+                container.innerHTML += `
+                    <div class="quiz-question" data-q="${idx}">
+                        <h3>${idx + 1}. ${q.question}</h3>
+                        <div class="quiz-options">${q.options.map((o, i) => `<div class="quiz-option" data-opt="${i}">${o}</div>`).join('')}</div>
+                        <div class="feedback" id="fb-${idx}"></div>
+                    </div>`;
+            });
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    if (quizVerified) return;
+                    const q = opt.closest('.quiz-question');
+                    q.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedAnswers[q.dataset.q] = parseInt(opt.dataset.opt);
+                });
+            });
+        }
+
+        function verifyQuiz() {
+            const unanswered = quizData.filter((_, i) => selectedAnswers[i] === undefined);
+            if (unanswered.length > 0) { alert(`Devi rispondere a tutte le domande! Ne mancano ${unanswered.length}.`); return; }
+            quizVerified = true;
+            let correct = 0;
+            Object.keys(categoryScores).forEach(c => categoryScores[c].correct = 0);
+            quizData.forEach((q, idx) => {
+                const qEl = document.querySelector(`[data-q="${idx}"]`);
+                const opts = qEl.querySelectorAll('.quiz-option');
+                const fb = document.getElementById(`fb-${idx}`);
+                opts.forEach(o => o.classList.add('disabled'));
+                const selOpt = qEl.querySelector(`[data-opt="${selectedAnswers[idx]}"]`);
+                const corrOpt = qEl.querySelector(`[data-opt="${q.correct}"]`);
+                if (selectedAnswers[idx] === q.correct) {
+                    correct++; categoryScores[q.category].correct++;
+                    selOpt.classList.add('correct');
+                    fb.className = 'feedback show correct'; fb.textContent = '✓ Corretto! ' + q.explanation;
+                } else {
+                    selOpt.classList.add('wrong'); corrOpt.classList.add('correct');
+                    fb.className = 'feedback show wrong'; fb.textContent = '✗ Sbagliato. ' + q.explanation;
+                }
+            });
+            document.getElementById('finalScore').textContent = correct;
+            document.getElementById('verifyBtn').textContent = 'Vai al Ripasso →';
+            document.getElementById('verifyBtn').onclick = () => goToPhase(5);
+            generateReview();
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.getElementById('quiz-container'), {delimiters: [{left: '$', right: '$', display: false}]});
+            }
+        }
+
+        function generateReview() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+            const wrongByCat = {};
+            quizData.forEach((q, idx) => {
+                if (selectedAnswers[idx] !== q.correct) {
+                    if (!wrongByCat[q.category]) wrongByCat[q.category] = [];
+                    wrongByCat[q.category].push({ question: q.question, yours: q.options[selectedAnswers[idx]], correct: q.options[q.correct], expl: q.explanation });
+                }
+            });
+            
+            const reviewContent = {
+                'Stessa Base': '<ul style="margin:10px 0 0 20px;line-height:1.8;"><li>Prodotto: aⁿ · aᵐ = aⁿ⁺ᵐ (<strong>somma</strong> esp.)</li><li>Quoziente: aⁿ : aᵐ = aⁿ⁻ᵐ (<strong>sottrai</strong> esp.)</li><li>Potenza di potenza: (aⁿ)ᵐ = aⁿ·ᵐ (<strong>moltiplica</strong> esp.)</li></ul>',
+                'Stesso Esponente': '<ul style="margin:10px 0 0 20px;line-height:1.8;"><li>Prodotto: aⁿ · bⁿ = (a·b)ⁿ (<strong>moltiplica</strong> basi)</li><li>Quoziente: aⁿ : bⁿ = (a:b)ⁿ (<strong>dividi</strong> basi)</li></ul>',
+                'Miste': '<ul style="margin:10px 0 0 20px;line-height:1.8;"><li>Applica prima la potenza di potenza</li><li>Poi usa prodotto/quoziente stessa base</li></ul>'
+            };
+            
+            for (const [cat, data] of Object.entries(categoryScores)) {
+                const threshold = cat === 'Miste' ? 1 : 3;
+                const mastered = data.correct >= threshold;
+                let html = `<div class="review-section ${mastered ? 'mastered' : 'needs-review'}">
+                    <h3>${mastered ? '✓ Hai capito bene' : '⚠ Da rivedere'}: ${cat}</h3>
+                    <p><strong>Punteggio:</strong> ${data.correct}/${data.total}</p>`;
+                if (mastered) {
+                    html += `<p>Ottimo lavoro su questa sezione!</p>`;
+                } else {
+                    html += `<p><strong>Ricorda:</strong></p>${reviewContent[cat]}`;
+                }
+                if (wrongByCat[cat]) {
+                    html += `<div style="margin-top:15px;"><strong>📋 Le tue risposte errate:</strong>`;
+                    wrongByCat[cat].forEach(w => {
+                        html += `<div class="wrong-item"><p><strong>Domanda:</strong> ${w.question}</p><p style="color:#e74c3c;">❌ Tua risposta: ${w.yours}</p><p style="color:#27ae60;">✓ Risposta corretta: ${w.correct}</p><p style="font-size:0.9em;color:#666;">${w.expl}</p></div>`;
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        function goToPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${phase}`).classList.add('active');
+            document.querySelectorAll('.progress-step').forEach((s, i) => {
+                s.classList.remove('active');
+                if (i + 1 < phase) s.classList.add('completed');
+                if (i + 1 === phase) s.classList.add('active');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.getElementById(`phase${phase}`), {delimiters: [{left: '$', right: '$', display: false}]});
+                }
+            }, 50);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            initCards(); 
+            initAccordions(); 
+            initQuiz(); 
+            setTimeout(() => {
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(document.body, {delimiters: [{left: '$', right: '$', display: false}]});
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
