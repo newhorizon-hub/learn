@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Numeri Relativi — Metodo Universale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #00695c 0%, #00897b 100%);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,105,92,0.3);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #00695c, #26a69a);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase-title {
+            background: linear-gradient(135deg, #00695c 0%, #00897b 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .phase-title h2 {
+            font-size: 1.4rem;
+        }
+        
+        .phase-number {
+            background: rgba(255,255,255,0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .instruction {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card.viewed {
+            border-color: #4caf50;
+        }
+        
+        .card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #00695c;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .card-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            color: #555;
+        }
+        
+        .card.expanded .card-content {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .card-hint {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        
+        .card.expanded .card-hint {
+            display: none;
+        }
+        
+        .example-box {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .positive { color: #27ae60; font-weight: bold; }
+        .negative { color: #e74c3c; font-weight: bold; }
+        .neutral { color: #3498db; font-weight: bold; }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00695c 0%, #00897b 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,105,92,0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Quiz styles */
+        .quiz-question {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .quiz-question.correct {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .quiz-question.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .question-category {
+            font-size: 0.8rem;
+            color: #00695c;
+            background: #e0f2f1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #00695c;
+            background: #e0f2f1;
+        }
+        
+        .option.selected {
+            border-color: #00695c;
+            background: #e0f2f1;
+        }
+        
+        .option.disabled {
+            cursor: default;
+        }
+        
+        .option.correct-answer {
+            border-color: #4caf50;
+            background: #c8e6c9;
+        }
+        
+        .option.wrong-answer {
+            border-color: #f44336;
+            background: #ffcdd2;
+        }
+        
+        .option-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .feedback.correct {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        /* Ripasso styles */
+        .review-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .review-section.needs-review {
+            border-left: 4px solid #ff9800;
+            background: #fff8e1;
+        }
+        
+        .review-section.mastered {
+            border-left: 4px solid #4caf50;
+            background: #e8f5e9;
+        }
+        
+        .review-label {
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .review-label.needs-review {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .review-label.mastered {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00695c;
+        }
+        
+        .thermometer-visual {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .thermo-svg {
+            width: 60px;
+        }
+        
+        .number-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .number-line span {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .rule-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .rule-box h4 {
+            color: #f57f17;
+            margin-bottom: 10px;
+        }
+        
+        table.rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .rule-table td, .rule-table th {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        .rule-table th {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .concept-line {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .concept-line:last-child {
+            border-bottom: none;
+        }
+        
+        @media print {
+            .nav-buttons, .progress-bar, header, .instruction { display: none !important; }
+            .phase { display: none !important; }
+            #phase5 { display: block !important; }
+            .review-section { break-inside: avoid; }
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            header h1 { font-size: 1.5rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .btn { padding: 12px 20px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>I Numeri Relativi</h1>
+            <p>Metodo Universale — Percorso di Apprendimento</p>
+        </header>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <!-- FASE 1: Introduzione -->
+        <div class="phase active" id="phase1">
+            <div class="phase-title">
+                <div class="phase-number">1</div>
+                <h2>Introduzione ai Numeri Relativi</h2>
+            </div>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni scheda per scoprire il contenuto. Devi aprirle tutte per proseguire.
+            </div>
+            
+            <div class="cards-grid" id="cards1">
+                <div class="card" data-card="def">
+                    <div class="card-title">📚 Definizione</div>
+                    <div class="card-hint">Clicca per scoprire cosa sono i numeri relativi</div>
+                    <div class="card-content">
+                        <p>I <strong>numeri relativi</strong> sono numeri dotati di <strong>segno</strong>: positivo (+) o negativo (−).</p>
+                        <p style="margin-top: 10px;">L'insieme degli interi relativi si indica con <strong>ℤ</strong> = {..., −3, −2, −1, 0, +1, +2, +3, ...}</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="thermo">
+                    <div class="card-title">🌡️ Il Termometro</div>
+                    <div class="card-hint">Clicca per vedere come funziona</div>
+                    <div class="card-content">
+                        Il termometro è il modo più intuitivo per capire i numeri relativi:
+                        <div class="thermometer-visual">
+                            <svg class="thermo-svg" viewBox="0 0 40 120">
+                                <rect x="15" y="10" width="10" height="80" rx="5" fill="#e0e0e0" stroke="#999" stroke-width="1"/>
+                                <circle cx="20" cy="100" r="12" fill="#e74c3c"/>
+                                <rect x="17" y="50" width="6" height="40" fill="#e74c3c"/>
+                                <line x1="28" y1="20" x2="35" y2="20" stroke="#666" stroke-width="1"/>
+                                <text x="36" y="23" font-size="8" fill="#e74c3c">+30°C</text>
+                                <line x1="28" y1="40" x2="35" y2="40" stroke="#666" stroke-width="1"/>
+                                <text x="36" y="43" font-size="8" fill="#e74c3c">+10°C</text>
+                                <line x1="28" y1="50" x2="35" y2="50" stroke="#666" stroke-width="2"/>
+                                <text x="36" y="53" font-size="8" fill="#3498db" font-weight="bold">0°C</text>
+                                <line x1="28" y1="60" x2="35" y2="60" stroke="#666" stroke-width="1"/>
+                                <text x="36" y="63" font-size="8" fill="#3498db">−10°C</text>
+                                <line x1="28" y1="80" x2="35" y2="80" stroke="#666" stroke-width="1"/>
+                                <text x="36" y="83" font-size="8" fill="#3498db">−30°C</text>
+                            </svg>
+                        </div>
+                        <p><span class="negative">Sotto zero</span> = numeri negativi<br>
+                        <span class="positive">Sopra zero</span> = numeri positivi</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="examples">
+                    <div class="card-title">🌍 Esempi dalla Vita Reale</div>
+                    <div class="card-hint">Clicca per vedere dove li troviamo</div>
+                    <div class="card-content">
+                        <p>🌡️ <strong>Temperature:</strong> −5°C sotto lo zero, +20°C sopra lo zero</p>
+                        <p>⛰️ <strong>Altitudini:</strong> +8848 m (Everest), −400 m (Mar Morto)</p>
+                        <p>💰 <strong>Soldi:</strong> +500 € credito, −100 € debito</p>
+                        <p>📅 <strong>Anni:</strong> 50 a.C. = −50, 2024 d.C. = +2024</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="line">
+                    <div class="card-title">📏 La Linea dei Numeri</div>
+                    <div class="card-hint">Clicca per visualizzarla</div>
+                    <div class="card-content">
+                        <div class="number-line">
+                            <span class="negative">−5</span>
+                            <span class="negative">−4</span>
+                            <span class="negative">−3</span>
+                            <span class="negative">−2</span>
+                            <span class="negative">−1</span>
+                            <span class="neutral" style="font-size: 1.2em;">0</span>
+                            <span class="positive">+1</span>
+                            <span class="positive">+2</span>
+                            <span class="positive">+3</span>
+                            <span class="positive">+4</span>
+                            <span class="positive">+5</span>
+                            <span>→</span>
+                        </div>
+                        <p style="text-align: center; margin-top: 10px;">
+                            <span class="negative">← NEGATIVI</span> | 
+                            <span class="neutral">0</span> | 
+                            <span class="positive">POSITIVI →</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="abs">
+                    <div class="card-title">📐 Valore Assoluto</div>
+                    <div class="card-hint">Clicca per capire cos'è</div>
+                    <div class="card-content">
+                        <p>Il <strong>valore assoluto</strong>* (v.a.) |a| è la <strong>distanza dallo zero</strong>, indipendentemente dal segno.</p>
+                        <div class="example-box">
+                            |+5| = 5<br>
+                            |−5| = 5<br>
+                            |0| = 0
+                        </div>
+                        <p><strong>Proprietà:</strong> Il valore assoluto è sempre ≥ 0.</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="compare">
+                    <div class="card-title">⚖️ Confronto</div>
+                    <div class="card-hint">Clicca per imparare a confrontare</div>
+                    <div class="card-content">
+                        <p>Ogni <span class="positive">positivo</span> > 0 > ogni <span class="negative">negativo</span></p>
+                        <div class="example-box">
+                            +3 > +1 > 0 > −2 > −5
+                        </div>
+                        <p><strong>Tra due negativi</strong>, è maggiore quello con v.a. <strong>minore</strong>:</p>
+                        <div class="example-box">
+                            −2 > −5 (perché |−2| = 2 < 5 = |−5|)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="opposite">
+                    <div class="card-title">↔️ Numeri Opposti</div>
+                    <div class="card-hint">Clicca per scoprirli</div>
+                    <div class="card-content">
+                        <p>Due numeri sono <strong>opposti</strong> se hanno stesso valore assoluto e <strong>segno contrario</strong>.</p>
+                        <div class="example-box">
+                            Opposto di +5 è −5<br>
+                            Opposto di −3 è +3
+                        </div>
+                        <p><strong>Proprietà:</strong> a + (−a) = 0<br>
+                        <em>La somma di due opposti è sempre zero!</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="concordi">
+                    <div class="card-title">🎯 Concordi e Discordi</div>
+                    <div class="card-hint">Clicca per questa definizione fondamentale</div>
+                    <div class="card-content">
+                        <div class="rule-box">
+                            <p><strong style="color: #27ae60;">CONCORDI</strong> = stesso segno</p>
+                            <div class="example-box">+1 e +2 oppure −3 e −5</div>
+                        </div>
+                        <div class="rule-box">
+                            <p><strong style="color: #e74c3c;">DISCORDI</strong> = segno opposto</p>
+                            <div class="example-box">+1 e −2 oppure −7 e +4</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="btn1" disabled onclick="goToPhase(2)">Continua →</button>
+            </div>
+        </div>
+        
+        <!-- FASE 2: Operazioni -->
+        <div class="phase" id="phase2">
+            <div class="phase-title">
+                <div class="phase-number">2</div>
+                <h2>Operazioni con i Numeri Relativi</h2>
+            </div>
+            
+            <div class="instruction">
+                ➤ Clicca su ogni scheda per scoprire le regole operative. Devi aprirle tutte per proseguire.
+            </div>
+            
+            <div class="cards-grid" id="cards2">
+                <div class="card" data-card="rule" style="grid-column: 1 / -1;">
+                    <div class="card-title">⭐ LA REGOLA UNIVERSALE DEI SEGNI</div>
+                    <div class="card-hint">Clicca per la regola più importante!</div>
+                    <div class="card-content">
+                        <table class="rule-table">
+                            <tr>
+                                <th>Segni</th>
+                                <th>Risultato</th>
+                            </tr>
+                            <tr>
+                                <td><strong>CONCORDI</strong> (+ e +) oppure (− e −)</td>
+                                <td><span class="positive">POSITIVO (+)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>DISCORDI</strong> (+ e −) oppure (− e +)</td>
+                                <td><span class="negative">NEGATIVO (−)</span></td>
+                            </tr>
+                        </table>
+                        <p style="text-align: center; margin-top: 15px; font-weight: bold;">
+                            Vale per TUTTE le operazioni — anche con le frazioni!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="signsymbol">
+                    <div class="card-title">⚠️ SEGNO e OPERATORE sono diversi!</div>
+                    <div class="card-hint">Clicca per capire la differenza cruciale</div>
+                    <div class="card-content">
+                        <div class="example-box" style="font-size: 1.3em; text-align: center;">
+                            +2 <span style="color: #00695c;">−</span> (<span class="negative">−3</span>)
+                        </div>
+                        <p style="text-align: center; margin-top: 10px;">
+                            <span style="color: #00695c; font-weight: bold;">OPERATORE</span> = simbolo dell'operazione<br>
+                            <span class="negative">SEGNO</span> = del numero
+                        </p>
+                        <p style="margin-top: 15px;"><strong>Attenzione!</strong> Non confonderli mai!</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="method">
+                    <div class="card-title">📋 Il Metodo in 3 Passi</div>
+                    <div class="card-hint">Clicca per il metodo infallibile</div>
+                    <div class="card-content">
+                        <p><strong>1. IDENTIFICA</strong> — Distingui il segno del numero dal simbolo dell'operazione</p>
+                        <p style="margin-top: 10px;"><strong>2. CLASSIFICA</strong> — I due segni sono concordi o discordi?</p>
+                        <p style="margin-top: 10px;"><strong>3. CALCOLA</strong> — Applica la regola universale</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="sum">
+                    <div class="card-title">➕➖ Somma Algebrica</div>
+                    <div class="card-hint">Clicca per gli esempi</div>
+                    <div class="card-content">
+                        <p>Applica la regola alle parentesi, poi calcola:</p>
+                        <div class="example-box">
+                            −2 + (<span class="negative">−3</span>) = −2 − 3 = −5<br>
+                            <small>operatore + e segno − = discordi → diventa −</small>
+                        </div>
+                        <div class="example-box">
+                            +4 − (<span class="negative">−5</span>) = +4 + 5 = +9<br>
+                            <small>operatore − e segno − = concordi → diventa +</small>
+                        </div>
+                        <div class="example-box">
+                            −5 + (<span class="positive">+3</span>) = −5 + 3 = −2<br>
+                            <small>operatore + e segno + = concordi → resta +</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="multdiv">
+                    <div class="card-title">✖️➗ Moltiplicazione e Divisione</div>
+                    <div class="card-hint">Clicca per gli esempi</div>
+                    <div class="card-content">
+                        <p>Applica direttamente la regola:</p>
+                        <p><strong>Moltiplicazione:</strong></p>
+                        <div class="example-box">
+                            (<span class="negative">−2</span>) · (<span class="positive">+5</span>) = <span class="negative">−10</span> (discordi)<br>
+                            (<span class="negative">−3</span>) · (<span class="negative">−4</span>) = <span class="positive">+12</span> (concordi)
+                        </div>
+                        <p><strong>Divisione:</strong></p>
+                        <div class="example-box">
+                            (<span class="positive">+25</span>) : (<span class="negative">−5</span>) = <span class="negative">−5</span> (discordi)<br>
+                            (<span class="negative">−12</span>) : (<span class="negative">−4</span>) = <span class="positive">+3</span> (concordi)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="fractions">
+                    <div class="card-title">📊 Con le Frazioni</div>
+                    <div class="card-hint">Clicca per vedere che funziona uguale</div>
+                    <div class="card-content">
+                        <p>La regola dei segni vale anche per le frazioni!</p>
+                        <div class="example-box">
+                            (−½) · (−¼) = +⅛<br>
+                            <small>concordi → positivo</small>
+                        </div>
+                        <div class="example-box">
+                            (−¼) : (−³⁄₂) = +⅙<br>
+                            <small>concordi → positivo</small>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;"><em>(ma non appartengono a ℤ)</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="multiple">
+                    <div class="card-title">🔢 Più Fattori: Conta i "meno"</div>
+                    <div class="card-hint">Clicca per la regola con più numeri</div>
+                    <div class="card-content">
+                        <p>Con più di due fattori, conta i segni negativi:</p>
+                        <div class="rule-box">
+                            <p><strong>Numero PARI di −</strong> → risultato <span class="positive">positivo</span></p>
+                            <div class="example-box">
+                                (−2) · (−3) · (+4) = <span class="positive">+24</span><br>
+                                <small>(2 segni −)</small>
+                            </div>
+                        </div>
+                        <div class="rule-box">
+                            <p><strong>Numero DISPARI di −</strong> → risultato <span class="negative">negativo</span></p>
+                            <div class="example-box">
+                                (−2) · (−3) · (−4) = <span class="negative">−24</span><br>
+                                <small>(3 segni −)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="zero">
+                    <div class="card-title">🔵 Proprietà dello Zero</div>
+                    <div class="card-hint">Clicca per i casi speciali</div>
+                    <div class="card-content">
+                        <p>• a + 0 = a <em>(elemento neutro della somma)</em></p>
+                        <p style="margin-top: 8px;">• a × 0 = 0 <em>(qualsiasi numero per zero fa zero)</em></p>
+                        <p style="margin-top: 8px;">• 0 : a = 0 <em>(se a ≠ 0)</em></p>
+                        <p style="margin-top: 8px; color: #e74c3c; font-weight: bold;">• a : 0 = IMPOSSIBILE! <em>(divisione per zero)</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="errors">
+                    <div class="card-title">❌ Errori Comuni da Evitare</div>
+                    <div class="card-hint">Clicca per non sbagliare!</div>
+                    <div class="card-content">
+                        <div class="example-box" style="background: #ffebee;">
+                            • (−5) − (−3) ≠ −8<br>
+                            <span class="positive">✓ Corretto: (−5) + (+3) = −2</span><br>
+                            <small>(operatore − e segno − = concordi → diventa +)</small>
+                        </div>
+                        <div class="example-box" style="background: #ffebee; margin-top: 10px;">
+                            • (−2) × (−3) ≠ −6<br>
+                            <span class="positive">✓ Corretto: concordi → +6</span><br>
+                            <small>(due negativi danno sempre positivo)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+                <button class="btn btn-primary" id="btn2" disabled onclick="goToPhase(3)">Continua →</button>
+            </div>
+        </div>
+        
+        <!-- FASE 3: Concetti Chiave -->
+        <div class="phase" id="phase3">
+            <div class="phase-title">
+                <div class="phase-number">3</div>
+                <h2>Concetti Chiave — Riepilogo</h2>
+            </div>
+            
+            <div class="instruction">
+                ➤ Espandi ogni concetto chiave per ripassare prima della verifica.
+            </div>
+            
+            <div class="cards-grid" id="cards3">
+                <div class="card" data-card="key1">
+                    <div class="card-title">🎯 Concordi vs Discordi</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p>La distinzione fondamentale:</p>
+                        <p class="concept-line">✅ <strong>CONCORDI:</strong> stesso segno (+ +) o (− −) → risultato <span class="positive">POSITIVO</span></p>
+                        <p class="concept-line">❎ <strong>DISCORDI:</strong> segno opposto (+ −) o (− +) → risultato <span class="negative">NEGATIVO</span></p>
+                        <p style="margin-top: 10px;"><em>Questa regola vale per moltiplicazione, divisione e per eliminare le parentesi nella somma algebrica!</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="key2">
+                    <div class="card-title">⚠️ SEGNO e OPERATORE sono diversi!</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p>Nella somma algebrica, devi identificare:</p>
+                        <p class="concept-line">🔧 <strong>OPERATORE:</strong> il simbolo dell'operazione (+ o −) tra i termini</p>
+                        <p class="concept-line">🏷️ <strong>SEGNO:</strong> il segno del numero tra parentesi</p>
+                        <p style="margin-top: 10px;">Poi applichi la regola concordi/discordi all'operatore e al segno per decidere cosa mettere al posto della parentesi.</p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="key3">
+                    <div class="card-title">⚖️ Confronto tra Negativi</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p>Tra due numeri negativi, è <strong>maggiore</strong> quello con v.a. <strong>minore</strong>.</p>
+                        <div class="example-box">
+                            −2 > −5 perché |−2| = 2 < 5 = |−5|
+                        </div>
+                        <p>🌡️ <em>Pensa al termometro: −2°C è "più caldo" di −5°C!</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="key4">
+                    <div class="card-title">↔️ Numeri Opposti</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p>Due numeri sono opposti se:</p>
+                        <p class="concept-line">📐 Hanno lo <strong>stesso valore assoluto</strong></p>
+                        <p class="concept-line">🔄 Hanno <strong>segno contrario</strong></p>
+                        <p style="margin-top: 10px;"><strong>Proprietà fondamentale:</strong> a + (−a) = 0</p>
+                        <p><em>La somma di due numeri opposti è sempre zero!</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="key5">
+                    <div class="card-title">🔢 Più Fattori Negativi</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p>Quando moltiplichi più numeri:</p>
+                        <p class="concept-line">✅ <strong>PARI</strong> fattori negativi → risultato <span class="positive">POSITIVO</span></p>
+                        <p class="concept-line">❎ <strong>DISPARI</strong> fattori negativi → risultato <span class="negative">NEGATIVO</span></p>
+                        <p style="margin-top: 10px;"><em>Conta quanti segni − ci sono e guarda se sono pari o dispari!</em></p>
+                    </div>
+                </div>
+                
+                <div class="card" data-card="key6">
+                    <div class="card-title">🚫 Divisione per Zero</div>
+                    <div class="card-hint">Clicca per ripassare</div>
+                    <div class="card-content">
+                        <p style="color: #e74c3c; font-weight: bold; font-size: 1.2em;">
+                            La divisione per zero è IMPOSSIBILE!
+                        </p>
+                        <p style="margin-top: 10px;">Ricorda:</p>
+                        <p class="concept-line">✅ 0 : a = 0 (zero diviso qualcosa fa zero)</p>
+                        <p class="concept-line">🚫 a : 0 = impossibile (non si può dividere per zero)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+                <button class="btn btn-primary" id="btn3" disabled onclick="goToPhase(4)">Vai alla Verifica →</button>
+            </div>
+        </div>
+        
+        <!-- FASE 4: Verifica -->
+        <div class="phase" id="phase4">
+            <div class="phase-title">
+                <div class="phase-number">4</div>
+                <h2>Verifica le tue Conoscenze</h2>
+            </div>
+            
+            <div class="instruction">
+                ➤ Rispondi a tutte le domande, poi clicca "Verifica Risposte".
+            </div>
+            
+            <div id="quizContainer"></div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+                <button class="btn btn-primary" id="btnVerify" onclick="verifyQuiz()">Verifica Risposte</button>
+            </div>
+        </div>
+        
+        <!-- FASE 5: Ripasso -->
+        <div class="phase" id="phase5">
+            <div class="phase-title">
+                <div class="phase-number">5</div>
+                <h2>Il Tuo Ripasso Personalizzato</h2>
+            </div>
+            
+            <div class="score-display" id="scoreDisplay"></div>
+            
+            <div id="reviewContainer"></div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa Ripasso</button>
+                <button class="btn btn-secondary" onclick="restartQuiz()">🔄 Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                category: "Definizioni",
+                question: "Come si chiamano due numeri che hanno lo stesso segno?",
+                options: ["Opposti", "Concordi", "Discordi", "Assoluti"],
+                correct: 1,
+                explanation: "Due numeri con lo stesso segno (entrambi positivi o entrambi negativi) si chiamano CONCORDI."
+            },
+            {
+                category: "Definizioni",
+                question: "Qual è il valore assoluto di −7?",
+                options: ["−7", "7", "0", "−1"],
+                correct: 1,
+                explanation: "Il valore assoluto è la distanza dallo zero, quindi |−7| = 7."
+            },
+            {
+                category: "Confronto",
+                question: "Quale affermazione è corretta?",
+                options: ["−3 > −1", "−5 > −2", "−2 > −5", "−10 > −1"],
+                correct: 2,
+                explanation: "Tra due negativi, è maggiore quello con valore assoluto minore: −2 > −5 perché |−2| = 2 < 5 = |−5|."
+            },
+            {
+                category: "Regola dei Segni",
+                question: "(−4) · (−3) = ?",
+                options: ["−12", "+12", "−7", "+7"],
+                correct: 1,
+                explanation: "Segni concordi (− e −) danno risultato POSITIVO: (−4) · (−3) = +12."
+            },
+            {
+                category: "Regola dei Segni",
+                question: "(+6) · (−2) = ?",
+                options: ["+12", "−12", "+4", "−4"],
+                correct: 1,
+                explanation: "Segni discordi (+ e −) danno risultato NEGATIVO: (+6) · (−2) = −12."
+            },
+            {
+                category: "Somma Algebrica",
+                question: "−5 + (−3) = ?",
+                options: ["+8", "−8", "+2", "−2"],
+                correct: 1,
+                explanation: "Operatore + e segno − sono discordi, quindi la parentesi diventa −: −5 − 3 = −8."
+            },
+            {
+                category: "Somma Algebrica",
+                question: "+4 − (−2) = ?",
+                options: ["+2", "−2", "+6", "−6"],
+                correct: 2,
+                explanation: "Operatore − e segno − sono concordi, quindi la parentesi diventa +: +4 + 2 = +6."
+            },
+            {
+                category: "Divisione",
+                question: "(−20) : (+4) = ?",
+                options: ["+5", "−5", "+16", "−16"],
+                correct: 1,
+                explanation: "Segni discordi (− e +) danno risultato NEGATIVO: (−20) : (+4) = −5."
+            },
+            {
+                category: "Più Fattori",
+                question: "(−2) · (−3) · (−1) = ?",
+                options: ["+6", "−6", "+5", "−5"],
+                correct: 1,
+                explanation: "Ci sono 3 segni negativi (DISPARI), quindi il risultato è NEGATIVO: −6."
+            },
+            {
+                category: "Proprietà Zero",
+                question: "Quale operazione è impossibile?",
+                options: ["0 + 5", "0 · 5", "0 : 5", "5 : 0"],
+                correct: 3,
+                explanation: "La divisione per zero è IMPOSSIBILE! Non si può mai dividere per zero."
+            }
+        ];
+        
+        let currentPhase = 1;
+        let cardStates = {
+            1: {},
+            2: {},
+            3: {}
+        };
+        let quizAnswers = {};
+        let quizResults = {};
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initCards();
+            generateQuiz();
+            updateProgress();
+        });
+        
+        function initCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const cardId = this.dataset.card;
+                    const phaseNum = this.closest('.phase').id.replace('phase', '');
+                    
+                    this.classList.toggle('expanded');
+                    
+                    if (!this.classList.contains('viewed')) {
+                        this.classList.add('viewed');
+                        cardStates[phaseNum][cardId] = true;
+                        checkPhaseComplete(phaseNum);
+                    }
+                });
+            });
+        }
+        
+        function checkPhaseComplete(phaseNum) {
+            const phase = document.getElementById(`phase${phaseNum}`);
+            const totalCards = phase.querySelectorAll('.card').length;
+            const viewedCards = Object.keys(cardStates[phaseNum]).length;
+            
+            if (viewedCards >= totalCards) {
+                document.getElementById(`btn${phaseNum}`).disabled = false;
+            }
+        }
+        
+        function generateQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'quiz-question';
+                questionDiv.id = `question${index}`;
+                
+                let optionsHtml = '';
+                const letters = ['A', 'B', 'C', 'D'];
+                q.options.forEach((opt, optIndex) => {
+                    optionsHtml += `
+                        <div class="option" data-question="${index}" data-option="${optIndex}" onclick="selectOption(${index}, ${optIndex})">
+                            <div class="option-letter">${letters[optIndex]}</div>
+                            <span>${opt}</span>
+                        </div>
+                    `;
+                });
+                
+                questionDiv.innerHTML = `
+                    <div class="question-category">${q.category}</div>
+                    <div class="question-text">${index + 1}. ${q.question}</div>
+                    <div class="options">${optionsHtml}</div>
+                    <div class="feedback" id="feedback${index}"></div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        function selectOption(questionIndex, optionIndex) {
+            const questionDiv = document.getElementById(`question${questionIndex}`);
+            if (questionDiv.classList.contains('answered')) return;
+            
+            questionDiv.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            const selectedOption = questionDiv.querySelector(`[data-option="${optionIndex}"]`);
+            selectedOption.classList.add('selected');
+            quizAnswers[questionIndex] = optionIndex;
+        }
+        
+        function verifyQuiz() {
+            // Check all answered
+            const unanswered = [];
+            quizData.forEach((q, index) => {
+                if (quizAnswers[index] === undefined) {
+                    unanswered.push(index + 1);
+                }
+            });
+            
+            if (unanswered.length > 0) {
+                alert(`Devi rispondere a tutte le domande! Mancano: ${unanswered.join(', ')}`);
+                const firstUnanswered = document.getElementById(`question${unanswered[0] - 1}`);
+                firstUnanswered.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            
+            // Grade quiz
+            let correct = 0;
+            quizData.forEach((q, index) => {
+                const questionDiv = document.getElementById(`question${index}`);
+                questionDiv.classList.add('answered');
+                
+                const isCorrect = quizAnswers[index] === q.correct;
+                quizResults[q.category] = quizResults[q.category] || { correct: 0, total: 0 };
+                quizResults[q.category].total++;
+                
+                if (isCorrect) {
+                    correct++;
+                    quizResults[q.category].correct++;
+                    questionDiv.classList.add('correct');
+                } else {
+                    questionDiv.classList.add('incorrect');
+                }
+                
+                // Show feedback
+                const feedback = document.getElementById(`feedback${index}`);
+                feedback.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+                feedback.innerHTML = isCorrect 
+                    ? `✓ Corretto! ${q.explanation}`
+                    : `✗ Sbagliato. ${q.explanation}`;
+                
+                // Mark options
+                questionDiv.querySelectorAll('.option').forEach((opt, optIndex) => {
+                    opt.classList.add('disabled');
+                    if (optIndex === q.correct) {
+                        opt.classList.add('correct-answer');
+                    } else if (optIndex === quizAnswers[index] && !isCorrect) {
+                        opt.classList.add('wrong-answer');
+                    }
+                });
+            });
+            
+            // Change button
+            const btnVerify = document.getElementById('btnVerify');
+            btnVerify.textContent = 'Vai al Ripasso →';
+            btnVerify.onclick = function() { goToPhase(5); };
+            
+            // Generate review
+            generateReview(correct);
+        }
+        
+        function generateReview(correctCount) {
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const percentage = Math.round((correctCount / quizData.length) * 100);
+            
+            scoreDisplay.innerHTML = `
+                <div class="score-number">${correctCount}/${quizData.length}</div>
+                <p style="font-size: 1.2rem; color: #666;">Risposte corrette (${percentage}%)</p>
+            `;
+            
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+            
+            // Group by category
+            const categories = {
+                "Definizioni": {
+                    title: "📚 Definizioni Base",
+                    content: `
+                        <p class="concept-line">📌 <strong>Numeri relativi:</strong> numeri dotati di segno (+ o −)</p>
+                        <p class="concept-line">✅ <strong>Concordi:</strong> stesso segno (+ e +) o (− e −)</p>
+                        <p class="concept-line">❎ <strong>Discordi:</strong> segno opposto (+ e −) o (− e +)</p>
+                        <p class="concept-line">📐 <strong>Valore assoluto* (v.a.):</strong> distanza dallo zero, sempre ≥ 0</p>
+                        <p class="concept-line">↔️ <strong>Numeri opposti:</strong> stesso v.a., segno contrario</p>
+                    `
+                },
+                "Confronto": {
+                    title: "⚖️ Confronto tra Numeri",
+                    content: `
+                        <p>Ogni positivo > 0 > ogni negativo</p>
+                        <p><strong>Tra due negativi:</strong> è maggiore quello con v.a. minore.</p>
+                        <div class="example-box">−2 > −5 perché |−2| = 2 < 5 = |−5|</div>
+                    `
+                },
+                "Regola dei Segni": {
+                    title: "⭐ La Regola Universale dei Segni",
+                    content: `
+                        <table class="rule-table">
+                            <tr><th>Segni</th><th>Risultato</th></tr>
+                            <tr><td>CONCORDI (+ +) o (− −)</td><td><span class="positive">POSITIVO</span></td></tr>
+                            <tr><td>DISCORDI (+ −) o (− +)</td><td><span class="negative">NEGATIVO</span></td></tr>
+                        </table>
+                    `
+                },
+                "Somma Algebrica": {
+                    title: "➕➖ Somma Algebrica",
+                    content: `
+                        <p>Applica la regola concordi/discordi all'<strong>operatore</strong> e al <strong>segno</strong> del numero:</p>
+                        <p class="concept-line">✅ + e + = concordi → resta +</p>
+                        <p class="concept-line">❎ + e − = discordi → diventa −</p>
+                        <p class="concept-line">❎ − e + = discordi → diventa −</p>
+                        <p class="concept-line">✅ − e − = concordi → diventa +</p>
+                    `
+                },
+                "Divisione": {
+                    title: "✖️➗ Moltiplicazione e Divisione",
+                    content: `
+                        <p>Applica direttamente la regola dei segni:</p>
+                        <div class="example-box">
+                            (−) · (−) = + &nbsp;&nbsp; (−) · (+) = −<br>
+                            (+) · (−) = − &nbsp;&nbsp; (+) · (+) = +
+                        </div>
+                        <p>Lo stesso vale per la divisione!</p>
+                    `
+                },
+                "Più Fattori": {
+                    title: "🔢 Prodotto con Più Fattori",
+                    content: `
+                        <p>Conta i segni negativi:</p>
+                        <p class="concept-line">✅ <strong>PARI</strong> segni − → risultato <span class="positive">POSITIVO</span></p>
+                        <p class="concept-line">❎ <strong>DISPARI</strong> segni − → risultato <span class="negative">NEGATIVO</span></p>
+                    `
+                },
+                "Proprietà Zero": {
+                    title: "🔵 Proprietà dello Zero",
+                    content: `
+                        <p class="concept-line">• a + 0 = a (elemento neutro)</p>
+                        <p class="concept-line">• a × 0 = 0</p>
+                        <p class="concept-line">• 0 : a = 0 (se a ≠ 0)</p>
+                        <p class="concept-line" style="color: #e74c3c;"><strong>• a : 0 = IMPOSSIBILE!</strong></p>
+                    `
+                }
+            };
+            
+            for (const [cat, data] of Object.entries(categories)) {
+                const result = quizResults[cat];
+                const needsReview = result && result.correct < result.total;
+                
+                const section = document.createElement('div');
+                section.className = `review-section ${needsReview ? 'needs-review' : 'mastered'}`;
+                
+                section.innerHTML = `
+                    <span class="review-label ${needsReview ? 'needs-review' : 'mastered'}">
+                        ${needsReview ? 'Da rivedere' : 'Hai capito bene'}
+                    </span>
+                    <h3 style="margin: 10px 0;">${data.title}</h3>
+                    ${data.content}
+                `;
+                
+                reviewContainer.appendChild(section);
+            }
+        }
+        
+        function goToPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`phase${phase}`).classList.add('active');
+            currentPhase = phase;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function updateProgress() {
+            const progress = (currentPhase / 5) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+        
+        function restartQuiz() {
+            quizAnswers = {};
+            quizResults = {};
+            generateQuiz();
+            
+            const btnVerify = document.getElementById('btnVerify');
+            btnVerify.textContent = 'Verifica Risposte';
+            btnVerify.onclick = verifyQuiz;
+            
+            goToPhase(4);
+        }
+    </script>
+</body>
+</html>
