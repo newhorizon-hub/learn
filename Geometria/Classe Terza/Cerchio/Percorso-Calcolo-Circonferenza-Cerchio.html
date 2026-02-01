@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcolo di Circonferenza e Cerchio</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa; color: #2d3748; line-height: 1.6; padding-bottom: 40px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(135deg, #1e88e5, #7c4dff);
+  color: white; text-align: center; padding: 24px 16px 18px;
+}
+.header h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+.header p { font-size: 0.85rem; opacity: 0.9; }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+  display: flex; justify-content: center; gap: 6px; padding: 16px 12px;
+  background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100;
+}
+.progress-step {
+  display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #a0aec0;
+}
+.progress-step .circle {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: 0.8rem;
+  border: 2px solid #cbd5e0; color: #a0aec0; background: white; transition: all 0.3s;
+}
+.progress-step.active .circle { background: #1e88e5; color: white; border-color: #1e88e5; }
+.progress-step.done .circle { background: #43a047; color: white; border-color: #43a047; }
+.progress-step .label { display: none; }
+@media (min-width: 600px) { .progress-step .label { display: inline; } }
+
+/* ===== CONTAINER ===== */
+.container { max-width: 720px; margin: 0 auto; padding: 0 12px; }
+
+/* ===== PHASES ===== */
+.phase { display: none; padding: 20px 0; }
+.phase.visible { display: block; }
+.phase-title {
+  font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: #1a202c;
+}
+.phase-instruction {
+  font-size: 0.88rem; color: #718096; margin-bottom: 16px; padding: 10px 14px;
+  background: #edf2f7; border-radius: 8px; border-left: 4px solid #1e88e5;
+}
+
+/* ===== CLICKABLE ELEMENTS (Phase 1 & 2) ===== */
+.element-card {
+  background: white; border-radius: 10px; margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; cursor: pointer;
+  border: 2px solid #e2e8f0; transition: border-color 0.3s;
+}
+.element-card.opened { border-color: #43a047; cursor: default; }
+.element-header {
+  display: flex; align-items: center; padding: 14px 16px; gap: 12px;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.element-header .icon {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 1rem; flex-shrink: 0;
+  background: #e3f2fd; color: #1e88e5; transition: all 0.3s;
+}
+.element-card.opened .element-header .icon { background: #e8f5e9; color: #43a047; }
+.element-header .title { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.element-header .check { font-size: 1.1rem; color: #cbd5e0; transition: color 0.3s; }
+.element-card.opened .element-header .check { color: #43a047; }
+.element-content {
+  display: none; padding: 0 16px 16px; font-size: 0.9rem; line-height: 1.7;
+  border-top: 1px solid #edf2f7;
+}
+.element-card.opened .element-content { display: block; }
+.element-content .formula-highlight {
+  background: #f3e5f5; border-left: 3px solid #8e24aa; padding: 10px 14px;
+  border-radius: 0 6px 6px 0; margin: 8px 0; font-size: 0.95rem;
+}
+.element-content .example-box {
+  background: #e8f5e9; border-left: 3px solid #43a047; padding: 10px 14px;
+  border-radius: 0 6px 6px 0; margin: 8px 0;
+}
+.element-content .note-box {
+  background: #fff8e1; border-left: 3px solid #ffb300; padding: 10px 14px;
+  border-radius: 0 6px 6px 0; margin: 8px 0;
+}
+
+/* Phase 2 accent */
+.phase2-card .element-header .icon { background: #f3e5f5; color: #8e24aa; }
+.phase2-card.opened .element-header .icon { background: #e8f5e9; color: #43a047; }
+
+/* ===== EXPANDABLE CARDS (Phase 3) ===== */
+.concept-card {
+  background: white; border-radius: 10px; margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; cursor: pointer;
+  border: 2px solid #e2e8f0; transition: border-color 0.3s;
+}
+.concept-card.opened { border-color: #ff9800; cursor: default; }
+.concept-header {
+  display: flex; align-items: center; padding: 14px 16px; gap: 12px;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.concept-header .icon {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 1rem; flex-shrink: 0;
+  background: #fff3e0; color: #ff9800;
+}
+.concept-card.opened .concept-header .icon { background: #e8f5e9; color: #43a047; }
+.concept-header .title { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.concept-header .check { font-size: 1.1rem; color: #cbd5e0; transition: color 0.3s; }
+.concept-card.opened .concept-header .check { color: #43a047; }
+.concept-content {
+  display: none; padding: 0 16px 16px; font-size: 0.9rem; line-height: 1.7;
+  border-top: 1px solid #edf2f7;
+}
+.concept-card.opened .concept-content { display: block; }
+
+/* ===== QUIZ (Phase 4) ===== */
+.quiz-question {
+  background: white; border-radius: 10px; margin-bottom: 14px; padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); border: 2px solid #e2e8f0;
+  transition: border-color 0.3s;
+}
+.quiz-question.correct { border-color: #43a047; }
+.quiz-question.wrong { border-color: #e53935; }
+.quiz-question.unanswered { border-color: #ff9800; }
+.quiz-question .q-category {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;
+  color: #7c4dff; font-weight: 600; margin-bottom: 6px;
+}
+.quiz-question .q-text { font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; }
+.quiz-option {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+  margin-bottom: 4px; border-radius: 8px; cursor: pointer;
+  border: 1px solid #e2e8f0; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.quiz-option:hover { background: #f7fafc; }
+.quiz-option.selected { background: #e3f2fd; border-color: #1e88e5; }
+.quiz-option.locked { pointer-events: none; opacity: 0.85; }
+.quiz-option.correct-answer { background: #e8f5e9; border-color: #43a047; }
+.quiz-option.wrong-answer { background: #ffebee; border-color: #e53935; }
+.quiz-option input { margin-top: 3px; flex-shrink: 0; }
+.quiz-option label { cursor: pointer; font-size: 0.9rem; }
+.quiz-feedback {
+  display: none; margin-top: 10px; padding: 10px 14px; border-radius: 6px;
+  font-size: 0.85rem; line-height: 1.5;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.fb-correct { background: #e8f5e9; color: #2e7d32; }
+.quiz-feedback.fb-wrong { background: #ffebee; color: #c62828; }
+
+/* ===== PHASE 5 - REVIEW ===== */
+.review-area {
+  border-radius: 10px; margin-bottom: 14px; padding: 18px; 
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.review-area.area-ok { background: #e8f5e9; border: 2px solid #43a047; }
+.review-area.area-review { background: #fff8e1; border: 2px solid #ffb300; }
+.review-area .area-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 0.75rem; font-weight: 700; margin-bottom: 8px;
+}
+.review-area.area-ok .area-badge { background: #43a047; color: white; }
+.review-area.area-review .area-badge { background: #ffb300; color: #3e2723; }
+.review-area h3 { font-size: 1rem; margin-bottom: 8px; }
+.review-area .review-content { font-size: 0.9rem; line-height: 1.7; }
+
+/* ===== BUTTONS ===== */
+.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.btn {
+  padding: 12px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+  border: none; cursor: pointer; transition: all 0.2s; text-align: center; flex: 1;
+  min-width: 140px; -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: #1e88e5; color: white; }
+.btn-primary:hover { background: #1565c0; }
+.btn-primary:disabled { background: #90caf9; cursor: not-allowed; }
+.btn-success { background: #43a047; color: white; }
+.btn-success:hover { background: #2e7d32; }
+.btn-secondary { background: #78909c; color: white; }
+.btn-secondary:hover { background: #546e7a; }
+.btn-warning { background: #ff9800; color: white; }
+.btn-warning:hover { background: #f57c00; }
+
+/* ===== COUNTER ===== */
+.counter {
+  text-align: center; font-size: 0.85rem; color: #718096; margin-top: 10px;
+}
+
+/* ===== ALERT ===== */
+.alert {
+  display: none; padding: 12px 16px; border-radius: 8px; margin-bottom: 14px;
+  font-size: 0.88rem; font-weight: 500;
+}
+.alert.show { display: block; }
+.alert-warning { background: #fff3e0; color: #e65100; border: 1px solid #ffcc02; }
+
+/* ===== SCORE ===== */
+.score-box {
+  text-align: center; padding: 20px; background: white; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;
+}
+.score-box .score-number { font-size: 2.4rem; font-weight: 800; }
+.score-box .score-label { font-size: 0.9rem; color: #718096; }
+
+/* ===== PRINT ===== */
+@media print {
+  [id^="phase"] { display: none !important; }
+  #phase5 { display: block !important; }
+  .header, .progress-bar, .btn-row, .btn, .score-box { display: none !important; }
+  body { background: white; padding: 0; }
+  .container { max-width: 100%; padding: 0 20px; }
+  .review-area { break-inside: avoid; box-shadow: none; border-width: 1px; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .header h1 { font-size: 1.15rem; }
+  .element-header, .concept-header { padding: 12px 14px; }
+  .quiz-question { padding: 14px; }
+  .btn { padding: 12px 16px; font-size: 0.88rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <h1>Calcolo di Circonferenza e Cerchio</h1>
+  <p>Percorso didattico interattivo</p>
+</div>
+
+<!-- ===== PROGRESS BAR ===== -->
+<div class="progress-bar" id="progressBar">
+  <div class="progress-step active" data-step="1">
+    <span class="circle">1</span><span class="label">Cfr.</span>
+  </div>
+  <div class="progress-step" data-step="2">
+    <span class="circle">2</span><span class="label">Area</span>
+  </div>
+  <div class="progress-step" data-step="3">
+    <span class="circle">3</span><span class="label">Concetti</span>
+  </div>
+  <div class="progress-step" data-step="4">
+    <span class="circle">4</span><span class="label">Verifica</span>
+  </div>
+  <div class="progress-step" data-step="5">
+    <span class="circle">5</span><span class="label">Ripasso</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- PHASE 1: LUNGHEZZA DELLA CIRCONFERENZA                       -->
+<!-- ============================================================ -->
+<div class="phase visible" id="phase1">
+  <h2 class="phase-title">Fase 1 — Lunghezza della Circonferenza</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per proseguire.</div>
+
+  <!-- 1. Il numero pi -->
+  <div class="element-card" data-id="p1e1" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">π</span>
+      <span class="title">Il numero π (pi greco)</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Il rapporto tra la <strong>lunghezza della circonferenza</strong> (\(C\)) e il suo <strong>diametro</strong> (\(d\)) è <strong>sempre costante</strong>, qualunque sia la dimensione della circonferenza:</p>
+      <div class="formula-highlight">$$\frac{C}{d} = \pi$$</div>
+      <p>Questo rapporto costante si chiama <strong>pi greco</strong> (π). Qualsiasi cerchio dell'universo — una moneta, una ruota, un pianeta — ha lo stesso identico rapporto tra circonferenza e diametro.</p>
+    </div>
+  </div>
+
+  <!-- 2. Proprietà di pi -->
+  <div class="element-card" data-id="p1e2" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">∞</span>
+      <span class="title">Proprietà di π</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p><strong>Valore approssimato:</strong> nei calcoli si usa \(\pi \approx 3{,}14\). Il valore esatto ha infinite cifre decimali: \(\pi = 3{,}14159265...\)</p>
+      <div class="note-box">
+        <strong>π è irrazionale</strong> (\(\pi \in \mathbb{I}\)): le cifre decimali non si ripetono mai. Non si può scrivere come una frazione.<br>
+        <strong>π è adimensionale:</strong> è il rapporto tra due lunghezze, quindi <strong>non ha unità di misura</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Formula diretta C = π·d -->
+  <div class="element-card" data-id="p1e3" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">✎</span>
+      <span class="title">Formula diretta: C = π · d</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Se conosci il <strong>diametro</strong>, moltiplichi per π:</p>
+      <div class="formula-highlight">$$C = \pi \cdot d$$</div>
+      <p>Il risultato ha la stessa <strong>unità di misura</strong> del diametro (cm, m, ...). La circonferenza è 1D: la sua misura è una <strong>lunghezza</strong>.</p>
+    </div>
+  </div>
+
+  <!-- 4. Formula diretta C = 2πr -->
+  <div class="element-card" data-id="p1e4" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">✎</span>
+      <span class="title">Formula diretta: C = 2 · π · r</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Se conosci il <strong>raggio</strong>, usi la formula equivalente (ricordando che \(d = 2r\)):</p>
+      <div class="formula-highlight">$$C = 2 \cdot \pi \cdot r$$</div>
+      <div class="example-box">
+        <strong>Esempio:</strong> \(r = 4{,}5\) cm<br>
+        \(C = 2 \cdot 3{,}14 \cdot 4{,}5 = 28{,}26\) cm
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Formule inverse -->
+  <div class="element-card" data-id="p1e5" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">◆</span>
+      <span class="title">Formule inverse</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Se conosci la <strong>lunghezza della circonferenza</strong> e devi trovare il diametro o il raggio:</p>
+      <div class="formula-highlight">$$d = \frac{C}{\pi} \qquad \qquad r = \frac{C}{2 \cdot \pi}$$</div>
+      <div class="example-box">
+        <strong>Esempio:</strong> \(C = 125{,}6\) cm<br>
+        \(r = \dfrac{125{,}6}{2 \cdot 3{,}14} = \dfrac{125{,}6}{6{,}28} = 20\) cm
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Calcoli con π indicato -->
+  <div class="element-card" data-id="p1e6" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">★</span>
+      <span class="title">Calcoli con π indicato (forma esatta)</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Invece di sostituire \(\pi \approx 3{,}14\), puoi <strong>lasciare π indicato</strong> nel risultato. Il risultato è in <strong>forma esatta</strong>.</p>
+      <div class="example-box">
+        <strong>Esempio diretto:</strong> \(r = 4{,}5\) cm<br>
+        \(C = 2 \cdot r \cdot \pi = 2 \cdot 4{,}5 \cdot \pi = 9\pi\) cm
+      </div>
+      <div class="example-box">
+        <strong>Esempio inverso:</strong> \(C = 40\pi\) cm<br>
+        \(r = \dfrac{C}{2 \cdot \pi} = \dfrac{40\pi}{2\pi} = \dfrac{40}{2} = 20\) cm
+      </div>
+      <div class="note-box">
+        <strong>Attenzione:</strong> la semplificazione di π al numeratore e al denominatore è possibile <strong>solo se π è indicato nel dato iniziale</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div class="counter" id="counter1">Elementi aperti: 0 / 6</div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="btnNext1" disabled onclick="goToPhase(2)">Vai alla Fase 2 →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PHASE 2: AREA DEL CERCHIO                                    -->
+<!-- ============================================================ -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — Area del Cerchio</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per proseguire.</div>
+
+  <!-- 1. Il cerchio: superficie 2D -->
+  <div class="element-card phase2-card" data-id="p2e1" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">●</span>
+      <span class="title">Il cerchio: una superficie (2D)</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Il cerchio è una <strong>superficie</strong> (ente bidimensionale). La sua misura è un'<strong>area</strong>, espressa in <strong>unità quadrate</strong> (cm², m², ...).</p>
+      <div class="note-box">
+        Non confondere: la <strong>circonferenza</strong> è una lunghezza (1D), il <strong>cerchio</strong> è un'area (2D).
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Formula diretta A = π·r² -->
+  <div class="element-card phase2-card" data-id="p2e2" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">✎</span>
+      <span class="title">Formula diretta: A = π · r²</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>L'area del cerchio si calcola elevando al quadrato il raggio e moltiplicando per π:</p>
+      <div class="formula-highlight">$$A = \pi \cdot r^{2}$$</div>
+      <div class="example-box">
+        <strong>Esempio:</strong> \(r = 15\) cm<br>
+        \(r^{2} = 15^{2} = 225\) cm² → \(A = \pi \cdot 225 = 225\pi\) cm² \(\approx 706{,}5\) cm²
+      </div>
+      <div class="note-box">
+        <strong>Attenzione:</strong> l'esponente 2 si applica <strong>solo al raggio</strong>, non a π!
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Formula inversa -->
+  <div class="element-card phase2-card" data-id="p2e3" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">◆</span>
+      <span class="title">Formula inversa: r = √(A/π)</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Se conosci l'area e devi trovare il raggio, usi la formula inversa:</p>
+      <div class="formula-highlight">$$r = \sqrt{\frac{A}{\pi}}$$</div>
+      <div class="example-box">
+        <strong>Esempio:</strong> \(A = 2\,826\) cm². Trova \(d\).<br>
+        \(r = \sqrt{\dfrac{2\,826}{3{,}14}} = \sqrt{900} = 30\) cm → \(d = 2r = 60\) cm
+      </div>
+      <p>Se il problema chiede il <strong>diametro</strong>: prima trovi \(r\), poi calcoli \(d = 2r\).</p>
+    </div>
+  </div>
+
+  <!-- 4. Corona circolare -->
+  <div class="element-card phase2-card" data-id="p2e4" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">◇</span>
+      <span class="title">Corona circolare</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>La corona circolare è la zona compresa tra due circonferenze concentriche. La sua area è la <strong>differenza</strong> tra l'area del cerchio grande e quella del cerchio piccolo:</p>
+      <div class="formula-highlight">$$A_{\text{corona}} = \pi \cdot (R^{2} - r^{2})$$</div>
+      <div class="example-box">
+        <strong>Esempio:</strong> \(R = 10\) cm, \(r = 6\) cm<br>
+        \(A_{\text{corona}} = 3{,}14 \cdot (100 - 36) = 3{,}14 \cdot 64 = 200{,}96\) cm²
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Forma esatta vs approssimata -->
+  <div class="element-card phase2-card" data-id="p2e5" onclick="toggleElement(this)">
+    <div class="element-header">
+      <span class="icon">★</span>
+      <span class="title">Forma esatta e forma approssimata</span>
+      <span class="check">○</span>
+    </div>
+    <div class="element-content">
+      <p>Il risultato dell'area si può esprimere in due modi:</p>
+      <div class="example-box">
+        <strong>Forma esatta</strong> (con π indicato): \(A = 225\pi\) cm²<br>
+        <strong>Forma approssimata</strong> (con 3,14): \(A \approx 706{,}5\) cm²
+      </div>
+      <div class="note-box">
+        <strong>Regola pratica:</strong> se l'area viene fornita in <strong>forma esatta</strong> (es. \(A = 225\pi\)), allora si lascia π indicato per facilitare i calcoli. La semplificazione di π funziona come nelle formule della lunghezza.
+      </div>
+    </div>
+  </div>
+
+  <div class="counter" id="counter2">Elementi aperti: 0 / 5</div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Fase 1</button>
+    <button class="btn btn-primary" id="btnNext2" disabled onclick="goToPhase(3)">Vai alla Fase 3 →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PHASE 3: CONCETTI CHIAVE                                     -->
+<!-- ============================================================ -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri tutte le schede per consolidare i concetti fondamentali, poi passa alla verifica.</div>
+
+  <!-- Card 1 -->
+  <div class="concept-card" data-id="p3c1" onclick="toggleConcept(this)">
+    <div class="concept-header">
+      <span class="icon">1</span>
+      <span class="title">1D e 2D: lunghezza e area</span>
+      <span class="check">○</span>
+    </div>
+    <div class="concept-content">
+      <p>La <strong>circonferenza</strong> è una linea (1D): la sua misura è una <strong>lunghezza</strong>, espressa in cm, m, ecc.</p>
+      <p>Il <strong>cerchio</strong> è una superficie (2D): la sua misura è un'<strong>area</strong>, espressa in cm², m², ecc.</p>
+      <p>Nelle formule della lunghezza il raggio compare al <strong>primo grado</strong>. Nelle formule dell'area il raggio compare al <strong>secondo grado</strong> (r²).</p>
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="concept-card" data-id="p3c2" onclick="toggleConcept(this)">
+    <div class="concept-header">
+      <span class="icon">2</span>
+      <span class="title">L'esponente 2 si applica solo a r</span>
+      <span class="check">○</span>
+    </div>
+    <div class="concept-content">
+      <p>Nella formula \(A = \pi \cdot r^{2}\), l'esponente 2 si applica <strong>solo al raggio</strong>, non a π.</p>
+      <p>Questo significa che devi prima calcolare \(r^{2}\), e poi moltiplicare il risultato per π.</p>
+      <p>Nella formula inversa compare la <strong>radice quadrata</strong>: per trovare \(r\) da \(A\), serve saper estrarre radice.</p>
+    </div>
+  </div>
+
+  <!-- Card 3 -->
+  <div class="concept-card" data-id="p3c3" onclick="toggleConcept(this)">
+    <div class="concept-header">
+      <span class="icon">3</span>
+      <span class="title">Da d a r e viceversa</span>
+      <span class="check">○</span>
+    </div>
+    <div class="concept-content">
+      <p>La relazione fondamentale è: \(d = 2r\) (il diametro è il doppio del raggio).</p>
+      <p>Questo permette di <strong>passare tra le formule</strong>: se nella formula compare \(d\) ma conosci \(r\), basta sostituire \(d = 2r\). Viceversa, \(r = \dfrac{d}{2}\).</p>
+      <p>Se un problema chiede il <strong>diametro</strong> ma la formula dà il raggio: prima calcola \(r\), poi \(d = 2r\).</p>
+    </div>
+  </div>
+
+  <!-- Card 4 -->
+  <div class="concept-card" data-id="p3c4" onclick="toggleConcept(this)">
+    <div class="concept-header">
+      <span class="icon">4</span>
+      <span class="title">Quando usare π indicato</span>
+      <span class="check">○</span>
+    </div>
+    <div class="concept-content">
+      <p>Puoi lasciare π nel risultato (forma esatta) oppure sostituire π ≈ 3,14 (forma approssimata).</p>
+      <p>Se il dato iniziale <strong>contiene π indicato</strong> (es. \(C = 40\pi\) cm, oppure \(A = 225\pi\) cm²), conviene lavorare con π indicato: al momento di dividere, <strong>π si semplifica</strong> e i calcoli diventano più facili.</p>
+      <p>Se il dato iniziale è un <strong>numero decimale</strong> (es. \(C = 125{,}6\) cm), allora si usa π ≈ 3,14.</p>
+    </div>
+  </div>
+
+  <div class="counter" id="counter3">Schede aperte: 0 / 4</div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Fase 2</button>
+    <button class="btn btn-primary" id="btnNext3" disabled onclick="goToPhase(4)">Vai alla Verifica →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PHASE 4: QUIZ                                                -->
+<!-- ============================================================ -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi premi "Verifica Risposte".</div>
+  <div class="alert alert-warning" id="quizAlert"></div>
+
+  <!-- Q1 -->
+  <div class="quiz-question" id="q1" data-area="cfr" data-correct="1">
+    <div class="q-category">Lunghezza della Circonferenza</div>
+    <div class="q-text">1. Che cos'è il numero π?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q1', 0)">
+      <input type="radio" name="q1"><label>Il rapporto tra la lunghezza della circonferenza e il raggio</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q1', 1)">
+      <input type="radio" name="q1"><label>Il rapporto tra la lunghezza della circonferenza e il diametro</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q1', 2)">
+      <input type="radio" name="q1"><label>Il rapporto tra il diametro e il raggio</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q1', 3)">
+      <input type="radio" name="q1"><label>Il rapporto tra l'area del cerchio e il raggio al quadrato</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-question" id="q2" data-area="cfr" data-correct="1">
+    <div class="q-category">Lunghezza della Circonferenza</div>
+    <div class="q-text">2. Se \(r = 4{,}5\) cm, quanto vale la lunghezza della circonferenza?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q2', 0)">
+      <input type="radio" name="q2"><label>14,13 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q2', 1)">
+      <input type="radio" name="q2"><label>28,26 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q2', 2)">
+      <input type="radio" name="q2"><label>9 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q2', 3)">
+      <input type="radio" name="q2"><label>31,4 cm</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-question" id="q3" data-area="cfr" data-correct="2">
+    <div class="q-category">Lunghezza della Circonferenza</div>
+    <div class="q-text">3. Se \(C = 125{,}6\) cm, quanto vale il raggio?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q3', 0)">
+      <input type="radio" name="q3"><label>40 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q3', 1)">
+      <input type="radio" name="q3"><label>10 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q3', 2)">
+      <input type="radio" name="q3"><label>20 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q3', 3)">
+      <input type="radio" name="q3"><label>62,8 cm</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-question" id="q4" data-area="cfr" data-correct="2">
+    <div class="q-category">Lunghezza della Circonferenza</div>
+    <div class="q-text">4. La circonferenza con \(r = 4{,}5\) cm, espressa in forma esatta, vale:</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q4', 0)">
+      <input type="radio" name="q4"><label>\(4{,}5\pi\) cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q4', 1)">
+      <input type="radio" name="q4"><label>28,26 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q4', 2)">
+      <input type="radio" name="q4"><label>\(9\pi\) cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q4', 3)">
+      <input type="radio" name="q4"><label>\(2{,}25\pi\) cm</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-question" id="q5" data-area="cfr" data-correct="2">
+    <div class="q-category">Lunghezza della Circonferenza</div>
+    <div class="q-text">5. Quali proprietà ha il numero π?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q5', 0)">
+      <input type="radio" name="q5"><label>È razionale e adimensionale</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q5', 1)">
+      <input type="radio" name="q5"><label>È irrazionale e si misura in cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q5', 2)">
+      <input type="radio" name="q5"><label>È irrazionale e adimensionale</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q5', 3)">
+      <input type="radio" name="q5"><label>È razionale e si misura in cm</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-question" id="q6" data-area="area" data-correct="2">
+    <div class="q-category">Area del Cerchio</div>
+    <div class="q-text">6. Se \(r = 15\) cm, quanto vale l'area del cerchio (approssimata)?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q6', 0)">
+      <input type="radio" name="q6"><label>94,2 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q6', 1)">
+      <input type="radio" name="q6"><label>225 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q6', 2)">
+      <input type="radio" name="q6"><label>706,5 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q6', 3)">
+      <input type="radio" name="q6"><label>47,1 cm²</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-question" id="q7" data-area="area" data-correct="1">
+    <div class="q-category">Area del Cerchio</div>
+    <div class="q-text">7. Nella formula \(A = \pi \cdot r^{2}\), l'esponente 2 si applica:</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q7', 0)">
+      <input type="radio" name="q7"><label>A π e a r</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q7', 1)">
+      <input type="radio" name="q7"><label>Solo a r</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q7', 2)">
+      <input type="radio" name="q7"><label>Solo a π</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q7', 3)">
+      <input type="radio" name="q7"><label>A tutta l'espressione π · r</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-question" id="q8" data-area="area" data-correct="1">
+    <div class="q-category">Area del Cerchio</div>
+    <div class="q-text">8. Se \(A = 2\,826\) cm², quanto vale il diametro?</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q8', 0)">
+      <input type="radio" name="q8"><label>30 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q8', 1)">
+      <input type="radio" name="q8"><label>60 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q8', 2)">
+      <input type="radio" name="q8"><label>900 cm</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q8', 3)">
+      <input type="radio" name="q8"><label>15 cm</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="quiz-question" id="q9" data-area="area" data-correct="2">
+    <div class="q-category">Area del Cerchio</div>
+    <div class="q-text">9. L'area della corona circolare con \(R = 10\) cm e \(r = 6\) cm vale:</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q9', 0)">
+      <input type="radio" name="q9"><label>314 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q9', 1)">
+      <input type="radio" name="q9"><label>113,04 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q9', 2)">
+      <input type="radio" name="q9"><label>200,96 cm²</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q9', 3)">
+      <input type="radio" name="q9"><label>50,24 cm²</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-question" id="q10" data-area="area" data-correct="2">
+    <div class="q-category">Area del Cerchio</div>
+    <div class="q-text">10. L'area del cerchio si misura in:</div>
+    <div class="quiz-option" onclick="selectOption(this, 'q10', 0)">
+      <input type="radio" name="q10"><label>Unità lineari (cm, m)</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q10', 1)">
+      <input type="radio" name="q10"><label>Unità cubiche (cm³, m³)</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q10', 2)">
+      <input type="radio" name="q10"><label>Unità quadrate (cm², m²)</label>
+    </div>
+    <div class="quiz-option" onclick="selectOption(this, 'q10', 3)">
+      <input type="radio" name="q10"><label>Non ha unità di misura</label>
+    </div>
+    <div class="quiz-feedback" id="fb-q10"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Fase 3</button>
+    <button class="btn btn-success" id="btnVerify" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PHASE 5: RIPASSO                                             -->
+<!-- ============================================================ -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso Personalizzato</h2>
+  <div id="scoreContainer"></div>
+  <div id="reviewContainer"></div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-warning" onclick="window.print()">Stampa Ripasso</button>
+    <button class="btn btn-primary" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ===== STATE ===== */
+const state = {
+  phase: 1,
+  opened: { phase1: new Set(), phase2: new Set(), phase3: new Set() },
+  totals: { phase1: 6, phase2: 5, phase3: 4 },
+  answers: {},
+  quizLocked: false
+};
+
+/* ===== FEEDBACK DATA ===== */
+const feedbacks = {
+  q1: { correct: "Esatto! π è definito come il rapporto C/d, costante per qualsiasi circonferenza.", wrong: "π non è il rapporto con il raggio. La definizione corretta è: π = C/d (circonferenza diviso diametro)." },
+  q2: { correct: "Esatto! C = 2 · 3,14 · 4,5 = 28,26 cm.", wrong: "Ricorda: C = 2 · π · r. Quindi C = 2 · 3,14 · 4,5 = 28,26 cm." },
+  q3: { correct: "Esatto! r = 125,6 / (2 · 3,14) = 125,6 / 6,28 = 20 cm.", wrong: "Per trovare r da C, usa la formula inversa: r = C / (2π) = 125,6 / 6,28 = 20 cm." },
+  q4: { correct: "Esatto! C = 2 · 4,5 · π = 9π cm (forma esatta, con π indicato).", wrong: "In forma esatta, non si sostituisce 3,14. Si calcola: C = 2 · 4,5 · π = 9π cm." },
+  q5: { correct: "Esatto! π è irrazionale (decimale infinito non periodico) e adimensionale (non ha unità di misura).", wrong: "π è irrazionale (le cifre non si ripetono mai) e adimensionale (è un rapporto tra due lunghezze, quindi non ha u.d.m.)." },
+  q6: { correct: "Esatto! A = 3,14 · 15² = 3,14 · 225 = 706,5 cm².", wrong: "Attento: A = π · r². Quindi A = 3,14 · 15² = 3,14 · 225 = 706,5 cm²." },
+  q7: { correct: "Esatto! In A = π · r², l'esponente 2 si applica solo al raggio. Prima calcoli r², poi moltiplichi per π.", wrong: "L'esponente 2 si applica solo al raggio, non a π. Si calcola prima r², poi si moltiplica per π." },
+  q8: { correct: "Esatto! r = √(2826/3,14) = √900 = 30 cm, quindi d = 2 · 30 = 60 cm.", wrong: "Usa la formula inversa: r = √(A/π) = √(2826/3,14) = √900 = 30 cm. Poi d = 2r = 60 cm." },
+  q9: { correct: "Esatto! A = 3,14 · (10² − 6²) = 3,14 · 64 = 200,96 cm².", wrong: "La corona circolare: A = π · (R² − r²) = 3,14 · (100 − 36) = 3,14 · 64 = 200,96 cm²." },
+  q10: { correct: "Esatto! Il cerchio è una superficie (2D), quindi si misura in unità quadrate.", wrong: "Il cerchio è una superficie (2D): la sua misura è un'area, espressa in unità quadrate (cm², m²)." }
+};
+
+/* ===== REVIEW CONTENT ===== */
+const reviewContent = {
+  cfr: {
+    title: "Lunghezza della Circonferenza",
+    full: "<p><strong>Definizione di π:</strong> il rapporto C/d è costante per qualsiasi circonferenza e vale π ≈ 3,14. È irrazionale e adimensionale.</p><p><strong>Formule dirette:</strong> C = π · d oppure C = 2 · π · r.</p><p><strong>Formule inverse:</strong> d = C / π oppure r = C / (2π).</p><p><strong>Forma esatta:</strong> si può lasciare π indicato nel risultato (es. C = 9π cm). Se il dato contiene π, si semplifica.</p>",
+    short: "<p>Hai capito le formule della lunghezza della circonferenza e il significato di π. Ricorda le due forme: approssimata (con 3,14) ed esatta (con π indicato).</p>"
+  },
+  area: {
+    title: "Area del Cerchio",
+    full: "<p><strong>Formula diretta:</strong> A = π · r². L'esponente 2 si applica solo al raggio!</p><p><strong>Formula inversa:</strong> r = √(A/π). Per trovare il diametro: prima r, poi d = 2r.</p><p><strong>Corona circolare:</strong> A = π · (R² − r²) = area grande − area piccola.</p><p><strong>Unità di misura:</strong> l'area è una grandezza 2D, quindi si misura in unità quadrate (cm², m²).</p><p><strong>Forma esatta vs approssimata:</strong> se il dato è in forma esatta (con π), conviene lavorare con π indicato.</p>",
+    short: "<p>Hai capito le formule dell'area del cerchio e la differenza tra forma esatta e approssimata. Ricorda la corona circolare.</p>"
+  }
+};
+
+/* ===== PHASE NAVIGATION ===== */
+function goToPhase(n) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('visible'));
+  document.getElementById('phase' + n).classList.add('visible');
+  state.phase = n;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 5) renderMath('#phase5');
+}
+
+function updateProgress() {
+  document.querySelectorAll('.progress-step').forEach(s => {
+    const step = parseInt(s.dataset.step);
+    s.classList.remove('active', 'done');
+    if (step < state.phase) s.classList.add('done');
+    else if (step === state.phase) s.classList.add('active');
+  });
+}
+
+/* ===== ELEMENT TOGGLE (Phase 1 & 2) ===== */
+function toggleElement(card) {
+  if (card.classList.contains('opened')) return;
+  card.classList.add('opened');
+  card.querySelector('.check').textContent = '✔';
+
+  const id = card.dataset.id;
+  let phaseKey, counterEl, btnEl, total;
+  if (id.startsWith('p1')) {
+    phaseKey = 'phase1'; counterEl = 'counter1'; btnEl = 'btnNext1'; total = state.totals.phase1;
+  } else {
+    phaseKey = 'phase2'; counterEl = 'counter2'; btnEl = 'btnNext2'; total = state.totals.phase2;
+  }
+  state.opened[phaseKey].add(id);
+  const count = state.opened[phaseKey].size;
+  const label = phaseKey === 'phase1' || phaseKey === 'phase2' ? 'Elementi aperti' : 'Schede aperte';
+  document.getElementById(counterEl).textContent = label + ': ' + count + ' / ' + total;
+  if (count >= total) document.getElementById(btnEl).disabled = false;
+}
+
+/* ===== CONCEPT TOGGLE (Phase 3) ===== */
+function toggleConcept(card) {
+  if (card.classList.contains('opened')) return;
+  card.classList.add('opened');
+  card.querySelector('.check').textContent = '✔';
+  const id = card.dataset.id;
+  state.opened.phase3.add(id);
+  const count = state.opened.phase3.size;
+  document.getElementById('counter3').textContent = 'Schede aperte: ' + count + ' / ' + state.totals.phase3;
+  if (count >= state.totals.phase3) document.getElementById('btnNext3').disabled = false;
+}
+
+/* ===== QUIZ ===== */
+function selectOption(optionEl, qId, idx) {
+  if (state.quizLocked) return;
+  const question = document.getElementById(qId);
+  question.querySelectorAll('.quiz-option').forEach(o => {
+    o.classList.remove('selected');
+    o.querySelector('input').checked = false;
+  });
+  optionEl.classList.add('selected');
+  optionEl.querySelector('input').checked = true;
+  state.answers[qId] = idx;
+}
+
+function verifyQuiz() {
+  if (state.quizLocked) {
+    goToPhase(5);
+    return;
+  }
+
+  const questions = document.querySelectorAll('.quiz-question');
+  const unanswered = [];
+  questions.forEach(q => {
+    if (state.answers[q.id] === undefined) unanswered.push(q.id);
+  });
+
+  if (unanswered.length > 0) {
+    const alert = document.getElementById('quizAlert');
+    alert.textContent = 'Devi rispondere a tutte le domande! Ne mancano ' + unanswered.length + '.';
+    alert.classList.add('show');
+    const first = document.getElementById(unanswered[0]);
+    first.classList.add('unanswered');
+    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  document.getElementById('quizAlert').classList.remove('show');
+  state.quizLocked = true;
+
+  let score = 0;
+  const areaResults = { cfr: { correct: 0, total: 0 }, area: { correct: 0, total: 0 } };
+
+  questions.forEach(q => {
+    const correct = parseInt(q.dataset.correct);
+    const area = q.dataset.area;
+    const selected = state.answers[q.id];
+    const isCorrect = selected === correct;
+    const fb = document.getElementById('fb-' + q.id);
+
+    areaResults[area].total++;
+    if (isCorrect) {
+      score++;
+      areaResults[area].correct++;
+      q.classList.add('correct');
+      fb.className = 'quiz-feedback show fb-correct';
+      fb.textContent = '✔ ' + feedbacks[q.id].correct;
+    } else {
+      q.classList.add('wrong');
+      fb.className = 'quiz-feedback show fb-wrong';
+      fb.textContent = '✘ ' + feedbacks[q.id].wrong;
+    }
+
+    q.querySelectorAll('.quiz-option').forEach((o, i) => {
+      o.classList.add('locked');
+      if (i === correct) o.classList.add('correct-answer');
+      if (i === selected && !isCorrect) o.classList.add('wrong-answer');
+    });
+
+    q.classList.remove('unanswered');
+    renderMath('#' + q.id);
+  });
+
+  // Store results for Phase 5
+  state.score = score;
+  state.total = questions.length;
+  state.areaResults = areaResults;
+
+  // Transform button
+  const btn = document.getElementById('btnVerify');
+  btn.textContent = 'Vai al Ripasso →';
+  btn.className = 'btn btn-primary';
+}
+
+/* ===== PHASE 5 GENERATION ===== */
+function generateReview() {
+  const scoreContainer = document.getElementById('scoreContainer');
+  const pct = Math.round((state.score / state.total) * 100);
+  let color = '#43a047';
+  if (pct < 60) color = '#e53935';
+  else if (pct < 80) color = '#ff9800';
+
+  scoreContainer.innerHTML = '<div class="score-box">' +
+    '<div class="score-number" style="color:' + color + '">' + state.score + ' / ' + state.total + '</div>' +
+    '<div class="score-label">Risposte corrette (' + pct + '%)</div></div>';
+
+  const container = document.getElementById('reviewContainer');
+  container.innerHTML = '';
+
+  ['cfr', 'area'].forEach(area => {
+    const r = state.areaResults[area];
+    const ok = r.correct === r.total;
+    const div = document.createElement('div');
+    div.className = 'review-area ' + (ok ? 'area-ok' : 'area-review');
+    div.innerHTML = '<span class="area-badge">' + (ok ? 'Hai capito bene' : 'Da rivedere') + '</span>' +
+      '<h3>' + reviewContent[area].title + '</h3>' +
+      '<div class="review-content">' + (ok ? reviewContent[area].short : reviewContent[area].full) + '</div>';
+    container.appendChild(div);
+  });
+}
+
+/* ===== RESTART ===== */
+function restart() {
+  state.phase = 1;
+  state.answers = {};
+  state.quizLocked = false;
+  state.opened.phase1.clear();
+  state.opened.phase2.clear();
+  state.opened.phase3.clear();
+
+  // Reset elements
+  document.querySelectorAll('.element-card, .concept-card').forEach(c => {
+    c.classList.remove('opened');
+    c.querySelector('.check').textContent = '○';
+  });
+
+  // Reset counters
+  document.getElementById('counter1').textContent = 'Elementi aperti: 0 / 6';
+  document.getElementById('counter2').textContent = 'Elementi aperti: 0 / 5';
+  document.getElementById('counter3').textContent = 'Schede aperte: 0 / 4';
+
+  // Reset buttons
+  document.getElementById('btnNext1').disabled = true;
+  document.getElementById('btnNext2').disabled = true;
+  document.getElementById('btnNext3').disabled = true;
+
+  // Reset quiz
+  const btn = document.getElementById('btnVerify');
+  btn.textContent = 'Verifica Risposte';
+  btn.className = 'btn btn-success';
+  document.getElementById('quizAlert').classList.remove('show');
+  document.querySelectorAll('.quiz-question').forEach(q => {
+    q.classList.remove('correct', 'wrong', 'unanswered');
+    q.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('selected', 'locked', 'correct-answer', 'wrong-answer');
+      o.querySelector('input').checked = false;
+    });
+    q.querySelector('.quiz-feedback').className = 'quiz-feedback';
+  });
+
+  // Reset phase 5
+  document.getElementById('scoreContainer').innerHTML = '';
+  document.getElementById('reviewContainer').innerHTML = '';
+
+  goToPhase(1);
+}
+
+/* ===== MATH RENDERING ===== */
+function renderMath(selector) {
+  const el = selector ? document.querySelector(selector) : document.body;
+  if (el && typeof renderMathInElement === 'function') {
+    renderMathInElement(el, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded', function() {
+  renderMath();
+
+  // Override goToPhase(5) to generate review
+  const origGoTo = goToPhase;
+  goToPhase = function(n) {
+    if (n === 5 && state.quizLocked) generateReview();
+    origGoTo(n);
+  };
+});
+</script>
+</body>
+</html>

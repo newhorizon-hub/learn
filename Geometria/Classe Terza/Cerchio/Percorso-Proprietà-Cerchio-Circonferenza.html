@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Posizioni Reciproche — Poligoni Inscritti e Circoscritti</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#2d3748;line-height:1.6;padding-bottom:40px}
+
+.header{background:linear-gradient(135deg,#00897b,#1565c0);color:#fff;text-align:center;padding:24px 16px 18px}
+.header h1{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+.header p{font-size:.85rem;opacity:.9}
+
+.pbar{display:flex;justify-content:center;gap:6px;padding:14px 12px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:100}
+.pstep{display:flex;align-items:center;gap:4px;font-size:.75rem;color:#a0aec0}
+.pstep .dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;border:2px solid #cbd5e0;color:#a0aec0;background:#fff;transition:all .3s}
+.pstep.active .dot{background:#00897b;color:#fff;border-color:#00897b}
+.pstep.done .dot{background:#2e7d32;color:#fff;border-color:#2e7d32}
+.pstep .lbl{display:none}
+@media(min-width:580px){.pstep .lbl{display:inline}}
+
+.container{max-width:720px;margin:0 auto;padding:0 12px}
+.phase{display:none;padding:20px 0}.phase.visible{display:block}
+.ph-title{font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#1a202c}
+.ph-instr{font-size:.88rem;color:#718096;margin-bottom:16px;padding:10px 14px;background:#edf2f7;border-radius:8px;border-left:4px solid #00897b}
+
+/* CARDS */
+.ecard{background:#fff;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;cursor:pointer;border:2px solid #e2e8f0;transition:border-color .3s}
+.ecard.opened{border-color:#2e7d32;cursor:default}
+.eh{display:flex;align-items:center;padding:14px 16px;gap:12px;user-select:none;-webkit-tap-highlight-color:transparent}
+.eh .ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;transition:all .3s}
+.t1 .ic{background:#e0f2f1;color:#00897b}
+.t1.opened .ic{background:#e8f5e9;color:#2e7d32}
+.t2 .ic{background:#e3f2fd;color:#1565c0}
+.t2.opened .ic{background:#e8f5e9;color:#2e7d32}
+.eh .ttl{font-weight:600;font-size:.95rem;flex:1}
+.eh .chk{font-size:1.1rem;color:#cbd5e0;transition:color .3s}
+.ecard.opened .chk{color:#2e7d32}
+.eb{display:none;padding:0 16px 16px;font-size:.9rem;line-height:1.7;border-top:1px solid #edf2f7}
+.ecard.opened .eb{display:block}
+
+.hl-def{background:#e0f2f1;border-left:3px solid #00897b;padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0}
+.hl-form{background:#f3e5f5;border-left:3px solid #7b1fa2;padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0}
+.hl-note{background:#fff8e1;border-left:3px solid #ffb300;padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0}
+.hl-prop{background:#e3f2fd;border-left:3px solid #1565c0;padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0}
+.hl-ex{background:#e8f5e9;border-left:3px solid #2e7d32;padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0}
+
+.mini-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.88rem}
+.mini-table th{background:#f5f5f5;padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0;font-weight:600}
+.mini-table td{padding:8px 10px;border-bottom:1px solid #eee}
+.mini-table tr:last-child td{border-bottom:none}
+
+/* CONCEPT CARDS */
+.ccard{background:#fff;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;cursor:pointer;border:2px solid #e2e8f0;transition:border-color .3s}
+.ccard.opened{border-color:#ff9800;cursor:default}
+.ch{display:flex;align-items:center;padding:14px 16px;gap:12px;user-select:none;-webkit-tap-highlight-color:transparent}
+.ch .ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:#fff3e0;color:#ff9800}
+.ccard.opened .ch .ic{background:#e8f5e9;color:#2e7d32}
+.ch .ttl{font-weight:600;font-size:.95rem;flex:1}
+.ch .chk{font-size:1.1rem;color:#cbd5e0;transition:color .3s}
+.ccard.opened .chk{color:#2e7d32}
+.cb{display:none;padding:0 16px 16px;font-size:.9rem;line-height:1.7;border-top:1px solid #edf2f7}
+.ccard.opened .cb{display:block}
+
+/* QUIZ */
+.qq{background:#fff;border-radius:10px;margin-bottom:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08);border:2px solid #e2e8f0;transition:border-color .3s}
+.qq.correct{border-color:#2e7d32}.qq.wrong{border-color:#e53935}.qq.unanswered{border-color:#ff9800}
+.qq .cat{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:#00897b;font-weight:600;margin-bottom:6px}
+.qq .qtxt{font-weight:600;margin-bottom:12px;font-size:.95rem}
+.qo{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin-bottom:4px;border-radius:8px;cursor:pointer;border:1px solid #e2e8f0;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.qo:hover{background:#f7fafc}
+.qo.sel{background:#e0f2f1;border-color:#00897b}
+.qo.locked{pointer-events:none;opacity:.85}
+.qo.c-a{background:#e8f5e9;border-color:#2e7d32}
+.qo.w-a{background:#ffebee;border-color:#e53935}
+.qo input{margin-top:3px;flex-shrink:0}
+.qo label{cursor:pointer;font-size:.9rem}
+.qfb{display:none;margin-top:10px;padding:10px 14px;border-radius:6px;font-size:.85rem;line-height:1.5}
+.qfb.show{display:block}
+.qfb.ok{background:#e8f5e9;color:#1b5e20}
+.qfb.ko{background:#ffebee;color:#b71c1c}
+
+/* PHASE 5 */
+.rev{border-radius:10px;margin-bottom:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rev.rok{background:#e8f5e9;border:2px solid #2e7d32}
+.rev.rko{background:#fff8e1;border:2px solid #ffb300}
+.rev .bdg{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:700;margin-bottom:8px}
+.rev.rok .bdg{background:#2e7d32;color:#fff}
+.rev.rko .bdg{background:#ffb300;color:#3e2723}
+.rev h3{font-size:1rem;margin-bottom:8px}
+.rev .rc{font-size:.9rem;line-height:1.7}
+.sbox{text-align:center;padding:20px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:20px}
+.sbox .sn{font-size:2.4rem;font-weight:800}
+.sbox .sl{font-size:.9rem;color:#718096}
+
+/* BUTTONS */
+.brow{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn{padding:12px 24px;border-radius:8px;font-size:.95rem;font-weight:600;border:none;cursor:pointer;transition:all .2s;text-align:center;flex:1;min-width:140px;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+.btn-p{background:#00897b;color:#fff}.btn-p:hover{background:#00695c}.btn-p:disabled{background:#80cbc4;cursor:not-allowed}
+.btn-s{background:#78909c;color:#fff}.btn-s:hover{background:#546e7a}
+.btn-g{background:#2e7d32;color:#fff}.btn-g:hover{background:#1b5e20}
+.btn-w{background:#ff9800;color:#fff}.btn-w:hover{background:#f57c00}
+.counter{text-align:center;font-size:.85rem;color:#718096;margin-top:10px}
+.alert{display:none;padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:.88rem;font-weight:500;background:#fff3e0;color:#e65100;border:1px solid #ffcc02}
+.alert.show{display:block}
+
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}.header,.pbar,.brow,.btn,.sbox{display:none!important}body{background:#fff;padding:0}.container{max-width:100%;padding:0 20px}.rev{break-inside:avoid;box-shadow:none;border-width:1px}}
+@media(max-width:480px){.header h1{font-size:1.1rem}.eh,.ch{padding:12px 14px}.qq{padding:14px}.btn{padding:12px 16px;font-size:.88rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Posizioni Reciproche — Poligoni Inscritti e Circoscritti</h1>
+  <p>Percorso didattico interattivo</p>
+</div>
+
+<div class="pbar" id="pbar">
+  <div class="pstep active" data-s="1"><span class="dot">1</span><span class="lbl">Posizioni</span></div>
+  <div class="pstep" data-s="2"><span class="dot">2</span><span class="lbl">Poligoni</span></div>
+  <div class="pstep" data-s="3"><span class="dot">3</span><span class="lbl">Concetti</span></div>
+  <div class="pstep" data-s="4"><span class="dot">4</span><span class="lbl">Verifica</span></div>
+  <div class="pstep" data-s="5"><span class="dot">5</span><span class="lbl">Ripasso</span></div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- FASE 1 — POSIZIONI RECIPROCHE                                -->
+<!-- ============================================================ -->
+<div class="phase visible" id="phase1">
+  <h2 class="ph-title">Fase 1 — Posizioni Reciproche</h2>
+  <div class="ph-instr">Clicca su ogni elemento per scoprirne le proprietà. Devi aprirli tutti per proseguire.</div>
+
+  <!-- 1a Punto e Cfr -->
+  <div class="ecard t1" data-id="1a" onclick="openE(this)">
+    <div class="eh"><span class="ic">●</span><span class="ttl">Punto e Circonferenza</span><span class="chk">○</span></div>
+    <div class="eb">
+      <p>La posizione di un punto \(P\) rispetto a una circonferenza di centro \(O\) e raggio \(r\) dipende dalla <strong>distanza</strong> \(OP\):</p>
+      <table class="mini-table">
+        <tr><th>Posizione</th><th>Condizione</th><th>Dove si trova</th></tr>
+        <tr><td>\(P\) interno</td><td>\(OP < r\)</td><td>dentro</td></tr>
+        <tr><td>\(P\) sulla cfr.</td><td>\(OP = r\)</td><td>sul bordo</td></tr>
+        <tr><td>\(P\) esterno</td><td>\(OP > r\)</td><td>fuori</td></tr>
+      </table>
+      <div class="hl-note"><strong>Principio chiave:</strong> si confronta sempre una <strong>distanza</strong> con il <strong>raggio</strong>.</div>
+    </div>
+  </div>
+
+  <!-- 1b Retta e Cfr -->
+  <div class="ecard t1" data-id="1b" onclick="openE(this)">
+    <div class="eh"><span class="ic">╱</span><span class="ttl">Retta e Circonferenza</span><span class="chk">○</span></div>
+    <div class="eb">
+      <p>La posizione di una retta rispetto a una circonferenza di centro \(O\) e raggio \(r\) dipende dalla <strong>distanza</strong> \(d\) tra il centro \(O\) e la retta:</p>
+      <table class="mini-table">
+        <tr><th>Posizione</th><th>Condizione</th><th>Punti in comune</th></tr>
+        <tr><td>Esterna</td><td>\(d > r\)</td><td>0</td></tr>
+        <tr><td>Tangente</td><td>\(d = r\)</td><td>1</td></tr>
+        <tr><td>Secante</td><td>\(d < r\)</td><td>2</td></tr>
+      </table>
+      <div class="hl-def">La <strong>tangente</strong> tocca la circonferenza in un solo punto (\(T\)). La <strong>secante</strong> la taglia in due punti (\(A\) e \(B\)); la corda \(\overline{AB}\) è la parte interna.</div>
+    </div>
+  </div>
+
+  <!-- 1c Proprietà tangente -->
+  <div class="ecard t1" data-id="1c" onclick="openE(this)">
+    <div class="eh"><span class="ic">⊥</span><span class="ttl">Proprietà fondamentale della tangente</span><span class="chk">○</span></div>
+    <div class="eb">
+      <div class="hl-prop">La tangente a una circonferenza è <strong>perpendicolare</strong> al raggio condotto nel punto di tangenza \(T\):</div>
+      <div class="hl-form">$$\text{tangente} \perp OT \qquad \Longrightarrow \qquad \text{angolo} = 90°$$</div>
+      <p>Questo significa che l'angolo formato dalla tangente e dal raggio nel punto \(T\) è <strong>sempre</strong> un angolo retto.</p>
+      <div class="hl-note"><strong>Ricorda:</strong> la perpendicolarità tangente-raggio è una proprietà fondamentale che <strong>vale sempre</strong>, qualunque sia la dimensione della circonferenza.</div>
+    </div>
+  </div>
+
+  <!-- 1d Riepilogo -->
+  <div class="ecard t1" data-id="1d" onclick="openE(this)">
+    <div class="eh"><span class="ic">★</span><span class="ttl">Riepilogo: il criterio è sempre il confronto</span><span class="chk">○</span></div>
+    <div class="eb">
+      <p>Sia per il punto che per la retta, la posizione si determina con lo stesso metodo: <strong>confronto tra una distanza e il raggio</strong>.</p>
+      <div class="hl-ex">
+        <strong>Punto:</strong> confronto \(OP\) con \(r\) → interno / sulla cfr. / esterno<br>
+        <strong>Retta:</strong> confronto \(d\) con \(r\) → secante / tangente / esterna
+      </div>
+      <p>La differenza: il punto può stare <em>dentro, sul bordo o fuori</em>; la retta può <em>tagliare (2 punti), toccare (1 punto) o non incontrare (0 punti)</em>.</p>
+    </div>
+  </div>
+
+  <div class="counter" id="cnt1">Elementi aperti: 0 / 4</div>
+  <div class="brow">
+    <button class="btn btn-p" id="bN1" disabled onclick="go(2)">Vai alla Fase 2 →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 2 — POLIGONI INSCRITTI E CIRCOSCRITTI                   -->
+<!-- ============================================================ -->
+<div class="phase" id="phase2">
+  <h2 class="ph-title">Fase 2 — Poligoni Inscritti e Circoscritti</h2>
+  <div class="ph-instr">Clicca su ogni elemento per scoprirne le proprietà. Devi aprirli tutti per proseguire.</div>
+
+  <!-- 2a Inscritto -->
+  <div class="ecard t2" data-id="2a" onclick="openE(this)">
+    <div class="eh"><span class="ic">▽</span><span class="ttl">Poligono inscritto in una circonferenza</span><span class="chk">○</span></div>
+    <div class="eb">
+      <div class="hl-def">Un poligono è <strong>inscritto</strong> in una circonferenza quando tutti i suoi <strong>vertici</strong> appartengono alla circonferenza.</div>
+      <p>La circonferenza si dice <strong>circoscritta</strong> al poligono.</p>
+      <div class="hl-prop">Il centro della circonferenza circoscritta si chiama <strong>circocentro</strong>.</div>
+      <div class="hl-note">Pensa a un triangolo con i vertici «appoggiati» sulla circonferenza: il poligono sta <em>dentro</em>, la circonferenza lo avvolge.</div>
+    </div>
+  </div>
+
+  <!-- 2b Circoscritto -->
+  <div class="ecard t2" data-id="2b" onclick="openE(this)">
+    <div class="eh"><span class="ic">△</span><span class="ttl">Poligono circoscritto a una circonferenza</span><span class="chk">○</span></div>
+    <div class="eb">
+      <div class="hl-def">Un poligono è <strong>circoscritto</strong> a una circonferenza quando tutti i suoi <strong>lati</strong> sono <strong>tangenti</strong> alla circonferenza.</div>
+      <p>La circonferenza si dice <strong>inscritta</strong> nel poligono.</p>
+      <div class="hl-prop">Il centro della circonferenza inscritta si chiama <strong>incentro</strong>.</div>
+      <div class="hl-note">Pensa a un triangolo che «abbraccia» una circonferenza interna: il poligono sta <em>fuori</em>, la circonferenza sta dentro e tocca ogni lato.</div>
+    </div>
+  </div>
+
+  <!-- 2c Apotema -->
+  <div class="ecard t2" data-id="2c" onclick="openE(this)">
+    <div class="eh"><span class="ic">⊥</span><span class="ttl">L'apotema</span><span class="chk">○</span></div>
+    <div class="eb">
+      <div class="hl-def">L'<strong>apotema</strong> (\(a\)) di un poligono regolare è la distanza tra il <strong>centro</strong> e il <strong>punto medio</strong> di un lato.</div>
+      <p>Coincide con il <strong>raggio della circonferenza inscritta</strong>.</p>
+      <p>L'apotema è sempre <strong>perpendicolare</strong> al lato.</p>
+      <div class="hl-form">$$\text{apotema} = \text{raggio cfr. inscritta} \qquad \text{e} \qquad r > a$$</div>
+      <div class="hl-note"><strong>Relazione fondamentale:</strong> il raggio della cfr. circoscritta (dal centro al vertice) è <strong>sempre maggiore</strong> dell'apotema (dal centro al punto medio del lato).</div>
+    </div>
+  </div>
+
+  <!-- 2d Proprietà fondamentali -->
+  <div class="ecard t2" data-id="2d" onclick="openE(this)">
+    <div class="eh"><span class="ic">★</span><span class="ttl">Proprietà fondamentali</span><span class="chk">○</span></div>
+    <div class="eb">
+      <div class="hl-prop"><strong>Ogni triangolo</strong> è sempre inscrivibile in una circonferenza <strong>e</strong> circoscrivibile a una circonferenza.</div>
+      <div class="hl-prop"><strong>Ogni poligono regolare</strong> è inscrivibile e circoscrivibile. Le due circonferenze sono <strong>concentriche</strong>: hanno lo stesso centro.</div>
+      <table class="mini-table">
+        <tr><th>Concetto</th><th>Significato</th><th>Il centro si chiama</th></tr>
+        <tr><td>Poligono inscritto</td><td>vertici sulla cfr.</td><td>circocentro</td></tr>
+        <tr><td>Poligono circoscritto</td><td>lati tangenti alla cfr.</td><td>incentro</td></tr>
+        <tr><td>Apotema (\(a\))</td><td>centro → punto medio lato</td><td>raggio cfr. inscritta</td></tr>
+      </table>
+      <div class="hl-note"><strong>Ricorda:</strong> il raggio va dal centro al <strong>vertice</strong>, l'apotema va dal centro al <strong>punto medio del lato</strong>.</div>
+    </div>
+  </div>
+
+  <div class="counter" id="cnt2">Elementi aperti: 0 / 4</div>
+  <div class="brow">
+    <button class="btn btn-s" onclick="go(1)">← Fase 1</button>
+    <button class="btn btn-p" id="bN2" disabled onclick="go(3)">Vai alla Fase 3 →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 3 — CONCETTI CHIAVE                                     -->
+<!-- ============================================================ -->
+<div class="phase" id="phase3">
+  <h2 class="ph-title">Fase 3 — Concetti Chiave</h2>
+  <div class="ph-instr">Apri tutte le schede per consolidare i concetti fondamentali, poi passa alla verifica.</div>
+
+  <div class="ccard" data-id="3a" onclick="openC(this)">
+    <div class="ch"><span class="ic">1</span><span class="ttl">Il criterio universale: distanza vs raggio</span><span class="chk">○</span></div>
+    <div class="cb">
+      <p>Sia per il <strong>punto</strong> che per la <strong>retta</strong>, la posizione reciproca si determina con lo stesso principio: si confronta una <strong>distanza</strong> con il <strong>raggio</strong>.</p>
+      <p>Se la distanza è minore del raggio → dentro / secante. Se è uguale → sul bordo / tangente. Se è maggiore → fuori / esterna.</p>
+      <p>Cambia solo cosa produce il confronto: il punto «sta» in una posizione, la retta «incontra» un certo numero di punti (0, 1 o 2).</p>
+    </div>
+  </div>
+
+  <div class="ccard" data-id="3b" onclick="openC(this)">
+    <div class="ch"><span class="ic">2</span><span class="ttl">La perpendicolarità della tangente</span><span class="chk">○</span></div>
+    <div class="cb">
+      <p>La tangente è <strong>perpendicolare</strong> al raggio nel punto di tangenza: l'angolo è sempre 90°.</p>
+      <p>Questa proprietà è fondamentale e vale <strong>sempre</strong>, indipendentemente dalla dimensione della circonferenza. La ritroverai anche nei poligoni circoscritti: ogni lato è tangente, quindi ogni lato è perpendicolare al raggio (= apotema) nel punto di contatto.</p>
+    </div>
+  </div>
+
+  <div class="ccard" data-id="3c" onclick="openC(this)">
+    <div class="ch"><span class="ic">3</span><span class="ttl">Inscritto vs circoscritto: il trucco per non confonderli</span><span class="chk">○</span></div>
+    <div class="cb">
+      <p><strong>Inscritto:</strong> il poligono sta <em>dentro</em> → i <strong>vertici</strong> toccano la circonferenza. La cfr. circoscritta avvolge il poligono. Centro = <strong>circocentro</strong>.</p>
+      <p><strong>Circoscritto:</strong> il poligono sta <em>fuori</em> → i <strong>lati</strong> toccano la circonferenza (sono tangenti). La cfr. inscritta sta dentro. Centro = <strong>incentro</strong>.</p>
+      <p>Trucco mnemonico: <strong>inscritto = vertici dentro</strong> la cfr.; <strong>circoscritto = lati intorno</strong> alla cfr.</p>
+    </div>
+  </div>
+
+  <div class="ccard" data-id="3d" onclick="openC(this)">
+    <div class="ch"><span class="ic">4</span><span class="ttl">Raggio, apotema e la relazione r > a</span><span class="chk">○</span></div>
+    <div class="cb">
+      <p>Il <strong>raggio</strong> della cfr. circoscritta va dal centro al <strong>vertice</strong>.</p>
+      <p>L'<strong>apotema</strong> va dal centro al <strong>punto medio del lato</strong> ed è il raggio della cfr. inscritta.</p>
+      <p>Il raggio è sempre <strong>maggiore</strong> dell'apotema: \(r > a\).</p>
+      <p>Nei poligoni regolari le due circonferenze (inscritta e circoscritta) sono <strong>concentriche</strong>: hanno lo stesso centro.</p>
+    </div>
+  </div>
+
+  <div class="counter" id="cnt3">Schede aperte: 0 / 4</div>
+  <div class="brow">
+    <button class="btn btn-s" onclick="go(2)">← Fase 2</button>
+    <button class="btn btn-p" id="bN3" disabled onclick="go(4)">Vai alla Verifica →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 4 — VERIFICA                                            -->
+<!-- ============================================================ -->
+<div class="phase" id="phase4">
+  <h2 class="ph-title">Fase 4 — Verifica</h2>
+  <div class="ph-instr">Rispondi a tutte le domande, poi premi «Verifica Risposte».</div>
+  <div class="alert" id="qAl"></div>
+
+  <!-- Q1 -->
+  <div class="qq" id="q1" data-area="pos" data-correct="0">
+    <div class="cat">Posizioni Reciproche</div>
+    <div class="qtxt">1. Se \(OP < r\), il punto \(P\) è:</div>
+    <div class="qo" onclick="sel(this,'q1',0)"><input type="radio" name="q1"><label>Interno alla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q1',1)"><input type="radio" name="q1"><label>Sulla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q1',2)"><input type="radio" name="q1"><label>Esterno alla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q1',3)"><input type="radio" name="q1"><label>Sul diametro</label></div>
+    <div class="qfb" id="fb-q1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qq" id="q2" data-area="pos" data-correct="2">
+    <div class="cat">Posizioni Reciproche</div>
+    <div class="qtxt">2. Una retta è tangente alla circonferenza quando:</div>
+    <div class="qo" onclick="sel(this,'q2',0)"><input type="radio" name="q2"><label>La distanza dal centro è maggiore del raggio</label></div>
+    <div class="qo" onclick="sel(this,'q2',1)"><input type="radio" name="q2"><label>La distanza dal centro è minore del raggio</label></div>
+    <div class="qo" onclick="sel(this,'q2',2)"><input type="radio" name="q2"><label>La distanza dal centro è uguale al raggio</label></div>
+    <div class="qo" onclick="sel(this,'q2',3)"><input type="radio" name="q2"><label>Passa per il centro</label></div>
+    <div class="qfb" id="fb-q2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qq" id="q3" data-area="pos" data-correct="1">
+    <div class="cat">Posizioni Reciproche</div>
+    <div class="qtxt">3. Quanti punti in comune ha una retta secante con la circonferenza?</div>
+    <div class="qo" onclick="sel(this,'q3',0)"><input type="radio" name="q3"><label>0</label></div>
+    <div class="qo" onclick="sel(this,'q3',1)"><input type="radio" name="q3"><label>2</label></div>
+    <div class="qo" onclick="sel(this,'q3',2)"><input type="radio" name="q3"><label>1</label></div>
+    <div class="qo" onclick="sel(this,'q3',3)"><input type="radio" name="q3"><label>Infiniti</label></div>
+    <div class="qfb" id="fb-q3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="qq" id="q4" data-area="pos" data-correct="3">
+    <div class="cat">Posizioni Reciproche</div>
+    <div class="qtxt">4. La tangente nel punto \(T\) forma con il raggio \(OT\) un angolo di:</div>
+    <div class="qo" onclick="sel(this,'q4',0)"><input type="radio" name="q4"><label>45°</label></div>
+    <div class="qo" onclick="sel(this,'q4',1)"><input type="radio" name="q4"><label>180°</label></div>
+    <div class="qo" onclick="sel(this,'q4',2)"><input type="radio" name="q4"><label>60°</label></div>
+    <div class="qo" onclick="sel(this,'q4',3)"><input type="radio" name="q4"><label>90°</label></div>
+    <div class="qfb" id="fb-q4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="qq" id="q5" data-area="pos" data-correct="1">
+    <div class="cat">Posizioni Reciproche</div>
+    <div class="qtxt">5. In una retta secante, la corda \(\overline{AB}\) è:</div>
+    <div class="qo" onclick="sel(this,'q5',0)"><input type="radio" name="q5"><label>La retta intera</label></div>
+    <div class="qo" onclick="sel(this,'q5',1)"><input type="radio" name="q5"><label>La parte della retta interna alla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q5',2)"><input type="radio" name="q5"><label>La distanza tra il centro e la retta</label></div>
+    <div class="qo" onclick="sel(this,'q5',3)"><input type="radio" name="q5"><label>Il raggio condotto al punto di tangenza</label></div>
+    <div class="qfb" id="fb-q5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="qq" id="q6" data-area="pol" data-correct="2">
+    <div class="cat">Poligoni Inscritti e Circoscritti</div>
+    <div class="qtxt">6. Un poligono è inscritto in una circonferenza quando:</div>
+    <div class="qo" onclick="sel(this,'q6',0)"><input type="radio" name="q6"><label>Tutti i lati sono tangenti alla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q6',1)"><input type="radio" name="q6"><label>Il centro del poligono è sulla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q6',2)"><input type="radio" name="q6"><label>Tutti i vertici appartengono alla circonferenza</label></div>
+    <div class="qo" onclick="sel(this,'q6',3)"><input type="radio" name="q6"><label>Il poligono contiene la circonferenza al suo interno</label></div>
+    <div class="qfb" id="fb-q6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="qq" id="q7" data-area="pol" data-correct="0">
+    <div class="cat">Poligoni Inscritti e Circoscritti</div>
+    <div class="qtxt">7. Il centro della circonferenza circoscritta a un poligono si chiama:</div>
+    <div class="qo" onclick="sel(this,'q7',0)"><input type="radio" name="q7"><label>Circocentro</label></div>
+    <div class="qo" onclick="sel(this,'q7',1)"><input type="radio" name="q7"><label>Incentro</label></div>
+    <div class="qo" onclick="sel(this,'q7',2)"><input type="radio" name="q7"><label>Baricentro</label></div>
+    <div class="qo" onclick="sel(this,'q7',3)"><input type="radio" name="q7"><label>Ortocentro</label></div>
+    <div class="qfb" id="fb-q7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="qq" id="q8" data-area="pol" data-correct="2">
+    <div class="cat">Poligoni Inscritti e Circoscritti</div>
+    <div class="qtxt">8. L'apotema di un poligono regolare è:</div>
+    <div class="qo" onclick="sel(this,'q8',0)"><input type="radio" name="q8"><label>La distanza dal centro a un vertice</label></div>
+    <div class="qo" onclick="sel(this,'q8',1)"><input type="radio" name="q8"><label>Il diametro della circonferenza inscritta</label></div>
+    <div class="qo" onclick="sel(this,'q8',2)"><input type="radio" name="q8"><label>La distanza dal centro al punto medio di un lato</label></div>
+    <div class="qo" onclick="sel(this,'q8',3)"><input type="radio" name="q8"><label>La diagonale maggiore del poligono</label></div>
+    <div class="qfb" id="fb-q8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="qq" id="q9" data-area="pol" data-correct="3">
+    <div class="cat">Poligoni Inscritti e Circoscritti</div>
+    <div class="qtxt">9. Quale relazione è corretta tra raggio (\(r\)) e apotema (\(a\))?</div>
+    <div class="qo" onclick="sel(this,'q9',0)"><input type="radio" name="q9"><label>\(r = a\)</label></div>
+    <div class="qo" onclick="sel(this,'q9',1)"><input type="radio" name="q9"><label>\(r < a\)</label></div>
+    <div class="qo" onclick="sel(this,'q9',2)"><input type="radio" name="q9"><label>\(r = 2a\)</label></div>
+    <div class="qo" onclick="sel(this,'q9',3)"><input type="radio" name="q9"><label>\(r > a\)</label></div>
+    <div class="qfb" id="fb-q9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="qq" id="q10" data-area="pol" data-correct="1">
+    <div class="cat">Poligoni Inscritti e Circoscritti</div>
+    <div class="qtxt">10. Quale figura è sempre inscrivibile e circoscrivibile a una circonferenza?</div>
+    <div class="qo" onclick="sel(this,'q10',0)"><input type="radio" name="q10"><label>Solo il quadrato</label></div>
+    <div class="qo" onclick="sel(this,'q10',1)"><input type="radio" name="q10"><label>Ogni triangolo</label></div>
+    <div class="qo" onclick="sel(this,'q10',2)"><input type="radio" name="q10"><label>Solo il triangolo equilatero</label></div>
+    <div class="qo" onclick="sel(this,'q10',3)"><input type="radio" name="q10"><label>Solo i poligoni regolari</label></div>
+    <div class="qfb" id="fb-q10"></div>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-s" onclick="go(3)">← Fase 3</button>
+    <button class="btn btn-g" id="bVer" onclick="verify()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 5 — RIPASSO                                             -->
+<!-- ============================================================ -->
+<div class="phase" id="phase5">
+  <h2 class="ph-title">Fase 5 — Ripasso Personalizzato</h2>
+  <div id="sCont"></div>
+  <div id="rCont"></div>
+  <div class="brow">
+    <button class="btn btn-s" onclick="go(4)">← Rivedi Errori</button>
+    <button class="btn btn-w" onclick="window.print()">Stampa Ripasso</button>
+    <button class="btn btn-p" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const S={phase:1,op:{p1:new Set,p2:new Set,p3:new Set},tot:{p1:4,p2:4,p3:4},ans:{},locked:false};
+
+const FB={
+q1:{ok:"Esatto! Se OP < r, il punto è interno: la sua distanza dal centro è minore del raggio.",ko:"Se la distanza OP è minore del raggio, il punto si trova dentro la circonferenza (interno)."},
+q2:{ok:"Esatto! La tangente si ha quando la distanza dal centro è uguale al raggio (d = r), con 1 solo punto in comune.",ko:"La tangente si verifica quando d = r: la retta tocca la circonferenza in un solo punto."},
+q3:{ok:"Esatto! La retta secante taglia la circonferenza in 2 punti (A e B).",ko:"La secante ha d < r e taglia la circonferenza in 2 punti; la parte interna è la corda AB."},
+q4:{ok:"Esatto! La tangente è perpendicolare al raggio nel punto di tangenza: l'angolo è sempre 90°.",ko:"La proprietà fondamentale: la tangente è perpendicolare al raggio in T, quindi l'angolo è 90°."},
+q5:{ok:"Esatto! La corda AB è il segmento interno alla circonferenza, cioè la parte della secante compresa tra i due punti di intersezione.",ko:"Nella secante, la corda AB è la parte della retta che sta dentro la circonferenza, tra i due punti di intersezione."},
+q6:{ok:"Esatto! Inscritto = tutti i vertici sulla circonferenza. La cfr. si dice circoscritta.",ko:"Un poligono è inscritto quando i vertici stanno sulla cfr. (non i lati). I lati tangenti = circoscritto."},
+q7:{ok:"Esatto! Il centro della cfr. circoscritta si chiama circocentro. L'incentro è il centro della cfr. inscritta.",ko:"La cfr. circoscritta (vertici sulla cfr.) ha il centro chiamato circocentro. L'incentro è per la cfr. inscritta."},
+q8:{ok:"Esatto! L'apotema è la distanza dal centro al punto medio del lato, e coincide con il raggio della cfr. inscritta.",ko:"L'apotema va dal centro al punto medio del lato (non al vertice). La distanza centro-vertice è il raggio."},
+q9:{ok:"Esatto! Il raggio (centro → vertice) è sempre maggiore dell'apotema (centro → punto medio lato).",ko:"Il raggio va al vertice, l'apotema al punto medio del lato: il raggio è sempre maggiore (r > a)."},
+q10:{ok:"Esatto! Ogni triangolo è sempre inscrivibile e circoscrivibile, non solo quelli regolari.",ko:"Ogni triangolo — equilatero, isoscele o scaleno — è sempre inscrivibile e circoscrivibile a una circonferenza."}
+};
+
+const REV={
+pos:{title:"Posizioni Reciproche",
+full:"<p><strong>Punto e cfr.:</strong> si confronta la distanza OP con r. Se OP < r → interno; OP = r → sulla cfr.; OP > r → esterno.</p><p><strong>Retta e cfr.:</strong> si confronta la distanza d con r. Se d < r → secante (2 punti); d = r → tangente (1 punto); d > r → esterna (0 punti).</p><p><strong>Proprietà della tangente:</strong> la tangente è perpendicolare al raggio nel punto T. L'angolo è sempre 90°.</p><p><strong>Secante:</strong> la corda AB è la parte interna della retta secante.</p>",
+short:"<p>Hai capito il criterio del confronto distanza-raggio e le proprietà della tangente e della secante.</p>"},
+pol:{title:"Poligoni Inscritti e Circoscritti",
+full:"<p><strong>Inscritto:</strong> vertici sulla cfr. → la cfr. è circoscritta → centro = circocentro.</p><p><strong>Circoscritto:</strong> lati tangenti alla cfr. → la cfr. è inscritta → centro = incentro.</p><p><strong>Apotema:</strong> distanza centro → punto medio lato = raggio cfr. inscritta. Sempre perpendicolare al lato.</p><p><strong>Proprietà:</strong> ogni triangolo è sempre inscrivibile e circoscrivibile. Ogni poligono regolare ha cfr. inscritta e circoscritta concentriche. Il raggio è sempre maggiore dell'apotema (r > a).</p>",
+short:"<p>Hai capito la differenza tra inscritto e circoscritto, il ruolo dell'apotema e le proprietà fondamentali.</p>"}
+};
+
+function go(n){
+  document.querySelectorAll('.phase').forEach(p=>p.classList.remove('visible'));
+  document.getElementById('phase'+n).classList.add('visible');
+  S.phase=n; updP();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===5&&S.locked) genRev();
+  rM('#phase'+n);
+}
+function updP(){document.querySelectorAll('.pstep').forEach(s=>{const v=+s.dataset.s;s.classList.remove('active','done');if(v<S.phase)s.classList.add('done');else if(v===S.phase)s.classList.add('active');})}
+
+function openE(c){
+  if(c.classList.contains('opened'))return;
+  c.classList.add('opened');c.querySelector('.chk').textContent='✔';
+  const id=c.dataset.id;let k,cnt,btn,tot;
+  if(id.startsWith('1')){k='p1';cnt='cnt1';btn='bN1';tot=S.tot.p1;}
+  else{k='p2';cnt='cnt2';btn='bN2';tot=S.tot.p2;}
+  S.op[k].add(id);
+  document.getElementById(cnt).textContent='Elementi aperti: '+S.op[k].size+' / '+tot;
+  if(S.op[k].size>=tot)document.getElementById(btn).disabled=false;
+  rM(c);
+}
+
+function openC(c){
+  if(c.classList.contains('opened'))return;
+  c.classList.add('opened');c.querySelector('.chk').textContent='✔';
+  S.op.p3.add(c.dataset.id);
+  document.getElementById('cnt3').textContent='Schede aperte: '+S.op.p3.size+' / '+S.tot.p3;
+  if(S.op.p3.size>=S.tot.p3)document.getElementById('bN3').disabled=false;
+  rM(c);
+}
+
+function sel(o,qid,idx){
+  if(S.locked)return;
+  const q=document.getElementById(qid);
+  q.querySelectorAll('.qo').forEach(x=>{x.classList.remove('sel');x.querySelector('input').checked=false;});
+  o.classList.add('sel');o.querySelector('input').checked=true;S.ans[qid]=idx;
+}
+
+function verify(){
+  if(S.locked){go(5);return;}
+  const qs=document.querySelectorAll('.qq');
+  const miss=[];qs.forEach(q=>{if(S.ans[q.id]===undefined)miss.push(q.id);});
+  if(miss.length){
+    const al=document.getElementById('qAl');
+    al.textContent='Devi rispondere a tutte le domande! Ne mancano '+miss.length+'.';
+    al.classList.add('show');
+    const f=document.getElementById(miss[0]);f.classList.add('unanswered');
+    f.scrollIntoView({behavior:'smooth',block:'center'});return;
+  }
+  document.getElementById('qAl').classList.remove('show');
+  S.locked=true;let sc=0;
+  S.ar={pos:{c:0,t:0},pol:{c:0,t:0}};
+  qs.forEach(q=>{
+    const cor=+q.dataset.correct,area=q.dataset.area,pick=S.ans[q.id],ok=pick===cor;
+    const fb=document.getElementById('fb-'+q.id);
+    S.ar[area].t++;if(ok){sc++;S.ar[area].c++;q.classList.add('correct');fb.className='qfb show ok';fb.textContent='✔ '+FB[q.id].ok;}
+    else{q.classList.add('wrong');fb.className='qfb show ko';fb.textContent='✘ '+FB[q.id].ko;}
+    q.querySelectorAll('.qo').forEach((o,i)=>{o.classList.add('locked');if(i===cor)o.classList.add('c-a');if(i===pick&&!ok)o.classList.add('w-a');});
+    q.classList.remove('unanswered');rM('#'+q.id);
+  });
+  S.sc=sc;S.tt=qs.length;
+  const b=document.getElementById('bVer');b.textContent='Vai al Ripasso →';b.className='btn btn-p';
+}
+
+function genRev(){
+  const sc=document.getElementById('sCont'),pct=Math.round(S.sc/S.tt*100);
+  let col='#2e7d32';if(pct<60)col='#e53935';else if(pct<80)col='#ff9800';
+  sc.innerHTML='<div class="sbox"><div class="sn" style="color:'+col+'">'+S.sc+' / '+S.tt+'</div><div class="sl">Risposte corrette ('+pct+'%)</div></div>';
+  const rc=document.getElementById('rCont');rc.innerHTML='';
+  ['pos','pol'].forEach(a=>{
+    const r=S.ar[a],ok=r.c===r.t;
+    const d=document.createElement('div');d.className='rev '+(ok?'rok':'rko');
+    d.innerHTML='<span class="bdg">'+(ok?'Hai capito bene':'Da rivedere')+'</span><h3>'+REV[a].title+'</h3><div class="rc">'+(ok?REV[a].short:REV[a].full)+'</div>';
+    rc.appendChild(d);
+  });
+}
+
+function restart(){
+  S.phase=1;S.ans={};S.locked=false;S.op.p1.clear();S.op.p2.clear();S.op.p3.clear();
+  document.querySelectorAll('.ecard,.ccard').forEach(c=>{c.classList.remove('opened');c.querySelector('.chk').textContent='○';});
+  document.getElementById('cnt1').textContent='Elementi aperti: 0 / 4';
+  document.getElementById('cnt2').textContent='Elementi aperti: 0 / 4';
+  document.getElementById('cnt3').textContent='Schede aperte: 0 / 4';
+  ['bN1','bN2','bN3'].forEach(id=>document.getElementById(id).disabled=true);
+  const b=document.getElementById('bVer');b.textContent='Verifica Risposte';b.className='btn btn-g';
+  document.getElementById('qAl').classList.remove('show');
+  document.querySelectorAll('.qq').forEach(q=>{
+    q.classList.remove('correct','wrong','unanswered');
+    q.querySelectorAll('.qo').forEach(o=>{o.classList.remove('sel','locked','c-a','w-a');o.querySelector('input').checked=false;});
+    q.querySelector('.qfb').className='qfb';
+  });
+  document.getElementById('sCont').innerHTML='';document.getElementById('rCont').innerHTML='';
+  go(1);
+}
+
+function rM(t){const el=typeof t==='string'?document.querySelector(t):t;if(el&&typeof renderMathInElement==='function')renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});}
+document.addEventListener('DOMContentLoaded',()=>rM(document.body));
+</script>
+</body>
+</html>
