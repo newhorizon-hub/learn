@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temperatura, Calore e Dilatazione Termica</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root {
+  --rosso: #C0392B;
+  --rosso-light: #FADBD8;
+  --rosso-bg: #FDF2F0;
+  --arancio: #E67E22;
+  --arancio-light: #FDEBD0;
+  --azzurro: #2980B9;
+  --azzurro-light: #D6EAF8;
+  --viola: #8E44AD;
+  --viola-light: #E8DAEF;
+  --verde: #27AE60;
+  --verde-light: #D5F5E3;
+  --gray-dark: #2C3E50;
+  --gray-mid: #566573;
+  --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC;
+  --white: #FFFFFF;
+  --success: #27AE60;
+  --error: #E74C3C;
+  --warning: #F39C12;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--gray-light); color: var(--gray-dark);
+  line-height: 1.6; min-height: 100vh;
+}
+.container { max-width: 860px; margin: 0 auto; padding: 16px; }
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--rosso) 0%, #E74C3C 100%);
+  color: white; padding: 28px 24px; border-radius: 16px;
+  margin-bottom: 20px; text-align: center;
+}
+header h1 { font-size: 1.6em; font-weight: 700; margin-bottom: 4px; }
+header p { font-size: 0.95em; opacity: 0.9; }
+
+/* PROGRESS BAR */
+.progress-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.step-dot {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85em;
+  background: var(--gray-border); color: var(--gray-mid);
+  transition: all 0.3s;
+}
+.step-dot.active { background: var(--rosso); color: white; box-shadow: 0 2px 8px rgba(192,57,43,0.35); }
+.step-dot.done { background: var(--success); color: white; }
+.step-connector { width: 28px; height: 3px; background: var(--gray-border); border-radius: 2px; transition: background 0.3s; }
+.step-connector.done { background: var(--success); }
+
+/* PHASES */
+.phase { display: none; animation: fadeIn 0.4s ease; }
+.phase.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.phase-title { font-size: 1.25em; font-weight: 700; color: var(--gray-dark); margin-bottom: 6px; }
+.phase-instruction {
+  font-size: 0.92em; color: var(--gray-mid); margin-bottom: 16px;
+  padding: 10px 14px; background: var(--rosso-bg);
+  border-left: 4px solid var(--rosso); border-radius: 0 8px 8px 0;
+}
+
+/* CLICKABLE ELEMENTS */
+.elements-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.element-card {
+  background: var(--white); border: 2px solid var(--gray-border);
+  border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.25s;
+}
+.element-card:hover { border-color: var(--rosso); box-shadow: 0 2px 12px rgba(192,57,43,0.12); }
+.element-card.opened { border-color: var(--success); }
+.element-card .card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 700; font-size: 1.05em; color: var(--gray-dark);
+}
+.element-card .card-header .icon { font-size: 1.3em; }
+.element-card .check-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--gray-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75em; color: white; transition: all 0.3s; flex-shrink: 0;
+}
+.element-card.opened .check-mark { background: var(--success); border-color: var(--success); }
+.element-card .card-body {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-border);
+  font-size: 0.93em; color: var(--gray-mid); line-height: 1.65; display: none;
+}
+.element-card.opened .card-body { display: block; }
+.element-card .card-body strong { color: var(--gray-dark); }
+.element-card .card-body .example {
+  margin-top: 8px; padding: 8px 12px; background: var(--gray-light);
+  border-radius: 8px; font-size: 0.9em;
+}
+/* color variants */
+.element-card.heat { border-left: 5px solid var(--rosso); }
+.element-card.heat.opened { background: var(--rosso-bg); border-color: var(--rosso); }
+.element-card.measure { border-left: 5px solid var(--azzurro); }
+.element-card.measure.opened { background: #EBF5FB; border-color: var(--azzurro); }
+.element-card.solid { border-left: 5px solid var(--arancio); }
+.element-card.solid.opened { background: #FFF8F0; border-color: var(--arancio); }
+.element-card.liquid { border-left: 5px solid var(--azzurro); }
+.element-card.liquid.opened { background: #EBF5FB; border-color: var(--azzurro); }
+.element-card.gas { border-left: 5px solid var(--viola); }
+.element-card.gas.opened { background: #F8F0FF; border-color: var(--viola); }
+
+/* SVG thermometer */
+.thermo-svg { display: flex; justify-content: center; margin: 10px 0; }
+
+/* CONCEPT CARDS (Phase 3) */
+.concept-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.concept-card {
+  background: var(--white); border: 2px solid var(--gray-border);
+  border-radius: 12px; overflow: hidden; transition: border-color 0.3s;
+}
+.concept-card.opened { border-color: var(--success); }
+.concept-card .concept-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; font-weight: 700; font-size: 1em;
+  color: var(--gray-dark); transition: background 0.2s; user-select: none; gap: 10px;
+}
+.concept-card .concept-header:hover { background: var(--gray-light); }
+.concept-card .concept-header .arrow { transition: transform 0.3s; font-size: 0.9em; color: var(--gray-mid); }
+.concept-card.expanded .concept-header .arrow { transform: rotate(180deg); }
+.concept-card .concept-body {
+  padding: 0 16px; max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  font-size: 0.93em; color: var(--gray-mid); line-height: 1.7;
+}
+.concept-card.expanded .concept-body { max-height: 800px; padding: 0 16px 16px 16px; }
+.concept-card .concept-body strong { color: var(--gray-dark); }
+.highlight-box {
+  margin: 10px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.93em;
+}
+.highlight-box.red { background: var(--rosso-light); border-left: 4px solid var(--rosso); }
+.highlight-box.orange { background: var(--arancio-light); border-left: 4px solid var(--arancio); }
+.highlight-box.blue { background: var(--azzurro-light); border-left: 4px solid var(--azzurro); }
+.highlight-box.purple { background: var(--viola-light); border-left: 4px solid var(--viola); }
+.highlight-box.green { background: var(--verde-light); border-left: 4px solid var(--verde); }
+
+/* QUIZ */
+.quiz-area { margin-bottom: 20px; }
+.quiz-question {
+  background: var(--white); border: 2px solid var(--gray-border);
+  border-radius: 12px; padding: 18px; margin-bottom: 12px; transition: border-color 0.3s;
+}
+.quiz-question.correct { border-color: var(--success); background: #F0FFF4; }
+.quiz-question.wrong { border-color: var(--error); background: #FFF0F0; }
+.quiz-question.missed { border-color: var(--warning); background: #FFF8E8; }
+.q-number { font-size: 0.8em; font-weight: 700; color: var(--rosso); text-transform: uppercase; margin-bottom: 6px; }
+.q-text { font-weight: 600; font-size: 1em; margin-bottom: 12px; color: var(--gray-dark); }
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 2px solid var(--gray-border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.93em;
+}
+.q-option:hover { border-color: var(--rosso); background: var(--rosso-bg); }
+.q-option.selected { border-color: var(--rosso); background: var(--rosso-light); font-weight: 600; }
+.q-option.locked { pointer-events: none; opacity: 0.85; }
+.q-option.show-correct { border-color: var(--success); background: #D5F5E3; font-weight: 600; }
+.q-option.show-wrong { border-color: var(--error); background: #FADBD8; }
+.q-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--gray-border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.q-option.selected .q-radio { border-color: var(--rosso); background: var(--rosso); }
+.q-option.selected .q-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+.q-feedback {
+  margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+  font-size: 0.9em; display: none; line-height: 1.5;
+}
+.q-feedback.correct { display: block; background: #D5F5E3; color: #1E7E34; }
+.q-feedback.wrong { display: block; background: #FADBD8; color: #C0392B; }
+
+/* REVIEW */
+.review-score {
+  text-align: center; padding: 24px; background: var(--white);
+  border-radius: 16px; border: 2px solid var(--gray-border); margin-bottom: 20px;
+}
+.score-number { font-size: 3em; font-weight: 800; }
+.score-label { font-size: 1em; color: var(--gray-mid); margin-top: 4px; }
+.score-feedback { font-size: 1.1em; font-weight: 600; margin-top: 10px; }
+.review-area { margin-bottom: 20px; }
+.review-section { border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 5px solid; }
+.review-section.good { background: #D5F5E3; border-color: var(--success); }
+.review-section.review { background: #FEF9E7; border-color: var(--warning); }
+.review-section h3 { font-size: 1em; margin-bottom: 8px; }
+.review-section.good h3 { color: var(--success); }
+.review-section.review h3 { color: #B7950B; }
+.review-section p, .review-section ul { font-size: 0.93em; color: var(--gray-dark); line-height: 1.65; }
+.review-section ul { padding-left: 1.3em; margin-top: 6px; }
+.review-section li { margin-bottom: 4px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border: none; border-radius: 10px;
+  font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn-primary { background: var(--rosso); color: white; }
+.btn-primary:hover { background: #A93226; box-shadow: 0 2px 10px rgba(192,57,43,0.3); }
+.btn-primary:disabled { background: var(--gray-border); color: var(--gray-mid); cursor: not-allowed; box-shadow: none; }
+.btn-secondary { background: var(--white); color: var(--rosso); border: 2px solid var(--rosso); }
+.btn-secondary:hover { background: var(--rosso-bg); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #1E8449; }
+.nav-buttons {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px; flex-wrap: wrap; gap: 10px;
+}
+.counter-badge {
+  background: var(--rosso-bg); color: var(--rosso);
+  padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 600;
+}
+
+/* PRINT */
+@media print {
+  [id^="phase"] { display: none !important; }
+  #phase5 { display: block !important; }
+  header, .progress-bar, .nav-buttons, .btn, button { display: none !important; }
+  .review-section { break-inside: avoid; }
+}
+/* MOBILE */
+@media (max-width: 600px) {
+  .container { padding: 10px; }
+  header { padding: 20px 16px; }
+  header h1 { font-size: 1.3em; }
+  .elements-grid { grid-template-columns: 1fr; }
+  .step-connector { width: 14px; }
+  .step-dot { width: 30px; height: 30px; font-size: 0.75em; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Temperatura, Calore e Dilatazione Termica</h1>
+  <p>Percorso didattico interattivo</p>
+</header>
+
+<div class="progress-bar" id="progressBar">
+  <div class="step-dot active" id="dot1">1</div><div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div><div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div><div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div><div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- ====== FASE 1 ====== -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — Temperatura e Calore</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card heat" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🌡</span> Cos'è la temperatura</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        La <strong>temperatura</strong> è la misura del grado di <strong>agitazione delle particelle</strong> (molecole o atomi) di un corpo.
+        <br><br>
+        Più alta è la temperatura, più veloce è il <strong>moto</strong> delle particelle. In un corpo caldo le particelle si muovono più velocemente che in un corpo freddo.
+        <div class="example">➤ Un calorifero spento è freddo: le particelle vibrano lentamente. Quando lo accendiamo diventa tiepido, caldo, caldissimo: le particelle si agitano sempre di più.</div>
+      </div>
+    </div>
+
+    <div class="element-card heat" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Cos'è il calore</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Il <strong>calore</strong> è una forma di <strong>energia termica</strong> che si trasferisce spontaneamente da un corpo più caldo a uno più freddo.
+        <br><br>
+        Non è una proprietà del corpo, ma <strong>energia in transito</strong>: si fornisce (riscaldamento) o si cede (raffreddamento).
+        <div class="example">➤ Non si dice "un corpo ha calore", ma "un corpo cede calore" o "assorbe calore". Il calore è sempre qualcosa che si trasferisce.</div>
+      </div>
+    </div>
+
+    <div class="element-card heat" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">⚡</span> Temperatura ≠ Calore</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Sono due grandezze <strong>diverse</strong>:
+        <br><br>
+        <strong>Temperatura</strong> = proprietà del corpo, descrive lo stato delle sue particelle.<br>
+        <strong>Calore</strong> = energia che si trasferisce tra corpi a temperatura diversa.
+        <div class="example">➤ Quando l'acqua bolle, la temperatura resta a 100 °C anche se il fornello continua a fornire calore. L'energia non alza la temperatura: serve a trasformare l'acqua in vapore.</div>
+      </div>
+    </div>
+
+    <div class="element-card heat" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">📐</span> Unità di misura</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Temperatura:</strong>
+        <br>• Gradi Celsius (<strong>°C</strong>) — la scala più usata nella vita quotidiana.
+        <br>• Kelvin (<strong>K</strong>) — la scala del Sistema Internazionale.
+        <br><br>
+        <strong>Calore:</strong>
+        <br>• Joule (<strong>J</strong>) — unità del Sistema Internazionale.
+        <br>• Caloria (<strong>cal</strong>) — unità ancora molto usata (1 cal = 4,186 J).
+      </div>
+    </div>
+
+    <div class="element-card measure" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🌡</span> Il termometro a colonnina</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Il <strong>termometro analogico a colonnina</strong> è formato da tre parti:
+        <br><br>
+        <strong>Bulbo</strong> — la parte sensibile, contiene un liquido (alcol colorato).<br>
+        <strong>Colonnina</strong> — tubo sottilissimo di vetro collegato al bulbo.<br>
+        <strong>Scala graduata</strong> — traduce il livello del liquido in un numero (°C).
+        <br><br>
+        Quando la temperatura sale, il liquido nel bulbo si <strong>dilata</strong> e sale nella colonnina. Quando scende, si <strong>contrae</strong> e il livello cala.
+        <div class="thermo-svg">
+          <svg width="100" height="200" viewBox="0 0 100 200">
+            <rect x="38" y="10" width="24" height="140" rx="12" fill="#D6EAF8" stroke="#2980B9" stroke-width="2"/>
+            <circle cx="50" cy="165" r="22" fill="#E74C3C" stroke="#2980B9" stroke-width="2"/>
+            <rect x="43" y="60" width="14" height="105" rx="3" fill="#E74C3C" opacity="0.7"/>
+            <line x1="65" y1="145" x2="78" y2="145" stroke="#566573" stroke-width="1.5"/><text x="80" y="149" font-size="10" fill="#566573">0°C</text>
+            <line x1="65" y1="109" x2="78" y2="109" stroke="#566573" stroke-width="1.5"/><text x="80" y="113" font-size="10" fill="#566573">20</text>
+            <line x1="65" y1="73" x2="78" y2="73" stroke="#566573" stroke-width="1.5"/><text x="80" y="77" font-size="10" fill="#566573">40</text>
+            <line x1="65" y1="37" x2="78" y2="37" stroke="#566573" stroke-width="1.5"/><text x="80" y="41" font-size="10" fill="#566573">60</text>
+            <line x1="65" y1="15" x2="78" y2="15" stroke="#566573" stroke-width="1.5"/><text x="80" y="19" font-size="10" fill="#566573">°C</text>
+            <text x="50" y="198" text-anchor="middle" font-size="9" fill="#2C3E50" font-weight="bold">bulbo</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="element-card measure" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">📏</span> Scala Celsius e scala Kelvin</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Scala Celsius (°C)</strong> — basata su due punti fissi:
+        <br>• <strong>0 °C</strong> = temperatura di fusione del ghiaccio.
+        <br>• <strong>100 °C</strong> = temperatura di ebollizione dell'acqua al livello del mare.
+        <br>L'intervallo è diviso in <strong>100 parti uguali</strong>, ciascuna = 1 °C.
+        <br><br>
+        <strong>Scala Kelvin (K)</strong> — stessa ampiezza del grado, ma parte dallo <strong>zero assoluto</strong>:
+        <br>• <strong>0 K = −273,15 °C</strong> — la temperatura più bassa possibile.
+        <div class="example">➤ <strong>Conversione:</strong> T(K) = T(°C) + 273,15<br>Esempio: 25 °C = 25 + 273,15 = 298,15 K</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ====== FASE 2 ====== -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — La Dilatazione Termica</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne le proprietà e gli esperimenti. Devi aprirli tutti per procedere.</div>
+
+  <div class="elements-grid" id="grid2">
+
+    <div class="element-card heat" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Cos'è la dilatazione termica</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Quando un corpo viene riscaldato, le particelle si agitano di più e si allontanano: il corpo si <strong>dilata</strong>, cioè aumenta il proprio volume.
+        <br><br>Quando si raffredda, avviene il contrario: il corpo si <strong>contrae</strong> (il volume diminuisce).
+        <br><br>La dilatazione dipende da due fattori:
+        <br>• La <strong>variazione di temperatura</strong> — più è grande, più è grande la dilatazione.
+        <br>• Il <strong>tipo di materiale</strong> — materiali diversi si dilatano in misura diversa.
+      </div>
+    </div>
+
+    <div class="element-card heat" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">📊</span> La gerarchia della dilatazione</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Non tutti gli stati della materia si dilatano allo stesso modo:
+        <br><br>
+        <strong style="color:var(--arancio)">Solidi</strong> → dilatazione <strong>minima</strong> (le molecole sono vicinissime).<br>
+        <strong style="color:var(--azzurro)">Liquidi</strong> → dilatazione <strong>più alta</strong> dei solidi.<br>
+        <strong style="color:var(--viola)">Gas</strong> → dilatazione <strong>la più alta</strong> di tutte (le molecole, già distanti, hanno più spazio per allontanarsi).
+        <div class="example">➤ L'alcol si dilata 5 volte più dell'acqua a parità di temperatura. L'aria si dilata molto di più di entrambi.</div>
+      </div>
+    </div>
+
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solidi — L'anello di Gravesande</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Esperimento:</strong> una sfera metallica a temperatura ambiente passa esattamente attraverso un anello dello stesso metallo. Dopo averla riscaldata su un fornello, <strong>non passa più</strong>: si è dilatata. Dopo alcuni minuti si raffredda e passa di nuovo.
+        <div class="example">➤ La dilatazione dei solidi è piccolissima (decimi di mm), ma sulle grandi dimensioni diventa significativa.</div>
+      </div>
+    </div>
+
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solidi — Giunti e binari</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Nella vita reale bisogna tenere conto della dilatazione:
+        <br><br>
+        • I <strong>giunti di dilatazione</strong> nei ponti e nelle autostrade lasciano uno spazio vuoto perché la struttura possa allungarsi col caldo senza rompersi.
+        <br>• I <strong>binari ferroviari</strong> hanno piccoli spazi tra le giunture per lo stesso motivo.
+        <br>• Gli <strong>oleodotti</strong> hanno forma a zig-zag per assorbire le variazioni di lunghezza.
+      </div>
+    </div>
+
+    <div class="element-card liquid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Liquidi — Il termoscopio</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Esperimento:</strong> una bottiglietta di vetro chiusa con un tappo attraversato da un tubicino.
+        <br><br>
+        • Riscaldando la bottiglietta tra le mani, il liquido <strong>sale</strong> nel tubicino (si dilata).
+        <br>• Immergendola in acqua fredda, il liquido <strong>scende</strong> (si contrae).
+        <div class="example">➤ È lo stesso principio del termometro a colonnina: il liquido nel bulbo si dilata col calore e sale nella colonnina.</div>
+      </div>
+    </div>
+
+    <div class="element-card liquid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Liquidi — L'anomalia dell'acqua</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        L'acqua è l'unico liquido che tra <strong>0 °C e 4 °C</strong> si comporta al contrario: si <strong>espande</strong> invece di contrarsi.
+        <br><br>
+        Congelando, il ghiaccio occupa <strong>più volume</strong> dell'acqua liquida e diventa <strong>meno denso</strong>.
+        <div class="example">➤ Ecco perché il <strong>ghiaccio galleggia</strong>! E perché i laghi non ghiacciano fino in fondo: il ghiaccio resta in superficie e protegge la vita sottostante.</div>
+      </div>
+    </div>
+
+    <div class="element-card gas" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">◆</span> Gas — Il palloncino nel congelatore</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Esperimento:</strong>
+        <br>1. Mettere una bottiglia vuota nel congelatore per un'ora.
+        <br>2. Toglierla e applicare un palloncino sgonfio al collo.
+        <br>3. Man mano che l'aria nella bottiglia si riscalda, il palloncino si <strong>gonfia</strong> a poco a poco.
+        <div class="example">➤ L'aria calda occupa più volume dell'aria fredda: la dilatazione dei gas è molto più grande di quella dei solidi e dei liquidi.</div>
+      </div>
+    </div>
+
+    <div class="element-card gas" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">◆</span> Gas — La mongolfiera</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        La fiamma riscalda l'aria all'interno del pallone: l'aria si <strong>dilata</strong>, il volume aumenta ma la massa resta uguale, quindi la <strong>densità diminuisce</strong>.
+        <br><br>
+        L'aria calda, meno densa e quindi "più leggera" dell'aria fredda circostante, tende a <strong>salire</strong> — e la mongolfiera sale con lei.
+        <div class="example">➤ Principio chiave: quando un gas si dilata, la massa resta uguale ma il volume aumenta → la densità diminuisce.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 8 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ====== FASE 3 ====== -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri ogni scheda per approfondire i concetti fondamentali. Devi aprirle tutte per procedere.</div>
+
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🌡 Temperatura vs Calore — il confronto definitivo</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box red">
+          <strong>Temperatura</strong> = misura dell'agitazione delle particelle. È una <strong>proprietà del corpo</strong>. Si misura in °C o K.
+        </div>
+        <div class="highlight-box orange">
+          <strong>Calore</strong> = energia termica <strong>in transito</strong> da un corpo caldo a uno freddo. Si misura in J o cal.
+        </div>
+        Per aumentare la temperatura di un corpo dobbiamo fornirgli calore. Maggiore è la quantità di calore assorbito, più alta è la temperatura raggiunta.
+        <br><br>
+        <strong>Eccezione fondamentale:</strong> durante i cambiamenti di stato (es. ebollizione), il calore fornito <strong>non aumenta</strong> la temperatura — serve a trasformare lo stato della materia.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>📏 La scala Celsius e la scala Kelvin</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Entrambe le scale hanno <strong>la stessa ampiezza del grado</strong> (1 °C = 1 K), ma partono da punti diversi:
+        <br><br>
+        <strong>Celsius:</strong> 0 °C = fusione del ghiaccio, 100 °C = ebollizione dell'acqua.
+        <br><strong>Kelvin:</strong> 0 K = zero assoluto (−273,15 °C), la temperatura più bassa possibile — le particelle sono quasi ferme.
+        <div class="highlight-box blue">
+          <strong>Conversione:</strong> T(K) = T(°C) + 273,15
+          <br>Esempio: 20 °C → 20 + 273,15 = 293,15 K
+          <br>Esempio: 0 K → 0 − 273,15 = −273,15 °C
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔸 La dilatazione nei tre stati: solidi, liquidi, gas</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box orange">
+          <strong>Solidi — dilatazione lineare:</strong> un oggetto si allunga. La dilatazione è piccolissima (decimi di mm) ma significativa nelle grandi strutture.
+          <br>Esperimento: <em>anello di Gravesande</em>. Esempi reali: giunti nei ponti, binari, oleodotti a zig-zag.
+        </div>
+        <div class="highlight-box blue">
+          <strong>Liquidi — dilatazione volumica:</strong> il volume aumenta. Più grande di quella dei solidi.
+          <br>Esperimento: <em>termoscopio</em>. Principio del termometro a colonnina.
+        </div>
+        <div class="highlight-box purple">
+          <strong>Gas — dilatazione volumica molto grande:</strong> le molecole, già distanti, si allontanano molto.
+          <br>Esperimento: <em>palloncino sulla bottiglia</em>. Applicazione: la mongolfiera.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 L'anomalia dell'acqua: perché il ghiaccio galleggia</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Tutti i liquidi si <strong>contraggono</strong> raffreddandosi — tranne l'acqua, che tra <strong>0 °C e 4 °C</strong> si comporta al contrario: si <strong>espande</strong>.
+        <br><br>
+        Il ghiaccio ha <strong>volume maggiore</strong> e <strong>densità minore</strong> dell'acqua liquida → galleggia.
+        <div class="highlight-box blue">
+          <strong>Perché è importante?</strong> Se il ghiaccio fosse più denso dell'acqua, affonderebbe: i laghi e i mari ghiaccerebbero dal fondo verso la superficie, uccidendo la vita acquatica. Invece il ghiaccio in superficie fa da "coperta" isolante.
+        </div>
+        <strong>Attenzione:</strong> il comportamento anomalo si verifica <strong>solo</strong> tra 0 °C e 4 °C. Al di sotto di 0 °C e al di sopra di 4 °C l'acqua si comporta normalmente.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ Densità e dilatazione: perché la mongolfiera sale</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Quando un gas si dilata:
+        <br>• Il <strong>volume aumenta</strong>
+        <br>• La <strong>massa resta uguale</strong>
+        <br>• Quindi la <strong>densità diminuisce</strong> (densità = massa ÷ volume)
+        <br><br>
+        L'aria calda dentro la mongolfiera è meno densa dell'aria fredda fuori → è "più leggera" → sale.
+        <div class="highlight-box purple">
+          ➤ Stesso principio delle <strong>correnti convettive</strong>: l'aria calda vicino al termosifone sale, l'aria fredda scende. È così che si riscalda una stanza.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 5 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ====== FASE 4 ====== -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi clicca "Verifica Risposte".</div>
+  <div class="quiz-area" id="quizArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- ====== FASE 5 ====== -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const quizData = [
+  {
+    category: "temp_calore",
+    categoryLabel: "Temperatura e Calore",
+    question: "Cos'è la temperatura?",
+    options: [
+      "L'energia termica posseduta da un corpo",
+      "La misura del grado di agitazione delle particelle di un corpo",
+      "La quantità di calore contenuta in un corpo",
+      "La velocità con cui un corpo si riscalda"
+    ],
+    correct: 1,
+    explanation: "La temperatura misura il grado di agitazione delle particelle: più si muovono velocemente, più la temperatura è alta."
+  },
+  {
+    category: "temp_calore",
+    categoryLabel: "Temperatura e Calore",
+    question: "Qual è la differenza fondamentale tra temperatura e calore?",
+    options: [
+      "La temperatura si misura in gradi, il calore in litri",
+      "Sono la stessa grandezza misurata con strumenti diversi",
+      "La temperatura è una proprietà del corpo, il calore è energia in transito",
+      "Il calore è una proprietà del corpo, la temperatura è energia in transito"
+    ],
+    correct: 2,
+    explanation: "La temperatura descrive lo stato delle particelle di un corpo; il calore è energia termica che si trasferisce da un corpo più caldo a uno più freddo."
+  },
+  {
+    category: "temp_calore",
+    categoryLabel: "Temperatura e Calore",
+    question: "Quando l'acqua bolle, cosa succede alla temperatura se continuiamo a fornire calore?",
+    options: [
+      "Continua a salire oltre i 100 °C",
+      "Scende perché l'acqua evapora",
+      "Resta costante a 100 °C: l'energia serve a trasformare l'acqua in vapore",
+      "Sale solo se il fornello è molto potente"
+    ],
+    correct: 2,
+    explanation: "Durante l'ebollizione la temperatura resta costante a 100 °C. Il calore fornito non alza la temperatura ma serve a trasformare l'acqua da liquido a vapore."
+  },
+  {
+    category: "scale",
+    categoryLabel: "Scale Termometriche",
+    question: "A cosa corrisponde 0 °C nella scala Celsius?",
+    options: [
+      "Lo zero assoluto",
+      "La temperatura di ebollizione dell'acqua",
+      "La temperatura di fusione del ghiaccio",
+      "La temperatura del corpo umano"
+    ],
+    correct: 2,
+    explanation: "Nella scala Celsius, 0 °C è la temperatura di fusione del ghiaccio (ghiaccio che diventa acqua). 100 °C corrisponde all'ebollizione dell'acqua."
+  },
+  {
+    category: "scale",
+    categoryLabel: "Scale Termometriche",
+    question: "Quanto vale lo zero assoluto in gradi Celsius?",
+    options: [
+      "0 °C",
+      "−100 °C",
+      "−273,15 °C",
+      "−373,15 °C"
+    ],
+    correct: 2,
+    explanation: "Lo zero assoluto (0 K) corrisponde a −273,15 °C. È la temperatura più bassa possibile: le particelle sono quasi completamente ferme."
+  },
+  {
+    category: "dilat_solidi",
+    categoryLabel: "Dilatazione dei Solidi",
+    question: "Nell'esperimento dell'anello di Gravesande, perché la sfera riscaldata non passa più attraverso l'anello?",
+    options: [
+      "Perché l'anello si è ristretto",
+      "Perché la sfera si è dilatata aumentando il suo volume",
+      "Perché la sfera è diventata più pesante",
+      "Perché il metallo cambia forma quando è caldo"
+    ],
+    correct: 1,
+    explanation: "Riscaldando la sfera, il metallo si dilata e il volume della sfera aumenta leggermente — abbastanza da non passare più attraverso l'anello."
+  },
+  {
+    category: "dilat_solidi",
+    categoryLabel: "Dilatazione dei Solidi",
+    question: "Perché i ponti e le autostrade hanno i giunti di dilatazione?",
+    options: [
+      "Per risparmiare materiale nella costruzione",
+      "Per permettere alla struttura di allungarsi e accorciarsi con le variazioni di temperatura senza rompersi",
+      "Per assorbire il peso dei veicoli",
+      "Per drenare l'acqua piovana"
+    ],
+    correct: 1,
+    explanation: "I giunti di dilatazione lasciano uno spazio vuoto che permette alla struttura di allungarsi col caldo e accorciarsi col freddo, senza creparsi."
+  },
+  {
+    category: "dilat_liquidi",
+    categoryLabel: "Dilatazione dei Liquidi",
+    question: "Perché il ghiaccio galleggia sull'acqua?",
+    options: [
+      "Perché il ghiaccio è più caldo dell'acqua",
+      "Perché l'acqua tra 0 °C e 4 °C si espande, quindi il ghiaccio è meno denso dell'acqua liquida",
+      "Perché tutti i solidi galleggiano sui liquidi",
+      "Perché il ghiaccio contiene aria al suo interno"
+    ],
+    correct: 1,
+    explanation: "L'acqua ha un comportamento anomalo: tra 0 °C e 4 °C si espande. Il ghiaccio occupa più volume dell'acqua liquida ed è meno denso, perciò galleggia."
+  },
+  {
+    category: "dilat_gas",
+    categoryLabel: "Dilatazione dei Gas",
+    question: "Perché la mongolfiera sale?",
+    options: [
+      "Perché il pallone è pieno di elio",
+      "Perché l'aria calda all'interno è meno densa dell'aria fredda esterna",
+      "Perché il fuoco spinge la mongolfiera verso l'alto",
+      "Perché il pallone è più leggero dell'aria fredda"
+    ],
+    correct: 1,
+    explanation: "La fiamma riscalda l'aria dentro il pallone: si dilata, il volume aumenta ma la massa resta uguale, quindi la densità diminuisce. L'aria calda, meno densa, sale."
+  },
+  {
+    category: "dilat_gas",
+    categoryLabel: "Dilatazione dei Gas",
+    question: "Quale stato della materia ha la dilatazione termica più grande?",
+    options: [
+      "I solidi, perché le molecole vibrano",
+      "I liquidi, perché scorrono facilmente",
+      "I gas, perché le molecole sono già distanti e hanno più spazio per allontanarsi",
+      "Tutti gli stati si dilatano allo stesso modo"
+    ],
+    correct: 2,
+    explanation: "I gas hanno la dilatazione più grande: le molecole, già molto distanti tra loro, hanno ampio spazio per allontanarsi ulteriormente quando la temperatura aumenta."
+  }
+];
+
+// STATE
+let currentPhase = 1;
+let phaseState = {
+  1: { total: 6, opened: new Set() },
+  2: { total: 8, opened: new Set() },
+  3: { total: 5, opened: new Set() }
+};
+let quizAnswers = {};
+let quizVerified = false;
+
+// NAVIGATION
+function goToPhase(n) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase' + n).classList.add('active');
+  currentPhase = n;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateProgress() {
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('active', 'done');
+    if (i < currentPhase) dot.classList.add('done');
+    else if (i === currentPhase) dot.classList.add('active');
+    if (i < 5) document.getElementById('conn' + i).classList.toggle('done', i < currentPhase);
+  }
+}
+
+// PHASE 1 & 2
+function toggleElement(card) {
+  const phase = parseInt(card.dataset.phase);
+  card.classList.add('opened');
+  const grid = card.closest('.elements-grid');
+  const cards = grid.querySelectorAll('.element-card');
+  const idx = Array.from(cards).indexOf(card);
+  phaseState[phase].opened.add(idx);
+  updateCounter(phase);
+}
+function updateCounter(phase) {
+  const state = phaseState[phase];
+  const count = state.opened.size;
+  const suffix = phase === 3 ? 'completate' : 'completati';
+  document.getElementById('counter' + phase).textContent = count + ' / ' + state.total + ' ' + suffix;
+  document.getElementById('next' + phase).disabled = count < state.total;
+}
+
+// PHASE 3
+function toggleConcept(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  card.classList.toggle('expanded');
+  if (!wasExpanded) {
+    card.classList.add('opened');
+    const allCards = card.closest('.concept-cards').querySelectorAll('.concept-card');
+    const idx = Array.from(allCards).indexOf(card);
+    phaseState[3].opened.add(idx);
+    updateCounter(3);
+  }
+}
+
+// PHASE 4
+function buildQuiz() {
+  const area = document.getElementById('quizArea');
+  let html = '';
+  quizData.forEach((q, i) => {
+    html += '<div class="quiz-question" id="qq' + i + '">';
+    html += '<div class="q-number">' + q.categoryLabel + ' — Domanda ' + (i + 1) + '</div>';
+    html += '<div class="q-text">' + q.question + '</div>';
+    html += '<div class="q-options">';
+    q.options.forEach((opt, j) => {
+      html += '<div class="q-option" data-q="' + i + '" data-opt="' + j + '" onclick="selectOption(this)">';
+      html += '<div class="q-radio"></div><span>' + opt + '</span></div>';
+    });
+    html += '</div><div class="q-feedback" id="fb' + i + '"></div></div>';
+  });
+  area.innerHTML = html;
+}
+function selectOption(el) {
+  if (quizVerified) return;
+  const q = parseInt(el.dataset.q);
+  quizAnswers[q] = parseInt(el.dataset.opt);
+  document.querySelectorAll('.q-option[data-q="' + q + '"]').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function verifyQuiz() {
+  if (quizVerified) { goToPhase(5); return; }
+  const unanswered = [];
+  quizData.forEach((q, i) => { if (quizAnswers[i] === undefined) unanswered.push(i); });
+  if (unanswered.length > 0) {
+    const first = unanswered[0];
+    const el = document.getElementById('qq' + first);
+    el.classList.add('missed');
+    setTimeout(() => el.classList.remove('missed'), 2000);
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alert(unanswered.length === 1
+      ? 'Manca la risposta alla domanda ' + (first + 1) + '.'
+      : 'Mancano le risposte alle domande: ' + unanswered.map(u => u + 1).join(', ') + '.');
+    return;
+  }
+  quizVerified = true;
+  quizData.forEach((q, i) => {
+    const questionEl = document.getElementById('qq' + i);
+    const fb = document.getElementById('fb' + i);
+    const isCorrect = quizAnswers[i] === q.correct;
+    questionEl.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.querySelectorAll('.q-option[data-q="' + i + '"]').forEach(o => {
+      o.classList.add('locked');
+      const optIdx = parseInt(o.dataset.opt);
+      if (optIdx === q.correct) o.classList.add('show-correct');
+      else if (optIdx === quizAnswers[i] && !isCorrect) o.classList.add('show-wrong');
+    });
+    fb.className = 'q-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    fb.innerHTML = (isCorrect ? '✔ Corretto! ' : '✘ Sbagliato. ') + q.explanation;
+  });
+  const btn = document.getElementById('verifyBtn');
+  btn.textContent = 'Vai al Ripasso →';
+  btn.className = 'btn btn-primary';
+  buildReview();
+}
+
+// PHASE 5
+function buildReview() {
+  const categories = {};
+  quizData.forEach((q, i) => {
+    if (!categories[q.category]) categories[q.category] = { label: q.categoryLabel, correct: 0, total: 0 };
+    categories[q.category].total++;
+    if (quizAnswers[i] === q.correct) categories[q.category].correct++;
+  });
+  const totalCorrect = quizData.filter((q, i) => quizAnswers[i] === q.correct).length;
+  const pct = Math.round((totalCorrect / quizData.length) * 100);
+  let feedbackText, feedbackColor;
+  if (pct >= 90) { feedbackText = 'Ottimo lavoro! Padronanza eccellente.'; feedbackColor = 'var(--success)'; }
+  else if (pct >= 70) { feedbackText = 'Buon risultato! Rivedi le aree evidenziate.'; feedbackColor = 'var(--azzurro)'; }
+  else if (pct >= 50) { feedbackText = 'Ci sei quasi! Concentrati sulle aree da rivedere.'; feedbackColor = 'var(--warning)'; }
+  else { feedbackText = 'Continua a esercitarti! Ripassa con attenzione le schede.'; feedbackColor = 'var(--error)'; }
+  document.getElementById('reviewScore').innerHTML =
+    '<div class="score-number" style="color:' + feedbackColor + '">' + totalCorrect + ' / ' + quizData.length + '</div>' +
+    '<div class="score-label">' + pct + '% di risposte corrette</div>' +
+    '<div class="score-feedback" style="color:' + feedbackColor + '">' + feedbackText + '</div>';
+
+  const reviewContent = {
+    temp_calore: {
+      review: '<ul><li><strong>Temperatura</strong> = misura dell\'agitazione delle particelle. È una proprietà del corpo. Si misura in °C o K.</li><li><strong>Calore</strong> = energia termica in transito da un corpo caldo a uno freddo. Si misura in J o cal.</li><li>Non si dice "un corpo ha calore" ma "un corpo cede/assorbe calore".</li><li>Durante l\'ebollizione la temperatura resta costante: il calore serve a cambiare lo stato.</li></ul>',
+      summary: 'Definizioni di temperatura e calore, le differenze e le unità di misura.'
+    },
+    scale: {
+      review: '<ul><li><strong>Celsius:</strong> 0 °C = fusione del ghiaccio, 100 °C = ebollizione dell\'acqua.</li><li><strong>Kelvin:</strong> 0 K = −273,15 °C (zero assoluto). Stessa ampiezza del grado: 1 K = 1 °C.</li><li><strong>Conversione:</strong> T(K) = T(°C) + 273,15.</li></ul>',
+      summary: 'Le scale Celsius e Kelvin e la conversione tra le due.'
+    },
+    dilat_solidi: {
+      review: '<ul><li>Nei solidi la dilatazione è <strong>lineare</strong> e piccolissima (decimi di mm).</li><li>Esperimento: <strong>anello di Gravesande</strong> — la sfera riscaldata non passa più.</li><li>Esempi reali: <strong>giunti di dilatazione</strong> nei ponti, spazi tra i binari, oleodotti a zig-zag.</li></ul>',
+      summary: 'Dilatazione lineare dei solidi, esperimento di Gravesande e applicazioni reali.'
+    },
+    dilat_liquidi: {
+      review: '<ul><li>Nei liquidi la dilatazione è <strong>volumica</strong> e più grande di quella dei solidi.</li><li>Esperimento: il <strong>termoscopio</strong> — il liquido sale nel tubicino quando la bottiglietta si riscalda.</li><li><strong>Anomalia dell\'acqua:</strong> tra 0 °C e 4 °C l\'acqua si espande anziché contrarsi → il ghiaccio galleggia.</li></ul>',
+      summary: 'Dilatazione volumica dei liquidi e il comportamento anomalo dell\'acqua.'
+    },
+    dilat_gas: {
+      review: '<ul><li>Nei gas la dilatazione è <strong>volumica e molto grande</strong>: le molecole già distanti si allontanano ancora di più.</li><li>Esperimento: <strong>palloncino sulla bottiglia</strong> — si gonfia quando l\'aria si riscalda.</li><li><strong>Mongolfiera:</strong> l\'aria calda si dilata → volume ↑, massa =, densità ↓ → sale.</li></ul>',
+      summary: 'Dilatazione dei gas, esperimenti e il principio della mongolfiera.'
+    }
+  };
+  let reviewHtml = '';
+  for (const cat in categories) {
+    const c = categories[cat];
+    const isGood = (c.correct / c.total) >= 0.7;
+    reviewHtml += '<div class="review-section ' + (isGood ? 'good' : 'review') + '">';
+    reviewHtml += '<h3>' + (isGood ? '✔ Hai capito bene' : '⚠ Da rivedere') + ' — ' + c.label + '</h3>';
+    if (isGood) reviewHtml += '<p>' + reviewContent[cat].summary + ' (' + c.correct + '/' + c.total + ' corrette)</p>';
+    else {
+      reviewHtml += '<p>Hai risposto correttamente a ' + c.correct + ' su ' + c.total + '. Ripassa questi concetti:</p>';
+      reviewHtml += reviewContent[cat].review;
+    }
+    reviewHtml += '</div>';
+  }
+  document.getElementById('reviewArea').innerHTML = reviewHtml;
+}
+function restart() {
+  quizAnswers = {}; quizVerified = false;
+  phaseState = { 1: { total: 6, opened: new Set() }, 2: { total: 8, opened: new Set() }, 3: { total: 5, opened: new Set() } };
+  document.querySelectorAll('.element-card').forEach(c => c.classList.remove('opened'));
+  document.querySelectorAll('.concept-card').forEach(c => c.classList.remove('opened', 'expanded'));
+  for (let i = 1; i <= 3; i++) updateCounter(i);
+  buildQuiz();
+  const btn = document.getElementById('verifyBtn');
+  btn.textContent = 'Verifica Risposte'; btn.className = 'btn btn-success';
+  goToPhase(1);
+}
+buildQuiz();
+</script>
+</body>
+</html>
