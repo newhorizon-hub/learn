@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Materia e gli Stati di Aggregazione</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root {
+  --blue: #1A73B5;
+  --blue-light: #D6EAF8;
+  --blue-bg: #EBF5FB;
+  --orange: #E67E22;
+  --orange-light: #FDEBD0;
+  --green: #27AE60;
+  --green-light: #D5F5E3;
+  --purple: #8E44AD;
+  --purple-light: #E8DAEF;
+  --red: #C0392B;
+  --red-light: #FADBD8;
+  --gray-dark: #2C3E50;
+  --gray-mid: #566573;
+  --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC;
+  --white: #FFFFFF;
+  --success: #27AE60;
+  --error: #E74C3C;
+  --warning: #F39C12;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--gray-light);
+  color: var(--gray-dark);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* === HEADER === */
+header {
+  background: linear-gradient(135deg, var(--blue) 0%, #2E86C1 100%);
+  color: white;
+  padding: 28px 24px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+header h1 { font-size: 1.6em; font-weight: 700; margin-bottom: 4px; }
+header p { font-size: 0.95em; opacity: 0.9; }
+
+/* === PROGRESS BAR === */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.step-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85em;
+  background: var(--gray-border);
+  color: var(--gray-mid);
+  transition: all 0.3s;
+  cursor: default;
+}
+.step-dot.active { background: var(--blue); color: white; box-shadow: 0 2px 8px rgba(26,115,181,0.35); }
+.step-dot.done { background: var(--success); color: white; }
+.step-connector { width: 28px; height: 3px; background: var(--gray-border); border-radius: 2px; transition: background 0.3s; }
+.step-connector.done { background: var(--success); }
+
+/* === PHASES === */
+.phase { display: none; animation: fadeIn 0.4s ease; }
+.phase.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.phase-title {
+  font-size: 1.25em; font-weight: 700; color: var(--gray-dark);
+  margin-bottom: 6px;
+}
+.phase-instruction {
+  font-size: 0.92em; color: var(--gray-mid);
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--blue-bg);
+  border-left: 4px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+}
+
+/* === CLICKABLE ELEMENTS (Phase 1 & 2) === */
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.element-card {
+  background: var(--white);
+  border: 2px solid var(--gray-border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+}
+.element-card:hover { border-color: var(--blue); box-shadow: 0 2px 12px rgba(26,115,181,0.15); }
+.element-card.opened { border-color: var(--success); background: #F0FFF4; }
+.element-card .card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 700; font-size: 1.05em; color: var(--gray-dark);
+  margin-bottom: 0;
+}
+.element-card .card-header .icon { font-size: 1.3em; }
+.element-card .check-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--gray-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75em; color: white; transition: all 0.3s;
+  flex-shrink: 0;
+}
+.element-card.opened .check-mark { background: var(--success); border-color: var(--success); }
+.element-card .card-body {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--gray-border);
+  font-size: 0.93em; color: var(--gray-mid);
+  line-height: 1.65;
+  display: none;
+}
+.element-card.opened .card-body { display: block; }
+.element-card .card-body strong { color: var(--gray-dark); }
+.element-card .card-body .example {
+  margin-top: 8px; padding: 8px 12px;
+  background: var(--gray-light); border-radius: 8px;
+  font-size: 0.9em;
+}
+
+/* state-specific colors */
+.element-card.solid { border-left: 5px solid var(--orange); }
+.element-card.solid.opened { background: #FFF8F0; border-color: var(--orange); }
+.element-card.liquid { border-left: 5px solid var(--green); }
+.element-card.liquid.opened { background: #F0FFF4; border-color: var(--green); }
+.element-card.gas { border-left: 5px solid var(--purple); }
+.element-card.gas.opened { background: #F8F0FF; border-color: var(--purple); }
+.element-card.plasma { border-left: 5px solid var(--red); }
+.element-card.plasma.opened { background: #FFF0F0; border-color: var(--red); }
+.element-card.matter { border-left: 5px solid var(--blue); }
+.element-card.matter.opened { background: var(--blue-bg); border-color: var(--blue); }
+
+/* === MOLECULE DIAGRAMS (SVG inline) === */
+.molecule-diagram {
+  display: flex; justify-content: center; align-items: center;
+  gap: 24px; flex-wrap: wrap;
+  margin: 12px 0;
+}
+.mol-box {
+  text-align: center; padding: 10px;
+  background: var(--white); border-radius: 10px;
+  border: 1px solid var(--gray-border);
+}
+.mol-box p { font-size: 0.8em; margin-top: 6px; color: var(--gray-mid); }
+
+/* === EXPANDABLE CARDS (Phase 3) === */
+.concept-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.concept-card {
+  background: var(--white);
+  border: 2px solid var(--gray-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.concept-card.opened { border-color: var(--success); }
+.concept-card .concept-header {
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; font-weight: 700; font-size: 1em;
+  color: var(--gray-dark); transition: background 0.2s;
+  user-select: none; gap: 10px;
+}
+.concept-card .concept-header:hover { background: var(--gray-light); }
+.concept-card .concept-header .arrow {
+  transition: transform 0.3s; font-size: 0.9em; color: var(--gray-mid);
+}
+.concept-card.expanded .concept-header .arrow { transform: rotate(180deg); }
+.concept-card .concept-body {
+  padding: 0 16px;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  font-size: 0.93em; color: var(--gray-mid); line-height: 1.7;
+}
+.concept-card.expanded .concept-body {
+  max-height: 800px; padding: 0 16px 16px 16px;
+}
+.concept-card .concept-body strong { color: var(--gray-dark); }
+.concept-body .highlight-box {
+  margin: 10px 0; padding: 10px 14px;
+  border-radius: 8px; font-size: 0.93em;
+}
+.highlight-box.orange { background: var(--orange-light); border-left: 4px solid var(--orange); }
+.highlight-box.green { background: var(--green-light); border-left: 4px solid var(--green); }
+.highlight-box.purple { background: var(--purple-light); border-left: 4px solid var(--purple); }
+.highlight-box.blue { background: var(--blue-light); border-left: 4px solid var(--blue); }
+.highlight-box.red { background: var(--red-light); border-left: 4px solid var(--red); }
+
+/* === QUIZ (Phase 4) === */
+.quiz-area { margin-bottom: 20px; }
+.quiz-question {
+  background: var(--white);
+  border: 2px solid var(--gray-border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 12px;
+  transition: border-color 0.3s;
+}
+.quiz-question.correct { border-color: var(--success); background: #F0FFF4; }
+.quiz-question.wrong { border-color: var(--error); background: #FFF0F0; }
+.quiz-question.missed { border-color: var(--warning); background: #FFF8E8; }
+.q-number {
+  font-size: 0.8em; font-weight: 700; color: var(--blue);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.q-text { font-weight: 600; font-size: 1em; margin-bottom: 12px; color: var(--gray-dark); }
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 2px solid var(--gray-border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  font-size: 0.93em;
+}
+.q-option:hover { border-color: var(--blue); background: var(--blue-bg); }
+.q-option.selected { border-color: var(--blue); background: var(--blue-light); font-weight: 600; }
+.q-option.locked { pointer-events: none; opacity: 0.85; }
+.q-option.show-correct { border-color: var(--success); background: #D5F5E3; font-weight: 600; }
+.q-option.show-wrong { border-color: var(--error); background: #FADBD8; }
+.q-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--gray-border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.q-option.selected .q-radio { border-color: var(--blue); background: var(--blue); }
+.q-option.selected .q-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+.q-feedback {
+  margin-top: 10px; padding: 10px 14px;
+  border-radius: 8px; font-size: 0.9em;
+  display: none; line-height: 1.5;
+}
+.q-feedback.correct { display: block; background: #D5F5E3; color: #1E7E34; }
+.q-feedback.wrong { display: block; background: #FADBD8; color: #C0392B; }
+
+/* === REVIEW (Phase 5) === */
+.review-score {
+  text-align: center; padding: 24px;
+  background: var(--white); border-radius: 16px;
+  border: 2px solid var(--gray-border);
+  margin-bottom: 20px;
+}
+.score-number { font-size: 3em; font-weight: 800; }
+.score-label { font-size: 1em; color: var(--gray-mid); margin-top: 4px; }
+.score-feedback { font-size: 1.1em; font-weight: 600; margin-top: 10px; }
+
+.review-area { margin-bottom: 20px; }
+.review-section {
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  border-left: 5px solid;
+}
+.review-section.good { background: #D5F5E3; border-color: var(--success); }
+.review-section.review { background: #FEF9E7; border-color: var(--warning); }
+.review-section h3 { font-size: 1em; margin-bottom: 8px; }
+.review-section.good h3 { color: var(--success); }
+.review-section.review h3 { color: #B7950B; }
+.review-section p, .review-section ul { font-size: 0.93em; color: var(--gray-dark); line-height: 1.65; }
+.review-section ul { padding-left: 1.3em; margin-top: 6px; }
+.review-section li { margin-bottom: 4px; }
+
+/* === BUTTONS === */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border: none; border-radius: 10px;
+  font-size: 0.95em; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; text-decoration: none;
+}
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #1557A0; box-shadow: 0 2px 10px rgba(26,115,181,0.3); }
+.btn-primary:disabled { background: var(--gray-border); color: var(--gray-mid); cursor: not-allowed; box-shadow: none; }
+.btn-secondary { background: var(--white); color: var(--blue); border: 2px solid var(--blue); }
+.btn-secondary:hover { background: var(--blue-bg); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #1E8449; }
+
+.nav-buttons {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px; flex-wrap: wrap; gap: 10px;
+}
+.counter-badge {
+  background: var(--blue-bg); color: var(--blue);
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 0.85em; font-weight: 600;
+}
+
+/* === PRINT === */
+@media print {
+  [id^="phase"] { display: none !important; }
+  #phase5 { display: block !important; }
+  header, .progress-bar, .nav-buttons, .btn, button { display: none !important; }
+  .review-section { break-inside: avoid; }
+}
+
+/* === MOBILE === */
+@media (max-width: 600px) {
+  .container { padding: 10px; }
+  header { padding: 20px 16px; }
+  header h1 { font-size: 1.3em; }
+  .elements-grid { grid-template-columns: 1fr; }
+  .step-connector { width: 14px; }
+  .step-dot { width: 30px; height: 30px; font-size: 0.75em; }
+  .molecule-diagram { gap: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>La Materia e gli Stati di Aggregazione</h1>
+  <p>Percorso didattico interattivo</p>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar">
+  <div class="step-dot active" id="dot1">1</div>
+  <div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div>
+  <div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div>
+  <div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div>
+  <div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- ==================== FASE 1 ==================== -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — La Materia: Atomi e Molecole</h2>
+  <div class="phase-instruction">
+    Clicca su ogni elemento per scoprirne le proprietà. Devi aprirli tutti per procedere.
+  </div>
+
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Cos'è la materia</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Materia</strong> è tutto ciò che occupa uno <strong>spazio</strong> e che ha una <strong>massa</strong>.
+        <br><br>Le rocce, le piante, gli animali, l'acqua, le stelle, i pianeti e persino l'aria sono fatti di materia.
+        <div class="example">➤ Anche l'aria è materia: non la vediamo, ma occupa spazio e ha una massa.</div>
+      </div>
+    </div>
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Proprietà misurabili</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Distinguiamo i materiali in base alle loro <strong>proprietà misurabili</strong>:
+        <br><br>
+        <strong>Massa</strong> — quantità di materia contenuta in un corpo.<br>
+        <strong>Volume</strong> — spazio occupato dal corpo.<br>
+        <strong>Densità</strong> — rapporto tra massa e volume.<br>
+        <strong>Durezza</strong> — resistenza a essere scalfito.<br>
+        <strong>Elasticità</strong> — capacità di tornare alla forma originale.<br>
+        <strong>Colore</strong> — proprietà percepibile visivamente.
+      </div>
+    </div>
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🧮</span> Atomi e molecole</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        La materia è formata da particelle piccolissime chiamate <strong>atomi</strong>. Gli atomi si uniscono in gruppi formando le <strong>molecole</strong>, che danno origine alle diverse sostanze.
+        <br><br>
+        <div class="molecule-diagram">
+          <div class="mol-box">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="18" fill="#D6EAF8" stroke="#1A73B5" stroke-width="2"/>
+              <circle cx="26" cy="26" r="6" fill="#E67E22" opacity="0.8"/>
+              <circle cx="34" cy="26" r="6" fill="#E67E22" opacity="0.8"/>
+              <circle cx="26" cy="34" r="6" fill="#1A73B5" opacity="0.6"/>
+              <circle cx="34" cy="34" r="6" fill="#1A73B5" opacity="0.6"/>
+            </svg>
+            <p><strong>Atomo</strong><br>La più piccola parte<br>della materia</p>
+          </div>
+          <div style="font-size:1.8em;color:var(--gray-mid);align-self:center;">→</div>
+          <div class="mol-box">
+            <svg width="100" height="60" viewBox="0 0 100 60">
+              <circle cx="30" cy="30" r="16" fill="#D6EAF8" stroke="#1A73B5" stroke-width="2"/>
+              <circle cx="70" cy="30" r="16" fill="#FDEBD0" stroke="#E67E22" stroke-width="2"/>
+              <line x1="46" y1="30" x2="54" y2="30" stroke="#2C3E50" stroke-width="3"/>
+            </svg>
+            <p><strong>Molecola</strong><br>Gruppo di atomi<br>legati insieme</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔬</span> Elementi e composti</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Elemento</strong> — sostanza formata da atomi tutti uguali tra loro.
+        <div class="example">➤ L'ossigeno (O₂) è un elemento: le sue molecole sono formate da due atomi uguali.</div>
+        <br>
+        <strong>Composto</strong> — sostanza formata da atomi diversi legati insieme.
+        <div class="example">➤ L'acqua (H₂O) è un composto: ogni molecola contiene 2 atomi di idrogeno e 1 di ossigeno.</div>
+      </div>
+    </div>
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔬</span> Dentro l'atomo</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Gli atomi sono formati da tre tipi di particelle ancora più piccole:
+        <br><br>
+        <strong>Protoni</strong> (carica positiva +) — nel nucleo.<br>
+        <strong>Neutroni</strong> (carica neutra) — nel nucleo.<br>
+        <strong>Elettroni</strong> (carica negativa −) — si muovono attorno al nucleo.
+        <div class="molecule-diagram">
+          <div class="mol-box">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <!-- nucleo -->
+              <circle cx="60" cy="60" r="22" fill="#FDEBD0" stroke="#E67E22" stroke-width="1.5"/>
+              <circle cx="52" cy="52" r="7" fill="#E67E22" opacity="0.8"/><text x="52" y="55" text-anchor="middle" font-size="7" fill="white" font-weight="bold">p+</text>
+              <circle cx="68" cy="52" r="7" fill="#1A73B5" opacity="0.6"/><text x="68" y="55" text-anchor="middle" font-size="7" fill="white" font-weight="bold">n</text>
+              <circle cx="52" cy="68" r="7" fill="#1A73B5" opacity="0.6"/><text x="52" y="71" text-anchor="middle" font-size="7" fill="white" font-weight="bold">n</text>
+              <circle cx="68" cy="68" r="7" fill="#E67E22" opacity="0.8"/><text x="68" y="71" text-anchor="middle" font-size="7" fill="white" font-weight="bold">p+</text>
+              <!-- elettroni sparsi -->
+              <circle cx="20" cy="30" r="6" fill="#C0392B" opacity="0.8"/><text x="20" y="33" text-anchor="middle" font-size="7" fill="white" font-weight="bold">e⁻</text>
+              <circle cx="100" cy="45" r="6" fill="#C0392B" opacity="0.8"/><text x="100" y="48" text-anchor="middle" font-size="7" fill="white" font-weight="bold">e⁻</text>
+              <text x="60" y="112" text-anchor="middle" font-size="9" fill="#2C3E50" font-weight="bold">nucleo</text>
+            </svg>
+            <p>Schema semplificato dell'atomo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="element-card matter" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> I 4 stati della materia</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        La materia si presenta in <strong>quattro</strong> stati di aggregazione principali:
+        <br><br>
+        <strong style="color:var(--orange)">Solido</strong> — forma e volume propri.<br>
+        <strong style="color:var(--green)">Liquido</strong> — volume proprio, forma variabile.<br>
+        <strong style="color:var(--purple)">Gas</strong> — né forma né volume propri.<br>
+        <strong style="color:var(--red)">Plasma</strong> — gas ionizzato (elettroni liberi + ioni).
+        <div class="example">➤ L'acqua può trovarsi in diversi stati: ghiaccio (solido), acqua (liquido), vapore (gas).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ==================== FASE 2 ==================== -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — Proprietà degli Stati di Aggregazione</h2>
+  <div class="phase-instruction">
+    Clicca su ogni stato per scoprire le sue proprietà e i suoi esempi. Devi aprirli tutti per procedere.
+  </div>
+
+  <div class="elements-grid" id="grid2">
+
+    <!-- SOLIDO -->
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solido — Elasticità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Elasticità:</strong> capacità di deformarsi sotto l'azione di una forza e di riprendere la forma originale quando la forza cessa.
+        <div class="example">➤ Un elastico si allunga quando lo tiri, ma torna alla forma originale quando lo rilasci. Lo stesso vale per una molla d'acciaio.</div>
+      </div>
+    </div>
+
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solido — Plasticità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Plasticità:</strong> capacità di deformarsi sotto l'azione di una forza e di <strong>mantenere la nuova forma</strong>.
+        <div class="example">➤ La plastilina (o il DAS) si modella facilmente e mantiene la forma che le dai. Anche un blocco di argilla è plastico.</div>
+      </div>
+    </div>
+
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solido — Durezza, fragilità, tenacia</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Durezza:</strong> capacità di scalfire o tagliare un altro corpo.
+        <div class="example">➤ Una lama d'acciaio taglia un listello di legno, ma non il contrario.</div>
+        <br>
+        <strong>Fragilità:</strong> tendenza a rompersi in frantumi sotto un urto.
+        <div class="example">➤ Il vetro è fragile: si rompe facilmente in pezzi.</div>
+        <br>
+        <strong>Tenacia:</strong> resistenza alla rottura — il contrario della fragilità.
+        <div class="example">➤ Il ferro è tenace: resiste agli urti senza frantumarsi.</div>
+      </div>
+    </div>
+
+    <div class="element-card solid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔸</span> Solido — Struttura cristallina</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        I solidi con particelle disposte in modo <strong>ordinato e regolare</strong> si chiamano <strong>solidi cristallini</strong>.
+        <div class="example">➤ Il quarzo forma cristalli visibili a occhio nudo.</div>
+        <br>
+        I solidi in cui <strong>non si riconosce</strong> una struttura cristallina si chiamano <strong>solidi amorfi</strong>.
+        <div class="example">➤ Il vetro e la cera sono solidi amorfi.</div>
+      </div>
+    </div>
+
+    <!-- LIQUIDO -->
+    <div class="element-card liquid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Liquido — Viscosità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Viscosità:</strong> resistenza che un liquido oppone allo scorrimento e al cambiamento di forma. Dipende dalle <strong>forze di coesione</strong> tra le molecole.
+        <div class="example">➤ Il miele è più viscoso dell'acqua: scorre più lentamente e si rimescola con difficoltà.</div>
+      </div>
+    </div>
+
+    <div class="element-card liquid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Liquido — Tensione superficiale</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Tensione superficiale:</strong> la superficie di un liquido forma un'invisibile <strong>membrana elastica e resistente</strong>, capace di sostenere piccoli oggetti.
+        <div class="example">➤ Certi insetti riescono a camminare sull'acqua senza bagnarsi, grazie alla tensione superficiale.</div>
+      </div>
+    </div>
+
+    <div class="element-card liquid" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">🔹</span> Liquido — Capillarità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Capillarità:</strong> la salita spontanea di un liquido nei tubi sottili. È determinata dalle <strong>forze di adesione</strong> tra il liquido e le pareti del tubo.
+        <div class="example">➤ Immergendo un tubo sottilissimo (capillare) nell'acqua, il livello dell'acqua all'interno sale al di sopra del livello circostante.</div>
+      </div>
+    </div>
+
+    <!-- GAS -->
+    <div class="element-card gas" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">◆</span> Gas — Comprimibilità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Comprimibilità:</strong> i gas possono essere <strong>compressi</strong>, cioè il loro volume si riduce se sottoposti a pressione. Questo è possibile perché gli spazi vuoti tra le molecole sono enormemente più grandi delle molecole stesse.
+        <div class="example">➤ Con una siringa chiusa possiamo comprimere l'aria spingendo lo stantuffo: il volume diminuisce e la pressione aumenta.</div>
+      </div>
+    </div>
+
+    <div class="element-card gas" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">◆</span> Gas — Espansione e viscosità</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        <strong>Espansione:</strong> i gas tendono a espandersi e a occupare <strong>tutto il volume disponibile</strong> del contenitore.
+        <div class="example">➤ Un gas introdotto in un contenitore chiuso si espande fino a riempirlo completamente.</div>
+        <br>
+        <strong>Viscosità bassissima:</strong> circa 100 volte inferiore a quella dell'acqua.
+        <div class="example">➤ Normalmente non percepiamo la resistenza dell'aria, tranne quando corriamo in bicicletta o in automobile.</div>
+      </div>
+    </div>
+
+    <!-- PLASMA -->
+    <div class="element-card plasma" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header">
+        <span><span class="icon">⚡</span> Plasma — Il quarto stato</span>
+        <div class="check-mark">✔</div>
+      </div>
+      <div class="card-body">
+        Il <strong>plasma</strong> è un gas <strong>ionizzato</strong>: ad altissime temperature, gli elettroni si staccano dagli atomi, formando una miscela di <strong>elettroni liberi</strong>, <strong>ioni positivi</strong> e particelle neutre.
+        <br><br>
+        Costituisce oltre il <strong>99%</strong> della materia visibile dell'Universo.
+        <div class="example">
+          ➤ <strong>Nel cielo:</strong> Sole, stelle, spazio interstellare.<br>
+          ➤ <strong>Sulla Terra:</strong> fulmini, aurore boreali, fiamme molto calde.<br>
+          ➤ <strong>Artificiale:</strong> lampade fluorescenti, taglio al plasma.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 10 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ==================== FASE 3 ==================== -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">
+    Apri ogni scheda per approfondire i concetti fondamentali. Devi aprirle tutte per procedere.
+  </div>
+
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 Forma e volume nei 4 stati — il confronto</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box orange">
+          <strong>Solido:</strong> le molecole sono vicinissime e ordinate → <strong>forma propria</strong> e <strong>volume proprio</strong>.
+        </div>
+        <div class="highlight-box green">
+          <strong>Liquido:</strong> le molecole restano vicine ma possono scivolare → <strong>volume proprio</strong>, ma <strong>forma variabile</strong> (prende quella del contenitore).
+        </div>
+        <div class="highlight-box purple">
+          <strong>Gas:</strong> le molecole sono lontane e si muovono liberamente → <strong>né forma né volume propri</strong> (occupa tutto lo spazio disponibile).
+        </div>
+        <div class="highlight-box red">
+          <strong>Plasma:</strong> come un gas ma <strong>ionizzato</strong> — gli elettroni si staccano dagli atomi.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔸 Elasticità ≠ Plasticità</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Entrambe descrivono la deformazione di un solido, ma con un esito opposto:
+        <br><br>
+        <strong>Elasticità</strong> → la forza deforma il corpo, ma quando cessa il corpo <strong>torna alla forma originale</strong>.
+        <br>Esempio: elastico, molla d'acciaio.
+        <br><br>
+        <strong>Plasticità</strong> → la forza deforma il corpo, e il corpo <strong>mantiene la nuova forma</strong>.
+        <br>Esempio: plastilina, argilla.
+        <div class="highlight-box orange">
+          ⚠ Attenzione: elasticità e plasticità non si escludono a vicenda. Alcuni materiali sono un po' elastici e un po' plastici (come il DAS morbido).
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 Forze di coesione ≠ Forze di adesione</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Queste due forze sono fondamentali per capire le proprietà dei liquidi:
+        <br><br>
+        <strong>Forze di coesione</strong> — attrazione tra molecole <strong>dello stesso</strong> liquido.
+        <br>Determinano la <strong>viscosità</strong> (resistenza allo scorrimento) e la <strong>tensione superficiale</strong> (la "membrana" sulla superficie).
+        <br><br>
+        <strong>Forze di adesione</strong> — attrazione tra le molecole di un liquido e quelle di un <strong>solido</strong>.
+        <br>Determinano la <strong>capillarità</strong> (la salita del liquido nei tubi sottili).
+        <div class="highlight-box green">
+          ➤ Ecco perché le gocce d'acqua restano attaccate al vetro del parabrezza: le forze di adesione tra acqua e vetro le trattengono.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ Pressione e volume nei gas</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Nei gas, le molecole sono <strong>molto distanti</strong> tra loro e gli spazi vuoti sono enormi. Per questo:
+        <br><br>
+        • Si possono <strong>comprimere</strong>: spingendo lo stantuffo di una siringa chiusa, riduciamo il volume e la pressione aumenta.
+        <br>• Si possono <strong>espandere</strong>: se apriamo un contenitore, il gas si espande per occupare tutto lo spazio disponibile.
+        <div class="highlight-box purple">
+          ➤ Più piccolo è il volume in cui comprimiamo un gas, più alta è la pressione che dobbiamo esercitare.<br>
+          ➤ Un metro cubo d'aria al livello del mare pesa circa 1,3 kg — i gas hanno massa!
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔬 Atomo, elemento, composto — non confonderli</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <strong>Atomo</strong> — la più piccola particella della materia. È formato da protoni, neutroni (nel nucleo) e elettroni (attorno al nucleo).
+        <br><br>
+        <strong>Molecola</strong> — un gruppo di atomi legati insieme. Può essere formata da atomi uguali o diversi.
+        <br><br>
+        <strong>Elemento</strong> — sostanza formata da atomi <strong>tutti uguali</strong> (es. ossigeno O₂).
+        <br><br>
+        <strong>Composto</strong> — sostanza formata da atomi <strong>diversi</strong> legati insieme (es. acqua H₂O, anidride carbonica CO₂).
+        <div class="highlight-box blue">
+          ➤ Ricorda: ogni composto è formato da molecole, ma non tutte le molecole sono composti (l'O₂ è un elemento!).
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>⚡ Il plasma: perché è così importante?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Il plasma è il <strong>quarto stato</strong> della materia, ma in realtà è il <strong>più diffuso nell'Universo</strong>: oltre il 99% della materia visibile è plasma.
+        <br><br>
+        Si forma quando un gas viene riscaldato a temperature <strong>elevatissime</strong>: gli elettroni si staccano dagli atomi, creando una miscela di ioni positivi, elettroni liberi e particelle neutre.
+        <div class="highlight-box red">
+          ➤ Il Sole è una sfera di plasma. Le stelle sono plasma. Anche i fulmini e le aurore boreali sono plasma naturale sulla Terra.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 6 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- ==================== FASE 4 ==================== -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">
+    Rispondi a tutte le domande, poi clicca "Verifica Risposte".
+  </div>
+
+  <div class="quiz-area" id="quizArea"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- ==================== FASE 5 ==================== -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// === DATA ===
+const quizData = [
+  {
+    category: "materia",
+    categoryLabel: "La Materia",
+    question: "Cos'è la materia?",
+    options: [
+      "Tutto ciò che si può vedere a occhio nudo",
+      "Tutto ciò che occupa uno spazio e ha una massa",
+      "Solo le sostanze solide come le rocce",
+      "Tutto ciò che ha un colore"
+    ],
+    correct: 1,
+    explanation: "La materia è tutto ciò che occupa uno spazio e ha una massa, incluse sostanze invisibili come l'aria."
+  },
+  {
+    category: "materia",
+    categoryLabel: "La Materia",
+    question: "Qual è la differenza tra un elemento e un composto?",
+    options: [
+      "L'elemento è più grande del composto",
+      "L'elemento è formato da atomi tutti uguali, il composto da atomi diversi",
+      "Il composto è formato da un solo atomo, l'elemento da molti",
+      "Non c'è nessuna differenza"
+    ],
+    correct: 1,
+    explanation: "Un elemento è una sostanza formata da atomi tutti uguali (es. O₂), mentre un composto è formato da atomi diversi legati insieme (es. H₂O)."
+  },
+  {
+    category: "materia",
+    categoryLabel: "La Materia",
+    question: "Da quali particelle è formato l'atomo?",
+    options: [
+      "Solo protoni e neutroni",
+      "Molecole, elementi e composti",
+      "Protoni e neutroni (nel nucleo) e elettroni (attorno al nucleo)",
+      "Solo elettroni"
+    ],
+    correct: 2,
+    explanation: "L'atomo è formato da protoni (carica +) e neutroni (neutri) nel nucleo, e da elettroni (carica −) che si muovono attorno al nucleo."
+  },
+  {
+    category: "solidi",
+    categoryLabel: "I Solidi",
+    question: "Qual è la differenza tra elasticità e plasticità?",
+    options: [
+      "L'elasticità riguarda i liquidi, la plasticità i solidi",
+      "Sono la stessa cosa",
+      "Un corpo elastico torna alla forma originale, un corpo plastico mantiene la nuova forma",
+      "Un corpo plastico torna alla forma originale, un corpo elastico mantiene la nuova forma"
+    ],
+    correct: 2,
+    explanation: "Un corpo elastico si deforma e torna alla forma originale (es. molla). Un corpo plastico si deforma e mantiene la nuova forma (es. plastilina)."
+  },
+  {
+    category: "solidi",
+    categoryLabel: "I Solidi",
+    question: "Quale proprietà descrive la tendenza di un corpo a rompersi in frantumi sotto un urto?",
+    options: [
+      "Tenacia",
+      "Durezza",
+      "Elasticità",
+      "Fragilità"
+    ],
+    correct: 3,
+    explanation: "La fragilità è la tendenza a rompersi in frantumi (es. il vetro). La tenacia è il suo contrario: la resistenza alla rottura (es. il ferro)."
+  },
+  {
+    category: "liquidi",
+    categoryLabel: "I Liquidi",
+    question: "Da cosa dipende la viscosità di un liquido?",
+    options: [
+      "Dalle forze di adesione",
+      "Dalla temperatura dell'ambiente",
+      "Dalle forze di coesione tra le molecole",
+      "Dal volume del contenitore"
+    ],
+    correct: 2,
+    explanation: "La viscosità dipende dalle forze di coesione, cioè dall'attrazione tra le molecole dello stesso liquido. Più forti sono, più il liquido è viscoso."
+  },
+  {
+    category: "liquidi",
+    categoryLabel: "I Liquidi",
+    question: "La capillarità è determinata da:",
+    options: [
+      "Le forze di coesione tra le molecole del liquido",
+      "La tensione superficiale",
+      "Le forze di adesione tra il liquido e le pareti del tubo",
+      "La pressione atmosferica"
+    ],
+    correct: 2,
+    explanation: "La capillarità è determinata dalle forze di adesione, cioè dall'attrazione tra le molecole del liquido e quelle del solido (le pareti del tubo)."
+  },
+  {
+    category: "gas",
+    categoryLabel: "I Gas",
+    question: "Perché i gas si possono comprimere facilmente?",
+    options: [
+      "Perché le loro molecole sono molto piccole",
+      "Perché le loro molecole sono molto distanti tra loro con grandi spazi vuoti",
+      "Perché non hanno massa",
+      "Perché le loro molecole sono tutte uguali"
+    ],
+    correct: 1,
+    explanation: "Gli spazi vuoti tra le molecole di un gas sono enormemente più grandi delle molecole stesse. Per questo si possono avvicinare facilmente sotto pressione."
+  },
+  {
+    category: "gas",
+    categoryLabel: "I Gas",
+    question: "I gas hanno massa?",
+    options: [
+      "No, i gas non hanno massa",
+      "Solo i gas pesanti come l'anidride carbonica",
+      "Sì, tutti i gas hanno massa",
+      "Solo quando sono in un contenitore chiuso"
+    ],
+    correct: 2,
+    explanation: "Tutti i gas hanno massa. Ad esempio, un metro cubo d'aria al livello del mare pesa circa 1,3 kg."
+  },
+  {
+    category: "plasma",
+    categoryLabel: "Il Plasma",
+    question: "Cos'è il plasma?",
+    options: [
+      "Un liquido molto caldo",
+      "Un gas compresso ad altissima pressione",
+      "Un gas ionizzato formato da elettroni liberi, ioni positivi e particelle neutre",
+      "Un solido trasparente"
+    ],
+    correct: 2,
+    explanation: "Il plasma è un gas ionizzato: gli elettroni si staccano dagli atomi formando una miscela di elettroni liberi, ioni positivi e particelle neutre. Costituisce il 99% della materia visibile dell'Universo."
+  }
+];
+
+// === STATE ===
+let currentPhase = 1;
+let phaseState = {
+  1: { total: 6, opened: new Set() },
+  2: { total: 10, opened: new Set() },
+  3: { total: 6, opened: new Set() }
+};
+let quizAnswers = {};
+let quizVerified = false;
+
+// === NAVIGATION ===
+function goToPhase(n) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase' + n).classList.add('active');
+  currentPhase = n;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('active', 'done');
+    if (i < currentPhase) dot.classList.add('done');
+    else if (i === currentPhase) dot.classList.add('active');
+
+    if (i < 5) {
+      const conn = document.getElementById('conn' + i);
+      conn.classList.toggle('done', i < currentPhase);
+    }
+  }
+}
+
+// === PHASE 1 & 2: CLICKABLE ELEMENTS ===
+function toggleElement(card) {
+  const phase = parseInt(card.dataset.phase);
+  card.classList.add('opened');
+
+  const grid = card.closest('.elements-grid');
+  const cards = grid.querySelectorAll('.element-card');
+  const idx = Array.from(cards).indexOf(card);
+
+  phaseState[phase].opened.add(idx);
+  updateCounter(phase);
+}
+
+function updateCounter(phase) {
+  const state = phaseState[phase];
+  const count = state.opened.size;
+  const el = document.getElementById('counter' + phase);
+  const suffix = phase === 3 ? 'completate' : 'completati';
+  el.textContent = count + ' / ' + state.total + ' ' + suffix;
+
+  const btn = document.getElementById('next' + phase);
+  btn.disabled = count < state.total;
+}
+
+// === PHASE 3: CONCEPT CARDS ===
+function toggleConcept(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  // independent mode: don't close others
+  card.classList.toggle('expanded');
+
+  if (!wasExpanded) {
+    card.classList.add('opened');
+    const allCards = card.closest('.concept-cards').querySelectorAll('.concept-card');
+    const idx = Array.from(allCards).indexOf(card);
+    phaseState[3].opened.add(idx);
+    updateCounter(3);
+  }
+}
+
+// === PHASE 4: QUIZ ===
+function buildQuiz() {
+  const area = document.getElementById('quizArea');
+  let html = '';
+  quizData.forEach((q, i) => {
+    html += '<div class="quiz-question" id="qq' + i + '">';
+    html += '<div class="q-number">' + q.categoryLabel + ' — Domanda ' + (i+1) + '</div>';
+    html += '<div class="q-text">' + q.question + '</div>';
+    html += '<div class="q-options">';
+    q.options.forEach((opt, j) => {
+      html += '<div class="q-option" data-q="' + i + '" data-opt="' + j + '" onclick="selectOption(this)">';
+      html += '<div class="q-radio"></div>';
+      html += '<span>' + opt + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="q-feedback" id="fb' + i + '"></div>';
+    html += '</div>';
+  });
+  area.innerHTML = html;
+}
+
+function selectOption(el) {
+  if (quizVerified) return;
+  const q = parseInt(el.dataset.q);
+  const opt = parseInt(el.dataset.opt);
+  quizAnswers[q] = opt;
+
+  // clear previous selection for this question
+  document.querySelectorAll('.q-option[data-q="' + q + '"]').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function verifyQuiz() {
+  if (quizVerified) {
+    goToPhase(5);
+    return;
+  }
+
+  // check all answered
+  const unanswered = [];
+  quizData.forEach((q, i) => {
+    if (quizAnswers[i] === undefined) unanswered.push(i);
+  });
+
+  if (unanswered.length > 0) {
+    const first = unanswered[0];
+    const el = document.getElementById('qq' + first);
+    el.classList.add('missed');
+    setTimeout(() => el.classList.remove('missed'), 2000);
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    const missingText = unanswered.length === 1
+      ? 'Manca la risposta alla domanda ' + (first + 1) + '.'
+      : 'Mancano le risposte alle domande: ' + unanswered.map(u => u+1).join(', ') + '.';
+    alert(missingText);
+    return;
+  }
+
+  quizVerified = true;
+
+  // show feedback
+  quizData.forEach((q, i) => {
+    const questionEl = document.getElementById('qq' + i);
+    const fb = document.getElementById('fb' + i);
+    const isCorrect = quizAnswers[i] === q.correct;
+
+    questionEl.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    // lock options & highlight
+    document.querySelectorAll('.q-option[data-q="' + i + '"]').forEach(o => {
+      o.classList.add('locked');
+      const optIdx = parseInt(o.dataset.opt);
+      if (optIdx === q.correct) o.classList.add('show-correct');
+      else if (optIdx === quizAnswers[i] && !isCorrect) o.classList.add('show-wrong');
+    });
+
+    fb.className = 'q-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    fb.innerHTML = (isCorrect ? '✔ Corretto! ' : '✘ Sbagliato. ') + q.explanation;
+  });
+
+  // change button
+  const btn = document.getElementById('verifyBtn');
+  btn.textContent = 'Vai al Ripasso →';
+  btn.className = 'btn btn-primary';
+
+  buildReview();
+}
+
+// === PHASE 5: REVIEW ===
+function buildReview() {
+  const categories = {};
+  quizData.forEach((q, i) => {
+    if (!categories[q.category]) {
+      categories[q.category] = { label: q.categoryLabel, correct: 0, total: 0, questions: [] };
+    }
+    categories[q.category].total++;
+    const isCorrect = quizAnswers[i] === q.correct;
+    if (isCorrect) categories[q.category].correct++;
+    categories[q.category].questions.push({ ...q, index: i, isCorrect });
+  });
+
+  const totalCorrect = quizData.filter((q, i) => quizAnswers[i] === q.correct).length;
+  const totalQ = quizData.length;
+  const pct = Math.round((totalCorrect / totalQ) * 100);
+
+  let feedbackText = '';
+  let feedbackColor = '';
+  if (pct >= 90) { feedbackText = 'Ottimo lavoro! Padronanza eccellente.'; feedbackColor = 'var(--success)'; }
+  else if (pct >= 70) { feedbackText = 'Buon risultato! Rivedi le aree evidenziate.'; feedbackColor = 'var(--blue)'; }
+  else if (pct >= 50) { feedbackText = 'Ci sei quasi! Concentrati sulle aree da rivedere.'; feedbackColor = 'var(--warning)'; }
+  else { feedbackText = 'Continua a esercitarti! Ripassa con attenzione le schede.'; feedbackColor = 'var(--error)'; }
+
+  document.getElementById('reviewScore').innerHTML =
+    '<div class="score-number" style="color:' + feedbackColor + '">' + totalCorrect + ' / ' + totalQ + '</div>' +
+    '<div class="score-label">' + pct + '% di risposte corrette</div>' +
+    '<div class="score-feedback" style="color:' + feedbackColor + '">' + feedbackText + '</div>';
+
+  let reviewHtml = '';
+
+  const reviewContent = {
+    materia: {
+      review: '<ul><li><strong>Materia</strong> = tutto ciò che occupa uno spazio e ha una massa (anche l\'aria!).</li><li><strong>Atomo</strong> = la più piccola particella della materia, formato da protoni, neutroni ed elettroni.</li><li><strong>Molecola</strong> = gruppo di atomi legati insieme.</li><li><strong>Elemento</strong> = atomi tutti uguali (es. O₂). <strong>Composto</strong> = atomi diversi (es. H₂O).</li></ul>',
+      summary: 'Definizione di materia, atomi, molecole, elementi e composti.'
+    },
+    solidi: {
+      review: '<ul><li><strong>Forma e volume propri</strong> — le molecole sono vicinissime e ordinate.</li><li><strong>Elasticità</strong> — il corpo torna alla forma originale (molla, elastico).</li><li><strong>Plasticità</strong> — il corpo mantiene la nuova forma (plastilina, argilla).</li><li><strong>Durezza</strong> — capacità di scalfire (acciaio > legno).</li><li><strong>Fragilità</strong> — si rompe in frantumi (vetro). <strong>Tenacia</strong> — resiste alla rottura (ferro).</li></ul>',
+      summary: 'Proprietà dei solidi: elasticità, plasticità, durezza, fragilità e tenacia.'
+    },
+    liquidi: {
+      review: '<ul><li><strong>Volume proprio, forma variabile</strong> — le molecole scivolano l\'una sull\'altra.</li><li><strong>Viscosità</strong> — resistenza allo scorrimento, dipende dalle <strong>forze di coesione</strong> (es. miele > acqua).</li><li><strong>Tensione superficiale</strong> — "membrana" elastica sulla superficie, dipende dalla coesione.</li><li><strong>Capillarità</strong> — salita nei tubi sottili, dipende dalle <strong>forze di adesione</strong> (liquido + solido).</li><li>⚠ <strong>Coesione</strong> = stesse molecole. <strong>Adesione</strong> = molecole diverse.</li></ul>',
+      summary: 'Proprietà dei liquidi e distinzione tra forze di coesione e adesione.'
+    },
+    gas: {
+      review: '<ul><li><strong>Né forma né volume propri</strong> — le molecole sono distanti e si muovono liberamente.</li><li><strong>Comprimibilità</strong> — si possono comprimere perché gli spazi tra le molecole sono enormi.</li><li><strong>Espansione</strong> — occupano tutto il volume disponibile.</li><li>I gas <strong>hanno massa</strong>: 1 m³ di aria pesa circa 1,3 kg.</li><li>Più si comprime un gas, più aumenta la <strong>pressione</strong>.</li></ul>',
+      summary: 'Proprietà dei gas: comprimibilità, espansione, massa.'
+    },
+    plasma: {
+      review: '<ul><li>Il plasma è un <strong>gas ionizzato</strong>: elettroni liberi + ioni positivi + particelle neutre.</li><li>Costituisce oltre il <strong>99%</strong> della materia visibile dell\'Universo.</li><li>Esempi: Sole, stelle, fulmini, aurore boreali, lampade fluorescenti.</li></ul>',
+      summary: 'Il quarto stato della materia: definizione ed esempi di plasma.'
+    }
+  };
+
+  for (const cat in categories) {
+    const c = categories[cat];
+    const ratio = c.correct / c.total;
+    const isGood = ratio >= 0.7;
+
+    reviewHtml += '<div class="review-section ' + (isGood ? 'good' : 'review') + '">';
+    reviewHtml += '<h3>' + (isGood ? '✔ Hai capito bene' : '⚠ Da rivedere') + ' — ' + c.label + '</h3>';
+
+    if (isGood) {
+      reviewHtml += '<p>' + reviewContent[cat].summary + ' (' + c.correct + '/' + c.total + ' corrette)</p>';
+    } else {
+      reviewHtml += '<p>Hai risposto correttamente a ' + c.correct + ' domande su ' + c.total + '. Ripassa questi concetti:</p>';
+      reviewHtml += reviewContent[cat].review;
+    }
+
+    reviewHtml += '</div>';
+  }
+
+  document.getElementById('reviewArea').innerHTML = reviewHtml;
+}
+
+function restart() {
+  quizAnswers = {};
+  quizVerified = false;
+  phaseState = {
+    1: { total: 6, opened: new Set() },
+    2: { total: 10, opened: new Set() },
+    3: { total: 6, opened: new Set() }
+  };
+
+  // reset cards
+  document.querySelectorAll('.element-card').forEach(c => c.classList.remove('opened'));
+  document.querySelectorAll('.element-card .card-body').forEach(b => b.style.display = '');
+  document.querySelectorAll('.concept-card').forEach(c => { c.classList.remove('opened', 'expanded'); });
+
+  // reset counters
+  for (let i = 1; i <= 3; i++) updateCounter(i);
+
+  // rebuild quiz
+  buildQuiz();
+
+  // reset verify button
+  const btn = document.getElementById('verifyBtn');
+  btn.textContent = 'Verifica Risposte';
+  btn.className = 'btn btn-success';
+
+  goToPhase(1);
+}
+
+// === INIT ===
+buildQuiz();
+</script>
+
+</body>
+</html>
