@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percorso — Gli Insiemi Numerici</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  --colN: #1E5AC8;
+  --colQ: #008C96;
+  --colI: #B91E3C;
+  --colR: #289132;
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text: #222;
+  --text-light: #555;
+  --border: #dde1e6;
+  --success: #2e7d32;
+  --warning: #e6a700;
+  --error: #c62828;
+  --radius: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+/* === HEADER === */
+.header {
+  text-align: center;
+  padding: 24px 0 8px;
+}
+.header h1 {
+  font-size: 1.55rem;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.header .subtitle {
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+/* === PROGRESS BAR === */
+.progress-bar {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0 24px;
+  flex-wrap: wrap;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  opacity: 0.45;
+  transition: opacity 0.3s;
+}
+.progress-step.active { opacity: 1; font-weight: 600; color: var(--colR); }
+.progress-step.done { opacity: 0.75; color: var(--success); }
+.progress-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.75rem; color: #fff;
+  transition: background 0.3s;
+}
+.progress-step.active .progress-dot { background: var(--colR); }
+.progress-step.done .progress-dot { background: var(--success); }
+.progress-sep {
+  width: 20px; height: 2px;
+  background: var(--border);
+  align-self: center;
+}
+/* === PHASES === */
+.phase { display: none; }
+.phase.visible { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.phase-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.phase-instruction {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-bottom: 18px;
+}
+.phase-counter {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  text-align: right;
+  margin-bottom: 14px;
+}
+/* === INTERACTIVE CARDS (Phase 1 & 2) === */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 520px) { .card-grid { grid-template-columns: 1fr; } }
+.icard {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  min-height: 80px;
+  -webkit-tap-highlight-color: transparent;
+}
+.icard:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.icard.opened { cursor: default; }
+.icard .card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.icard .card-symbol {
+  font-size: 1.4rem;
+  font-weight: 700;
+  min-width: 42px;
+  text-align: center;
+}
+.icard .card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.icard .card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, margin 0.3s ease;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+.icard.opened .card-body {
+  max-height: 300px;
+  margin-top: 12px;
+}
+.icard .card-check {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 1.1rem;
+  color: var(--success);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.icard.opened .card-check { opacity: 1; }
+.icard .card-examples {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #f4f6f8;
+  border-radius: 6px;
+  font-size: 0.86rem;
+}
+.icard .card-key {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+/* Border colors per set */
+.icard.set-N.opened { border-color: var(--colN); }
+.icard.set-Q.opened { border-color: var(--colQ); }
+.icard.set-I.opened { border-color: var(--colI); }
+.icard.set-R.opened { border-color: var(--colR); }
+/* === EXPANDABLE CARDS (Phase 3) === */
+.concept-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.25s;
+}
+.concept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.concept-header .arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s;
+  color: var(--text-light);
+}
+.concept-card.opened .concept-header .arrow { transform: rotate(90deg); }
+.concept-card.opened { border-color: var(--colQ); }
+.concept-header .chk {
+  color: var(--success);
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.concept-card.opened .concept-header .chk { opacity: 1; }
+.concept-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 16px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.concept-card.expanded .concept-body {
+  max-height: 500px;
+  padding: 0 16px 14px;
+}
+/* === QUIZ (Phase 4) === */
+.quiz-section-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin: 20px 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid var(--border);
+}
+.question {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.question.correct { border-color: var(--success); background: #e8f5e9; }
+.question.wrong { border-color: var(--error); background: #fce4ec; }
+.question.missed { border-color: var(--warning); background: #fff8e1; }
+.question-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+.question-num {
+  color: var(--text-light);
+  font-weight: 400;
+}
+.options { display: flex; flex-direction: column; gap: 6px; }
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+.option:hover:not(.locked) { background: #eef1f5; }
+.option.selected { border-color: var(--colQ); background: #e0f2f3; }
+.option.locked { cursor: default; opacity: 0.85; }
+.option.locked.is-correct { border-color: var(--success); background: #c8e6c9; font-weight: 600; }
+.option.locked.is-wrong { border-color: var(--error); background: #ffcdd2; text-decoration: line-through; }
+.option-letter {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.78rem; color: #fff;
+  flex-shrink: 0;
+}
+.option.selected .option-letter { background: var(--colQ); }
+.option.locked.is-correct .option-letter { background: var(--success); }
+.option.locked.is-wrong .option-letter { background: var(--error); }
+.feedback {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: none;
+  line-height: 1.5;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: #e8f5e9; color: #1b5e20; }
+.feedback.ko { background: #fce4ec; color: #b71c1c; }
+/* === REVIEW (Phase 5) === */
+.review-area {
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.review-area.needs-review {
+  background: #fff8e1;
+  border-left: 4px solid var(--warning);
+}
+.review-area.good {
+  background: #e8f5e9;
+  border-left: 4px solid var(--success);
+}
+.review-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+.review-label.warn { color: #e65100; }
+.review-label.ok { color: var(--success); }
+.review-content {
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.review-content p { margin-bottom: 6px; }
+.review-content ul { margin: 6px 0 6px 18px; }
+.review-content li { margin-bottom: 3px; }
+.review-score {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+}
+/* === BUTTONS === */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1.5px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.btn {
+  padding: 11px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+.btn-primary { background: var(--colR); color: #fff; }
+.btn-primary:hover { background: #1f7a28; }
+.btn-secondary { background: #e8eaed; color: var(--text); }
+.btn-secondary:hover { background: #d3d6da; }
+.btn-accent { background: var(--colQ); color: #fff; }
+.btn-accent:hover { background: #007078; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-small { padding: 8px 16px; font-size: 0.85rem; }
+/* === PRINT === */
+@media print {
+  [id^="phase"] { display: none !important; }
+  #phase5 { display: block !important; }
+  .header, .progress-bar, .nav-buttons, button, .btn { display: none !important; }
+  #phase5 .nav-buttons { display: none !important; }
+  body { background: #fff; }
+  .review-area { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Gli Insiemi Numerici</h1>
+    <div class="subtitle">Percorso interattivo — numeri positivi</div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-step active" data-step="1"><div class="progress-dot">1</div><span>Insiemi</span></div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="2"><div class="progress-dot">2</div><span>Classificazione</span></div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="3"><div class="progress-dot">3</div><span>Concetti</span></div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="4"><div class="progress-dot">4</div><span>Verifica</span></div>
+    <div class="progress-sep"></div>
+    <div class="progress-step" data-step="5"><div class="progress-dot">5</div><span>Ripasso</span></div>
+  </div>
+
+  <!-- ==================== PHASE 1 ==================== -->
+  <div class="phase visible" id="phase1">
+    <div class="phase-title">Fase 1 — Gli Insiemi Numerici</div>
+    <div class="phase-instruction">Clicca su ogni insieme per scoprirne le proprietà.</div>
+    <div class="phase-counter" id="counter1">Aperti: 0 / 4</div>
+
+    <div class="card-grid">
+      <!-- N -->
+      <div class="icard set-N" onclick="App.openCard(1, this)" data-id="N">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="color:var(--colN)">\(\mathbb{N}\)</div>
+          <div class="card-name">Numeri Naturali</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri interi positivi, compreso lo zero.</div>
+          <div class="card-examples">Esempi: \(0,\; 1,\; 2,\; 3,\; \ldots\)</div>
+          <div class="card-key">È l'insieme più piccolo: è contenuto in tutti gli altri.</div>
+        </div>
+      </div>
+      <!-- Q+ -->
+      <div class="icard set-Q" onclick="App.openCard(1, this)" data-id="Q">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="color:var(--colQ)">\(\mathbb{Q}^+\)</div>
+          <div class="card-name">Numeri Razionali</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri aventi una <strong>frazione generatrice</strong>. Comprendono i numeri naturali.</div>
+          <div class="card-examples">Esempi: \(\frac{1}{2}\;;\;\; 0{,}5\;;\;\; 0{,}\overline{3}\;;\;\; 1{,}2\overline{4}\)</div>
+          <div class="card-key">Contiene \(\mathbb{N}\) al suo interno.</div>
+        </div>
+      </div>
+      <!-- I+ -->
+      <div class="icard set-I" onclick="App.openCard(1, this)" data-id="I">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="color:var(--colI)">\(\mathbb{I}^+\)</div>
+          <div class="card-name">Numeri Irrazionali</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri che <strong>non possono</strong> essere scritti come frazione.</div>
+          <div class="card-examples">Esempi: \(\pi\;;\;\; \sqrt{2}\;;\;\; 1{,}237512\ldots\)</div>
+          <div class="card-key">Non contiene \(\mathbb{N}\) né \(\mathbb{Q}^+\): è un insieme separato.</div>
+        </div>
+      </div>
+      <!-- R+ -->
+      <div class="icard set-R" onclick="App.openCard(1, this)" data-id="R">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="color:var(--colR)">\(\mathbb{R}^+\)</div>
+          <div class="card-name">Numeri Reali</div>
+        </div>
+        <div class="card-body">
+          <div><strong>Unione</strong> tra numeri razionali e irrazionali.</div>
+          <div class="card-examples">Formula: \(\mathbb{I}^+ \cup \mathbb{Q}^+ = \mathbb{R}^+\)</div>
+          <div class="card-key">È l'insieme più grande: contiene tutti gli altri.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <div></div>
+      <button class="btn btn-primary" id="btn1" disabled onclick="App.goTo(2)">Avanti &#10140;</button>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 2 ==================== -->
+  <div class="phase" id="phase2">
+    <div class="phase-title">Fase 2 — Classificazione dei Numeri Positivi</div>
+    <div class="phase-instruction">Clicca su ogni tipo di numero per scoprirne le caratteristiche.</div>
+    <div class="phase-counter" id="counter2">Aperti: 0 / 6</div>
+
+    <div class="card-grid">
+      <!-- Numeri Interi -->
+      <div class="icard set-N" onclick="App.openCard(2, this)" data-id="interi">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="font-size:1.3rem">🔢</div>
+          <div class="card-name">Numeri Interi</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri appartenenti all'insieme \(\mathbb{N}\).</div>
+          <div class="card-examples">\(0\;;\;\; 1\;;\;\; 2\;;\;\; 3\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{N}\)</div>
+        </div>
+      </div>
+      <!-- Frazioni -->
+      <div class="icard set-Q" onclick="App.openCard(2, this)" data-id="frazioni">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="font-size:1.3rem">🍕</div>
+          <div class="card-name">Frazioni</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri aventi <strong>numeratore</strong> e <strong>denominatore</strong>.</div>
+          <div class="card-examples">\(\frac{1}{2}\;;\;\; \frac{3}{2}\;;\;\; \frac{1}{100}\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{Q}^+\)</div>
+        </div>
+      </div>
+      <!-- Decimali Limitati -->
+      <div class="icard set-Q" onclick="App.openCard(2, this)" data-id="limitati">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="font-size:1.3rem">📏</div>
+          <div class="card-name">Decimali Limitati</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri con un numero <strong>finito</strong> di cifre dopo la virgola.</div>
+          <div class="card-examples">\(0{,}5\;;\;\; 0{,}4\;;\;\; 0{,}73\;;\;\; 0{,}127\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{Q}^+\)</div>
+        </div>
+      </div>
+      <!-- Periodici Semplici -->
+      <div class="icard set-Q" onclick="App.openCard(2, this)" data-id="periodici_s">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="font-size:1.3rem">🔁</div>
+          <div class="card-name">Periodici Semplici</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri con <strong>tutte</strong> le cifre decimali che si ripetono all'infinito.</div>
+          <div class="card-examples">\(0{,}\overline{6}\;;\;\; 1{,}\overline{23}\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{Q}^+\)</div>
+        </div>
+      </div>
+      <!-- Periodici Misti -->
+      <div class="icard set-Q" onclick="App.openCard(2, this)" data-id="periodici_m">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="font-size:1.3rem">🔀</div>
+          <div class="card-name">Periodici Misti</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri periodici con l'<strong>antiperiodo</strong>.</div>
+          <div class="card-examples">\(1{,}23\overline{11}\;;\;\; 2{,}3\overline{7}\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{Q}^+\)</div>
+        </div>
+      </div>
+      <!-- Decimali Illimitati -->
+      <div class="icard set-I" onclick="App.openCard(2, this)" data-id="illimitati">
+        <div class="card-check">&#10004;</div>
+        <div class="card-header">
+          <div class="card-symbol" style="color:var(--colI); font-size:1.6rem; font-weight:700">∞</div>
+          <div class="card-name">Decimali Illimitati Non Periodici</div>
+        </div>
+        <div class="card-body">
+          <div>Numeri con un numero <strong>infinito</strong> di cifre dopo la virgola, <strong>non periodiche</strong>.</div>
+          <div class="card-examples">\(\pi\;;\;\; \sqrt{2}\;;\;\; 1{,}237512\ldots\;;\;\; \ldots\)</div>
+          <div class="card-key">Appartengono a \(\mathbb{I}^+\)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="App.goTo(1)">&#10140; Indietro</button>
+      <button class="btn btn-primary" id="btn2" disabled onclick="App.goTo(3)">Avanti &#10140;</button>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 3 ==================== -->
+  <div class="phase" id="phase3">
+    <div class="phase-title">Fase 3 — Concetti Chiave</div>
+    <div class="phase-instruction">Espandi ogni scheda per approfondire. Aprile tutte per proseguire.</div>
+    <div class="phase-counter" id="counter3">Aperte: 0 / 5</div>
+
+    <!-- Concept 1 -->
+    <div class="concept-card" onclick="App.openConcept(this)" data-id="c1">
+      <div class="concept-header">
+        <span>🔗 La catena di inclusione</span>
+        <span><span class="chk">&#10004;</span> <span class="arrow">&#9654;</span></span>
+      </div>
+      <div class="concept-body">
+        <p>Gli insiemi numerici positivi sono contenuti uno nell'altro come scatole cinesi:</p>
+        <p style="text-align:center; font-size:1.05rem; margin:10px 0;">\(\mathbb{N} \subset \mathbb{Q}^+ \subset \mathbb{R}^+\)</p>
+        <p>Ogni numero naturale è automaticamente anche razionale e reale. Ad esempio, il numero \(3\) appartiene a \(\mathbb{N}\), a \(\mathbb{Q}^+\) e a \(\mathbb{R}^+\).</p>
+        <p>Attenzione: \(\mathbb{I}^+\) è <em>separato</em> da \(\mathbb{Q}^+\) — nessun irrazionale è razionale e viceversa.</p>
+      </div>
+    </div>
+    <!-- Concept 2 -->
+    <div class="concept-card" onclick="App.openConcept(this)" data-id="c2">
+      <div class="concept-header">
+        <span>✦ La formula fondamentale</span>
+        <span><span class="chk">&#10004;</span> <span class="arrow">&#9654;</span></span>
+      </div>
+      <div class="concept-body">
+        <p style="text-align:center; font-size:1.05rem; margin:10px 0;">\(\mathbb{I}^+ \cup \mathbb{Q}^+ = \mathbb{R}^+\)</p>
+        <p>Il simbolo \(\cup\) significa "unione": prendendo <strong>tutti</strong> i numeri razionali e <strong>tutti</strong> i numeri irrazionali si ottiene l'insieme completo dei numeri reali positivi.</p>
+        <p>Non ci sono numeri reali che non siano né razionali né irrazionali: ogni numero reale è per forza l'uno o l'altro.</p>
+      </div>
+    </div>
+    <!-- Concept 3 -->
+    <div class="concept-card" onclick="App.openConcept(this)" data-id="c3">
+      <div class="concept-header">
+        <span>🔍 Il test della frazione generatrice</span>
+        <span><span class="chk">&#10004;</span> <span class="arrow">&#9654;</span></span>
+      </div>
+      <div class="concept-body">
+        <p>Come si capisce se un numero è razionale o irrazionale? La regola è semplice:</p>
+        <p><strong>Se il numero si può scrivere come frazione → è razionale</strong> (\(\in \mathbb{Q}^+\))</p>
+        <p><strong>Se non si può scrivere come frazione → è irrazionale</strong> (\(\in \mathbb{I}^+\))</p>
+        <p>I decimali limitati e i periodici (semplici e misti) hanno <em>sempre</em> una frazione generatrice. I decimali illimitati non periodici no.</p>
+      </div>
+    </div>
+    <!-- Concept 4 -->
+    <div class="concept-card" onclick="App.openConcept(this)" data-id="c4">
+      <div class="concept-header">
+        <span>🔄 Periodo e antiperiodo</span>
+        <span><span class="chk">&#10004;</span> <span class="arrow">&#9654;</span></span>
+      </div>
+      <div class="concept-body">
+        <p>Il <strong>periodo</strong> è il gruppo di cifre che si ripete all'infinito dopo la virgola.</p>
+        <p>L'<strong>antiperiodo</strong> è il gruppo di cifre decimali che sta <em>tra la virgola e il periodo</em> e che <em>non si ripete</em>.</p>
+        <p>Esempio: in \(1{,}23\overline{11}\) → l'antiperiodo è \(23\), il periodo è \(11\).</p>
+        <p>Se c'è l'antiperiodo → <strong>periodico misto</strong>. Se non c'è → <strong>periodico semplice</strong>.</p>
+      </div>
+    </div>
+    <!-- Concept 5 -->
+    <div class="concept-card" onclick="App.openConcept(this)" data-id="c5">
+      <div class="concept-header">
+        <span>⚠ Attenzione: non confondere!</span>
+        <span><span class="chk">&#10004;</span> <span class="arrow">&#9654;</span></span>
+      </div>
+      <div class="concept-body">
+        <p>Errori frequenti da evitare:</p>
+        <p>⚠ \(\mathbb{N}\) contiene solo numeri interi, <strong>non</strong> le frazioni. Ma ogni numero intero <em>è anche</em> razionale.</p>
+        <p>⚠ \(\mathbb{Q}^+\) non contiene solo le frazioni: contiene anche i numeri interi, i decimali limitati e i periodici.</p>
+        <p>⚠ Un numero con infinite cifre decimali non è per forza irrazionale: potrebbe essere periodico (e quindi razionale).</p>
+        <p>⚠ \(\pi\) e \(\sqrt{2}\) <strong>non</strong> sono razionali, anche se si può scriverne un'approssimazione decimale.</p>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="App.goTo(2)">&#10140; Indietro</button>
+      <button class="btn btn-primary" id="btn3" disabled onclick="App.goTo(4)">Avanti &#10140;</button>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 4 ==================== -->
+  <div class="phase" id="phase4">
+    <div class="phase-title">Fase 4 — Mettiti alla Prova</div>
+    <div class="phase-instruction">Rispondi a tutte le domande, poi clicca su "Verifica Risposte".</div>
+
+    <div id="quizContainer"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="App.goTo(3)">&#10140; Indietro</button>
+      <button class="btn btn-accent" id="btnVerify" onclick="App.verify()">Verifica Risposte</button>
+    </div>
+  </div>
+
+  <!-- ==================== PHASE 5 ==================== -->
+  <div class="phase" id="phase5">
+    <div class="phase-title">Fase 5 — Ripasso Personalizzato</div>
+    <div class="phase-instruction">Ecco il tuo ripasso, costruito sulle tue risposte.</div>
+
+    <div id="reviewScore"></div>
+    <div id="reviewContent"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="App.goTo(4)">&#10140; Rivedi Errori</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-accent" onclick="window.print()">Stampa Ripasso</button>
+        <button class="btn btn-primary" onclick="App.restart()">Ricomincia</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // --- Area 1: Insiemi Numerici ---
+  {
+    area: 'insiemi',
+    text: 'Cosa significa la formula \\(\\mathbb{I}^+ \\cup \\mathbb{Q}^+ = \\mathbb{R}^+\\)?',
+    options: [
+      'I numeri irrazionali sono più grandi dei razionali',
+      "L'unione degli irrazionali e dei razionali forma i reali",
+      'I numeri reali si ottengono moltiplicando irrazionali per razionali',
+      'I numeri razionali contengono gli irrazionali'
+    ],
+    correct: 1,
+    explanation: 'Il simbolo \\(\\cup\\) significa "unione": mettendo insieme tutti i razionali e tutti gli irrazionali si ottengono i numeri reali.'
+  },
+  {
+    area: 'insiemi',
+    text: 'Il numero \\(0\\) appartiene a:',
+    options: [
+      'Solo a \\(\\mathbb{I}^+\\)',
+      'Solo a \\(\\mathbb{N}\\)',
+      '\\(\\mathbb{N}\\), e quindi anche a \\(\\mathbb{Q}^+\\) e \\(\\mathbb{R}^+\\)',
+      'Solo a \\(\\mathbb{Q}^+\\)'
+    ],
+    correct: 2,
+    explanation: 'Lo zero è un numero naturale. Poiché \\(\\mathbb{N} \\subset \\mathbb{Q}^+ \\subset \\mathbb{R}^+\\), lo zero appartiene a tutti e tre questi insiemi.'
+  },
+  {
+    area: 'insiemi',
+    text: 'Quale tra questi è un numero irrazionale?',
+    options: [
+      '\\(0{,}5\\)',
+      '\\(\\frac{3}{4}\\)',
+      '\\(\\sqrt{2}\\)',
+      '\\(0{,}\\overline{3}\\)'
+    ],
+    correct: 2,
+    explanation: '\\(\\sqrt{2}\\) ha infinite cifre decimali non periodiche e non può essere scritto come frazione; gli altri tre hanno tutti una frazione generatrice.'
+  },
+  {
+    area: 'insiemi',
+    text: 'Quale insieme è contenuto in tutti gli altri?',
+    options: [
+      '\\(\\mathbb{R}^+\\)',
+      '\\(\\mathbb{Q}^+\\)',
+      '\\(\\mathbb{I}^+\\)',
+      '\\(\\mathbb{N}\\)'
+    ],
+    correct: 3,
+    explanation: '\\(\\mathbb{N}\\) è l\'insieme più piccolo: ogni numero naturale è anche razionale e reale. Attenzione: \\(\\mathbb{I}^+\\) non contiene \\(\\mathbb{N}\\).'
+  },
+  {
+    area: 'insiemi',
+    text: 'Un numero razionale positivo è un numero che:',
+    options: [
+      'Non ha cifre dopo la virgola',
+      'Può essere scritto come frazione',
+      'È sempre intero',
+      'Ha infinite cifre non periodiche'
+    ],
+    correct: 1,
+    explanation: 'La caratteristica fondamentale dei numeri razionali è avere una frazione generatrice, indipendentemente dalla loro forma (interi, decimali, periodici).'
+  },
+  // --- Area 2: Classificazione ---
+  {
+    area: 'classificazione',
+    text: 'Il numero \\(0{,}75\\) è:',
+    options: [
+      'Un periodico semplice',
+      'Un decimale limitato',
+      'Un decimale illimitato',
+      'Un numero intero'
+    ],
+    correct: 1,
+    explanation: '\\(0{,}75\\) ha esattamente due cifre dopo la virgola: è un decimale limitato (e appartiene a \\(\\mathbb{Q}^+\\)).'
+  },
+  {
+    area: 'classificazione',
+    text: 'Il numero \\(0{,}\\overline{6}\\) (con 6 che si ripete) è:',
+    options: [
+      'Un decimale limitato',
+      'Un periodico misto',
+      'Un periodico semplice',
+      'Un decimale illimitato non periodico'
+    ],
+    correct: 2,
+    explanation: 'Tutte le cifre decimali (il 6) si ripetono dall\'inizio, senza antiperiodo: è un periodico semplice.'
+  },
+  {
+    area: 'classificazione',
+    text: 'Cosa caratterizza un periodico misto rispetto a un periodico semplice?',
+    options: [
+      'Ha più cifre decimali',
+      'Ha l\'antiperiodo',
+      'Non ha il periodo',
+      'Appartiene a \\(\\mathbb{I}^+\\)'
+    ],
+    correct: 1,
+    explanation: 'Nel periodico misto, tra la virgola e il periodo c\'è una parte di cifre che non si ripete, chiamata antiperiodo.'
+  },
+  {
+    area: 'classificazione',
+    text: 'Il numero \\(\\pi\\) appartiene a:',
+    options: [
+      '\\(\\mathbb{N}\\)',
+      '\\(\\mathbb{Q}^+\\)',
+      '\\(\\mathbb{I}^+\\)',
+      'Non appartiene a nessun insieme numerico'
+    ],
+    correct: 2,
+    explanation: '\\(\\pi\\) ha infinite cifre decimali che non formano alcun periodo: non ha frazione generatrice, quindi è irrazionale (\\(\\in \\mathbb{I}^+\\)).'
+  },
+  {
+    area: 'classificazione',
+    text: 'Quale tipo di numero NON ha una frazione generatrice?',
+    options: [
+      'Decimale limitato',
+      'Periodico semplice',
+      'Periodico misto',
+      'Decimale illimitato non periodico'
+    ],
+    correct: 3,
+    explanation: 'Solo i decimali illimitati non periodici non possono essere espressi come frazione: per questo appartengono a \\(\\mathbb{I}^+\\) e non a \\(\\mathbb{Q}^+\\).'
+  }
+];
+
+const REVIEW = {
+  insiemi: {
+    full: `<p>I numeri positivi si organizzano in <strong>quattro insiemi</strong>:</p>
+      <p>🔵 <strong>\\(\\mathbb{N}\\)</strong> — Numeri Naturali: i numeri interi positivi, compreso lo zero (\\(0, 1, 2, 3, \\ldots\\))</p>
+      <p>🟢 <strong>\\(\\mathbb{Q}^+\\)</strong> — Numeri Razionali: tutti i numeri che hanno una <em>frazione generatrice</em></p>
+      <p>🔴 <strong>\\(\\mathbb{I}^+\\)</strong> — Numeri Irrazionali: i numeri che <em>non possono</em> essere scritti come frazione (\\(\\pi, \\sqrt{2}, \\ldots\\))</p>
+      <p>🟩 <strong>\\(\\mathbb{R}^+\\)</strong> — Numeri Reali: l'insieme più grande, unione di razionali e irrazionali</p>
+      <p>🔗 Relazioni fondamentali: \\(\\mathbb{N} \\subset \\mathbb{Q}^+ \\subset \\mathbb{R}^+\\) e \\(\\mathbb{I}^+ \\cup \\mathbb{Q}^+ = \\mathbb{R}^+\\)</p>
+      <p>⚠ Ricorda: \\(\\mathbb{I}^+\\) e \\(\\mathbb{Q}^+\\) sono <em>separati</em> — nessun numero può essere sia razionale sia irrazionale.</p>`,
+    brief: `<p>Le relazioni chiave: \\(\\mathbb{N} \\subset \\mathbb{Q}^+ \\subset \\mathbb{R}^+\\) e \\(\\mathbb{I}^+ \\cup \\mathbb{Q}^+ = \\mathbb{R}^+\\).</p>`
+  },
+  classificazione: {
+    full: `<p>I numeri positivi si classificano in base alla loro <strong>parte decimale</strong>:</p>
+      <p>🔵 <strong>Numeri Interi</strong> (\\(\\in \\mathbb{N}\\)): nessuna cifra decimale — \\(0, 1, 2, 3, \\ldots\\)</p>
+      <p>🟢 <strong>Frazioni</strong> (\\(\\in \\mathbb{Q}^+\\)): numeri con numeratore e denominatore — \\(\\frac{1}{2}, \\frac{3}{2}, \\ldots\\)</p>
+      <p>🟢 <strong>Decimali Limitati</strong> (\\(\\in \\mathbb{Q}^+\\)): numero <em>finito</em> di cifre dopo la virgola — \\(0{,}5\\;; 0{,}73\\)</p>
+      <p>🟢 <strong>Periodici Semplici</strong> (\\(\\in \\mathbb{Q}^+\\)): <em>tutte</em> le cifre decimali si ripetono — \\(0{,}\\overline{6}\\;; 1{,}\\overline{23}\\)</p>
+      <p>🟢 <strong>Periodici Misti</strong> (\\(\\in \\mathbb{Q}^+\\)): hanno l'<strong>antiperiodo</strong> prima del periodo — \\(1{,}23\\overline{11}\\;; 2{,}3\\overline{7}\\)</p>
+      <p>🔴 <strong>Decimali Illimitati Non Periodici</strong> (\\(\\in \\mathbb{I}^+\\)): infinite cifre <em>senza schema ripetitivo</em> — \\(\\pi, \\sqrt{2}\\)</p>
+      <p>🔍 Regola chiave: se ha una <strong>frazione generatrice</strong> → \\(\\in \\mathbb{Q}^+\\). Se non ce l'ha → \\(\\in \\mathbb{I}^+\\).</p>`,
+    brief: `<p>Tutte le tipologie con frazione generatrice (interi, frazioni, decimali limitati, periodici semplici e misti) appartengono a \\(\\mathbb{Q}^+\\). Solo i decimali illimitati non periodici appartengono a \\(\\mathbb{I}^+\\).</p>`
+  }
+};
+
+const App = {
+  current: 1,
+  opened: { 1: new Set(), 2: new Set(), 3: new Set() },
+  totals: { 1: 4, 2: 6, 3: 5 },
+  answers: {},
+  verified: false,
+
+  init() {
+    this.buildQuiz();
+    this.renderMath();
+  },
+
+  renderMath(el) {
+    renderMathInElement(el || document.body, {
+      delimiters: [
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  },
+
+  // --- Phase navigation ---
+  goTo(n) {
+    document.querySelectorAll('.phase').forEach(p => p.classList.remove('visible'));
+    document.getElementById('phase' + n).classList.add('visible');
+    this.current = n;
+    this.updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  updateProgress() {
+    document.querySelectorAll('.progress-step').forEach(s => {
+      const step = parseInt(s.dataset.step);
+      s.classList.remove('active', 'done');
+      if (step === this.current) s.classList.add('active');
+      else if (step < this.current) s.classList.add('done');
+    });
+  },
+
+  // --- Phase 1 & 2: Interactive cards ---
+  openCard(phase, el) {
+    if (el.classList.contains('opened')) return;
+    el.classList.add('opened');
+    this.opened[phase].add(el.dataset.id);
+    const count = this.opened[phase].size;
+    const total = this.totals[phase];
+    document.getElementById('counter' + phase).textContent = `Aperti: ${count} / ${total}`;
+    if (count >= total) {
+      document.getElementById('btn' + phase).disabled = false;
+    }
+  },
+
+  // --- Phase 3: Concept cards ---
+  openConcept(el) {
+    const wasOpened = el.classList.contains('opened');
+    el.classList.toggle('expanded');
+    if (!wasOpened) {
+      el.classList.add('opened');
+      this.opened[3].add(el.dataset.id);
+      const count = this.opened[3].size;
+      document.getElementById('counter3').textContent = `Aperte: ${count} / ${this.totals[3]}`;
+      if (count >= this.totals[3]) {
+        document.getElementById('btn3').disabled = false;
+      }
+    }
+  },
+
+  // --- Phase 4: Quiz ---
+  buildQuiz() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let currentArea = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    QUESTIONS.forEach((q, qi) => {
+      if (q.area !== currentArea) {
+        currentArea = q.area;
+        const label = currentArea === 'insiemi' ? 'Area 1 — Gli Insiemi Numerici' : 'Area 2 — Classificazione';
+        html += `<div class="quiz-section-label">${label}</div>`;
+      }
+      html += `<div class="question" id="q${qi}">
+        <div class="question-text"><span class="question-num">${qi + 1}.</span> ${q.text}</div>
+        <div class="options">`;
+      q.options.forEach((opt, oi) => {
+        html += `<div class="option" data-q="${qi}" data-o="${oi}" onclick="App.selectOption(${qi}, ${oi}, this)">
+          <div class="option-letter">${letters[oi]}</div>
+          <div>${opt}</div>
+        </div>`;
+      });
+      html += `</div>
+        <div class="feedback" id="fb${qi}"></div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  },
+
+  selectOption(qi, oi, el) {
+    if (this.verified) return;
+    const qEl = document.getElementById('q' + qi);
+    qEl.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    this.answers[qi] = oi;
+  },
+
+  verify() {
+    if (this.verified) {
+      this.goTo(5);
+      return;
+    }
+    // Check all answered
+    const unanswered = [];
+    QUESTIONS.forEach((_, qi) => {
+      if (this.answers[qi] === undefined) unanswered.push(qi);
+    });
+    if (unanswered.length > 0) {
+      const first = document.getElementById('q' + unanswered[0]);
+      first.classList.add('missed');
+      setTimeout(() => first.classList.remove('missed'), 1500);
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Lock and grade
+    this.verified = true;
+    let correct = 0;
+    QUESTIONS.forEach((q, qi) => {
+      const qEl = document.getElementById('q' + qi);
+      const options = qEl.querySelectorAll('.option');
+      const fb = document.getElementById('fb' + qi);
+      const isCorrect = this.answers[qi] === q.correct;
+      if (isCorrect) correct++;
+
+      options.forEach((o, oi) => {
+        o.classList.add('locked');
+        if (oi === q.correct) o.classList.add('is-correct');
+        if (oi === this.answers[qi] && !isCorrect) o.classList.add('is-wrong');
+      });
+
+      qEl.classList.add(isCorrect ? 'correct' : 'wrong');
+      fb.classList.add('show', isCorrect ? 'ok' : 'ko');
+      fb.innerHTML = (isCorrect ? '&#10004; Corretto! ' : '&#10008; ') + q.explanation;
+    });
+
+    this.renderMath(document.getElementById('quizContainer'));
+
+    // Transform button
+    const btn = document.getElementById('btnVerify');
+    btn.textContent = 'Vai al Ripasso \u279C';
+    btn.classList.remove('btn-accent');
+    btn.classList.add('btn-primary');
+
+    this.generateReview(correct);
+  },
+
+  generateReview(totalCorrect) {
+    const scoreEl = document.getElementById('reviewScore');
+    scoreEl.innerHTML = `Hai risposto correttamente a <strong>${totalCorrect}</strong> domande su <strong>${QUESTIONS.length}</strong>.`;
+
+    // Calculate per-area scores
+    const areas = {};
+    QUESTIONS.forEach((q, qi) => {
+      if (!areas[q.area]) areas[q.area] = { correct: 0, total: 0 };
+      areas[q.area].total++;
+      if (this.answers[qi] === q.correct) areas[q.area].correct++;
+    });
+
+    const contentEl = document.getElementById('reviewContent');
+    let html = '';
+    const areaNames = { insiemi: 'Gli Insiemi Numerici', classificazione: 'Classificazione dei Numeri Positivi' };
+
+    for (const [key, data] of Object.entries(areas)) {
+      const needsReview = data.correct < data.total;
+      const cls = needsReview ? 'needs-review' : 'good';
+      const labelCls = needsReview ? 'warn' : 'ok';
+      const labelText = needsReview ? 'Da rivedere' : 'Hai capito bene';
+      const content = needsReview ? REVIEW[key].full : REVIEW[key].brief;
+      html += `<div class="review-area ${cls}">
+        <div class="review-label ${labelCls}">${areaNames[key]} — ${labelText} (${data.correct}/${data.total})</div>
+        <div class="review-content">${content}</div>
+      </div>`;
+    }
+    contentEl.innerHTML = html;
+    this.renderMath(document.getElementById('phase5'));
+  },
+
+  restart() {
+    this.answers = {};
+    this.verified = false;
+    this.opened = { 1: new Set(), 2: new Set(), 3: new Set() };
+
+    // Reset cards
+    document.querySelectorAll('.icard').forEach(c => c.classList.remove('opened'));
+    document.querySelectorAll('.concept-card').forEach(c => {
+      c.classList.remove('opened', 'expanded');
+    });
+
+    // Reset counters
+    document.getElementById('counter1').textContent = 'Aperti: 0 / 4';
+    document.getElementById('counter2').textContent = 'Aperti: 0 / 6';
+    document.getElementById('counter3').textContent = 'Aperte: 0 / 5';
+
+    // Reset buttons
+    ['btn1', 'btn2', 'btn3'].forEach(id => document.getElementById(id).disabled = true);
+    const btnV = document.getElementById('btnVerify');
+    btnV.textContent = 'Verifica Risposte';
+    btnV.classList.remove('btn-primary');
+    btnV.classList.add('btn-accent');
+
+    // Rebuild quiz
+    this.buildQuiz();
+    this.renderMath(document.getElementById('quizContainer'));
+
+    // Reset review
+    document.getElementById('reviewScore').innerHTML = '';
+    document.getElementById('reviewContent').innerHTML = '';
+
+    this.goTo(1);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+});
+</script>
+</body>
+</html>
