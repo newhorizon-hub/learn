@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il Fumo: Dipendenza e Danni</title>
+<style>
+:root {
+  --rosa: #C2185B; --rosa-light: #FCE4EC; --rosa-bg: #FDE8EF;
+  --rosso: #B71C1C; --rosso-light: #FFCDD2; --rosso-bg: #FFEBEE;
+  --arancio: #E65100; --arancio-light: #FFE0B2; --arancio-bg: #FFF3E0;
+  --grigiofumo: #37474F; --grigio-light: #CFD8DC; --grigio-bg: #ECEFF1;
+  --viola: #6A1B9A; --viola-light: #E1BEE7; --viola-bg: #F3E5F5;
+  --verde: #2E7D32; --verde-light: #C8E6C9; --verde-bg: #E8F5E9;
+  --blu: #1565C0; --blu-light: #BBDEFB;
+  --gray-dark: #2C3E50; --gray-mid: #566573; --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC; --white: #FFFFFF;
+  --success: #27AE60; --error: #E74C3C; --warning: #F39C12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-light);color:var(--gray-dark);line-height:1.6;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--rosso) 0%,#D32F2F 100%);color:white;padding:28px 24px;border-radius:16px;margin-bottom:20px;text-align:center}
+header h1{font-size:1.5em;font-weight:700;margin-bottom:4px}
+header p{font-size:0.95em;opacity:0.9}
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;background:var(--gray-border);color:var(--gray-mid);transition:all 0.3s}
+.step-dot.active{background:var(--rosso);color:white;box-shadow:0 2px 8px rgba(183,28,28,0.35)}
+.step-dot.done{background:var(--success);color:white}
+.step-connector{width:28px;height:3px;background:var(--gray-border);border-radius:2px;transition:background 0.3s}
+.step-connector.done{background:var(--success)}
+.phase{display:none;animation:fadeIn 0.4s ease}.phase.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.phase-title{font-size:1.25em;font-weight:700;color:var(--gray-dark);margin-bottom:6px}
+.phase-instruction{font-size:0.92em;color:var(--gray-mid);margin-bottom:16px;padding:10px 14px;background:var(--rosso-bg);border-left:4px solid var(--rosso);border-radius:0 8px 8px 0}
+.elements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.element-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.element-card::after{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gray-border);border-radius:0 10px 10px 0;transition:all 0.35s ease}
+.element-card.opened::after{background:var(--success);width:6px;box-shadow:0 0 8px rgba(39,174,96,0.3)}
+.element-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.element-card.opened{border-color:var(--success)}
+.element-card .card-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05em;color:var(--gray-dark)}
+.element-card .card-header .icon{font-size:1.3em}
+.element-card .card-header::after{content:'›';font-size:1.2em;color:var(--gray-border);transition:all 0.3s;font-weight:700}
+.element-card.opened .card-header::after{content:'✔';color:var(--success);font-size:0.9em}
+.element-card .card-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border);font-size:0.93em;color:var(--gray-mid);line-height:1.65;display:none}
+.element-card.opened .card-body{display:block}
+.element-card .card-body strong{color:var(--gray-dark)}
+.example{margin-top:8px;padding:8px 12px;background:var(--gray-light);border-radius:8px;font-size:0.9em}
+.element-card.fumo{border-left:5px solid var(--grigiofumo)}.element-card.fumo.opened{background:var(--grigio-bg);border-color:var(--grigiofumo)}
+.element-card.dip{border-left:5px solid var(--arancio)}.element-card.dip.opened{background:var(--arancio-bg);border-color:var(--arancio)}
+.element-card.danni{border-left:5px solid var(--rosso)}.element-card.danni.opened{background:var(--rosso-bg);border-color:var(--rosso)}
+.element-card.ecig{border-left:5px solid var(--viola)}.element-card.ecig.opened{background:var(--viola-bg);border-color:var(--viola)}
+.element-card.prev{border-left:5px solid var(--verde)}.element-card.prev.opened{background:var(--verde-bg);border-color:var(--verde)}
+.concept-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.concept-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;overflow:hidden;transition:border-color 0.3s}
+.concept-card.opened{border-color:var(--success)}
+.concept-card .concept-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:1em;color:var(--gray-dark);transition:background 0.2s;user-select:none;gap:10px}
+.concept-card .concept-header:hover{background:var(--gray-light)}
+.concept-card .concept-header .arrow{transition:transform 0.3s;font-size:0.9em;color:var(--gray-mid)}
+.concept-card.expanded .concept-header .arrow{transform:rotate(180deg)}
+.concept-card .concept-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;font-size:0.93em;color:var(--gray-mid);line-height:1.7}
+.concept-card.expanded .concept-body{max-height:800px;padding:0 16px 16px 16px}
+.concept-card .concept-body strong{color:var(--gray-dark)}
+.highlight-box{margin:10px 0;padding:10px 14px;border-radius:8px;font-size:0.93em}
+.highlight-box.gray{background:var(--grigio-light);border-left:4px solid var(--grigiofumo)}
+.highlight-box.orange{background:var(--arancio-light);border-left:4px solid var(--arancio)}
+.highlight-box.red{background:var(--rosso-light);border-left:4px solid var(--rosso)}
+.highlight-box.purple{background:var(--viola-light);border-left:4px solid var(--viola)}
+.highlight-box.green{background:var(--verde-light);border-left:4px solid var(--verde)}
+.quiz-area{margin-bottom:20px}
+.quiz-question{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color 0.3s}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF0F0}
+.quiz-question.missed{border-color:var(--warning);background:#FFF8E8}
+.q-number{font-size:0.8em;font-weight:700;color:var(--rosso);text-transform:uppercase;margin-bottom:6px}
+.q-text{font-weight:600;font-size:1em;margin-bottom:12px;color:var(--gray-dark)}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:0.93em}
+.q-option:hover{border-color:var(--rosso);background:var(--rosso-bg)}
+.q-option.selected{border-color:var(--rosso);background:var(--rosso-light);font-weight:600}
+.q-option.locked{pointer-events:none;opacity:0.85}
+.q-option.show-correct{border-color:var(--success);background:#D5F5E3;font-weight:600}
+.q-option.show-wrong{border-color:var(--error);background:#FADBD8}
+.q-label{width:26px;height:26px;border-radius:6px;border:2px solid var(--gray-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8em;color:var(--gray-mid);transition:all 0.2s}
+.q-option.selected .q-label{border-color:var(--rosso);background:var(--rosso);color:white}
+.q-option.show-correct .q-label{border-color:var(--success);background:var(--success);color:white}
+.q-option.show-wrong .q-label{border-color:var(--error);background:var(--error);color:white}
+.q-feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.9em;display:none;line-height:1.5}
+.q-feedback.correct{display:block;background:#D5F5E3;color:#1E7E34}
+.q-feedback.wrong{display:block;background:#FADBD8;color:#C0392B}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;border:2px solid var(--gray-border);margin-bottom:20px}
+.score-number{font-size:3em;font-weight:800}.score-label{font-size:1em;color:var(--gray-mid);margin-top:4px}
+.score-feedback{font-size:1.1em;font-weight:600;margin-top:10px}
+.review-area{margin-bottom:20px}
+.review-section{border-radius:12px;padding:16px;margin-bottom:12px;border-left:5px solid}
+.review-section.good{background:#D5F5E3;border-color:var(--success)}
+.review-section.review{background:#FEF9E7;border-color:var(--warning)}
+.review-section h3{font-size:1em;margin-bottom:8px}
+.review-section.good h3{color:var(--success)}.review-section.review h3{color:#B7950B}
+.review-section p,.review-section ul{font-size:0.93em;color:var(--gray-dark);line-height:1.65}
+.review-section ul{padding-left:1.3em;margin-top:6px}.review-section li{margin-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:10px;font-size:0.95em;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--rosso);color:white}.btn-primary:hover{background:#8E1515}
+.btn-primary:disabled{background:var(--gray-border);color:var(--gray-mid);cursor:not-allowed}
+.btn-secondary{background:var(--white);color:var(--rosso);border:2px solid var(--rosso)}.btn-secondary:hover{background:var(--rosso-bg)}
+.btn-success{background:var(--success);color:white}.btn-success:hover{background:#1E8449}
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px}
+.counter-badge{background:var(--rosso-bg);color:var(--rosso);padding:6px 14px;border-radius:20px;font-size:0.85em;font-weight:600}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}header,.progress-bar,.nav-buttons,.btn,button{display:none!important}.review-section{break-inside:avoid}}
+@media(max-width:600px){.container{padding:10px}header{padding:20px 16px}header h1{font-size:1.2em}.elements-grid{grid-template-columns:1fr}.step-connector{width:14px}.step-dot{width:30px;height:30px;font-size:0.75em}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Il Fumo: Dipendenza e Danni</h1>
+  <p>Percorso didattico interattivo — Approfondimento</p>
+</header>
+<div class="progress-bar">
+  <div class="step-dot active" id="dot1">1</div><div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div><div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div><div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div><div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- FASE 1: Contenuto della sigaretta e dipendenza -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — Cosa c'è in una sigaretta e come nasce la dipendenza</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card fumo" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🚬</span> 4 000 sostanze chimiche</span></div>
+      <div class="card-body">
+        Una sigaretta contiene oltre <strong>4 000 sostanze chimiche</strong>. Non è "solo tabacco": quando brucia, si producono migliaia di composti tossici.
+        <br><br>Le quattro categorie principali sono: <strong>nicotina</strong> (crea dipendenza), <strong>catrame</strong> (cancerogeno), <strong>monossido di carbonio</strong> (toglie ossigeno al sangue), <strong>sostanze irritanti</strong> (danneggiano le vie respiratorie).
+        <div class="example">➤ Tra le sostanze presenti ci sono acetone (solvente per smalto), ammoniaca (detergente), formaldeide (conservante per cadaveri) e acido cianidrico (veleno).</div>
+      </div>
+    </div>
+
+    <div class="element-card fumo" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🚬</span> La nicotina</span></div>
+      <div class="card-body">
+        La <strong>nicotina</strong> è la sostanza che crea <strong>dipendenza</strong>. Raggiunge il cervello in circa <strong>10 secondi</strong> dall'inalazione — più velocemente di un farmaco iniettato in vena.
+        <br><br>
+        Nel cervello stimola il rilascio di <strong>dopamina</strong>, il neurotrasmettitore del piacere e della ricompensa. Il cervello associa la sigaretta a una sensazione positiva e ne vuole ancora.
+        <div class="example">➤ La nicotina è così potente che bastano poche sigarette per iniziare a creare dipendenza. Il cervello "impara" velocemente.</div>
+      </div>
+    </div>
+
+    <div class="element-card fumo" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🚬</span> Catrame e monossido di carbonio</span></div>
+      <div class="card-body">
+        <strong>Catrame:</strong> miscela densa e scura che si deposita nei polmoni. Contiene decine di sostanze <strong>cancerogene</strong> — cioè che possono causare tumori. Si accumula lentamente, respiro dopo respiro.
+        <br><br>
+        <strong>Monossido di carbonio (CO):</strong> gas inodore e molto pericoloso. Si lega all'<strong>emoglobina</strong> al posto dell'ossigeno — e lo fa con una forza 200 volte maggiore. Il risultato: meno O₂ nel sangue, più fatica, meno resistenza.
+        <div class="example">➤ Il CO è lo stesso gas prodotto da una caldaia difettosa. I fumatori ne inalano piccole dosi ad ogni sigaretta.</div>
+      </div>
+    </div>
+
+    <div class="element-card dip" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">⚡</span> Il ciclo della dipendenza</span></div>
+      <div class="card-body">
+        La dipendenza da nicotina segue un ciclo preciso:
+        <br><br>
+        1. La nicotina raggiunge il cervello → rilascio di <strong>dopamina</strong> → sensazione di piacere
+        <br>2. L'effetto svanisce in fretta → il cervello <strong>ne vuole ancora</strong>
+        <br>3. Con il tempo, si sviluppa <strong>tolleranza</strong>: servono sempre più sigarette per ottenere lo stesso effetto
+        <br>4. Senza nicotina → sintomi di <strong>astinenza</strong>: ansia, irritabilità, difficoltà di concentrazione, nervosismo
+        <br>5. Si fuma per eliminare i sintomi → il ciclo ricomincia
+        <div class="example">➤ Attenzione: il fumatore non fuma per "piacere" — fuma per eliminare il malessere che la sigaretta stessa ha creato.</div>
+      </div>
+    </div>
+
+    <div class="element-card dip" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">⚡</span> Perché si comincia</span></div>
+      <div class="card-body">
+        Nessuno inizia a fumare per dipendenza — la dipendenza arriva dopo. Le ragioni per cui si inizia sono quasi sempre sociali:
+        <br><br>
+        <strong>Pressione sociale</strong> — il desiderio di sentirsi accettati dal gruppo, di non essere "diversi".
+        <br><strong>Curiosità</strong> — la voglia di provare qualcosa di "proibito" o da adulti.
+        <br><strong>Imitazione</strong> — genitori, fratelli maggiori o amici che fumano.
+        <br><strong>Falsa immagine</strong> — la sigaretta associata a maturità, trasgressione, indipendenza.
+        <div class="example">➤ La maggior parte dei fumatori adulti ha iniziato <strong>prima dei 18 anni</strong>. Chi non inizia da adolescente ha molte meno probabilità di diventare fumatore.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 5 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 2: Danni, fumo passivo, e-cig, prevenzione -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — Danni, fumo passivo, e-cig e prevenzione</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid2">
+
+    <div class="element-card danni" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">⚠</span> Danni all'apparato respiratorio</span></div>
+      <div class="card-body">
+        Il fumo colpisce direttamente l'apparato che abbiamo appena studiato:
+        <br><br>
+        <strong>Ciglia vibratili distrutte</strong> — il sistema di pulizia dei polmoni si blocca. Polvere e germi entrano senza filtro.
+        <br><strong>Bronchite cronica</strong> — infiammazione persistente dei bronchi, con tosse continua (la "tosse del fumatore").
+        <br><strong>Enfisema polmonare</strong> — gli alveoli si distruggono progressivamente. La superficie di scambio si riduce, il respiro diventa sempre più difficile.
+        <br><strong>Tumore al polmone</strong> — il fumo è la causa dell'85–90% dei casi.
+      </div>
+    </div>
+
+    <div class="element-card danni" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">⚠</span> Danni al cuore e ad altri organi</span></div>
+      <div class="card-body">
+        <strong>Apparato circolatorio:</strong>
+        <br>Il CO riduce l'ossigeno nel sangue, la nicotina aumenta pressione e frequenza cardiaca. Risultato: <strong>aterosclerosi</strong> (depositi nelle arterie), rischio di <strong>infarto</strong> e <strong>ictus</strong>.
+        <br><br>
+        <strong>Altri organi:</strong>
+        <br>Tumori a bocca, gola, esofago, vescica, pancreas, stomaco. Ingiallimento dei denti, alitosi, invecchiamento precoce della pelle.
+        <br><br>
+        <strong>In gravidanza:</strong>
+        <br>Maggior rischio di parto prematuro, basso peso alla nascita, morte improvvisa del neonato (SIDS).
+        <div class="example">➤ <strong>Dati OMS:</strong> il fumo uccide oltre 8 milioni di persone ogni anno nel mondo — di cui oltre 1 milione per fumo passivo. È la prima causa prevenibile di morte.</div>
+      </div>
+    </div>
+
+    <div class="element-card danni" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">⚠</span> Il fumo passivo</span></div>
+      <div class="card-body">
+        Il <strong>fumo passivo</strong> è il fumo inalato involontariamente da chi sta vicino a un fumatore. Non è meno pericoloso: contiene le <strong>stesse sostanze tossiche</strong> del fumo diretto.
+        <br><br>
+        Il fumo che esce dalla punta della sigaretta (fumo laterale) non è filtrato, e spesso contiene concentrazioni <strong>più elevate</strong> di sostanze nocive rispetto al fumo inalato dal fumatore.
+        <br><br>
+        I <strong>bambini</strong> sono i più vulnerabili: il fumo passivo aumenta il rischio di asma, infezioni respiratorie e otiti.
+        <div class="example">➤ In Italia è vietato fumare nei locali pubblici, negli ospedali e nelle scuole. La legge protegge chi non fuma.</div>
+      </div>
+    </div>
+
+    <div class="element-card ecig" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Le sigarette elettroniche</span></div>
+      <div class="card-body">
+        Le <strong>sigarette elettroniche</strong> (e-cig) non bruciano tabacco: riscaldano un liquido che produce un aerosol ("vapore") inalabile. Molti le considerano innocue, ma <strong>non lo sono</strong>:
+        <br><br>
+        • Contengono <strong>nicotina</strong> nella maggior parte dei casi → creano la stessa dipendenza delle sigarette tradizionali.
+        <br>• Contengono sostanze chimiche (glicole propilenico, aromi) i cui <strong>effetti a lungo termine</strong> sono ancora in fase di studio.
+        <br>• Possono causare irritazione delle vie respiratorie e danni polmonari.
+        <div class="example">➤ Per chi non fuma — e soprattutto per i giovani — le e-cig rappresentano una <strong>porta d'ingresso</strong> verso la dipendenza da nicotina.</div>
+      </div>
+    </div>
+
+    <div class="element-card prev" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">✦</span> I benefici di smettere</span></div>
+      <div class="card-body">
+        Il corpo inizia a recuperare <strong>subito</strong> dopo l'ultima sigaretta:
+        <br><br>
+        <strong>Dopo 20 minuti:</strong> la pressione arteriosa torna normale.
+        <br><strong>Dopo 24 ore:</strong> il monossido di carbonio scompare dal sangue.
+        <br><strong>Dopo 1 mese:</strong> la funzione polmonare migliora, meno tosse.
+        <br><strong>Dopo 1 anno:</strong> il rischio cardiovascolare si dimezza.
+        <br><strong>Dopo 10 anni:</strong> il rischio di tumore al polmone si riduce del 50%.
+        <div class="example">➤ Non è mai troppo tardi per smettere — ma la scelta migliore è non cominciare.</div>
+      </div>
+    </div>
+
+    <div class="element-card prev" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">✦</span> Come prevenire</span></div>
+      <div class="card-body">
+        La prevenzione parte dalla <strong>conoscenza dei fatti</strong>:
+        <br><br>
+        • La dipendenza è un <strong>meccanismo chimico</strong> del cervello, non una questione di forza di volontà.
+        <br>• Saper <strong>dire no</strong> alla pressione del gruppo non è debolezza — è intelligenza.
+        <br>• Non sottovalutare le e-cig: la nicotina crea dipendenza <strong>in qualsiasi forma</strong>.
+        <br>• Parlare con un adulto di fiducia in caso di difficoltà.
+        <div class="example">➤ Chi conosce davvero come funziona la dipendenza è molto più difficile da ingannare. L'informazione è la prima difesa.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 3: Concetti Chiave -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri ogni scheda per approfondire. Devi aprirle tutte per procedere.</div>
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🚬 Le 4 sostanze chiave della sigaretta</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box gray">
+          <strong>Nicotina</strong> → crea <strong>dipendenza</strong>. Raggiunge il cervello in 10 secondi, stimola la dopamina. Non è cancerogena di per sé, ma tiene il fumatore "agganciato".
+        </div>
+        <div class="highlight-box gray">
+          <strong>Catrame</strong> → è <strong>cancerogeno</strong>. Si deposita nei polmoni respiro dopo respiro. È il principale responsabile del tumore al polmone.
+        </div>
+        <div class="highlight-box gray">
+          <strong>Monossido di carbonio (CO)</strong> → <strong>toglie ossigeno</strong>. Si lega all'emoglobina con una forza 200 volte superiore all'O₂, riducendo il trasporto di ossigeno.
+        </div>
+        <div class="highlight-box gray">
+          <strong>Sostanze irritanti</strong> → <strong>danneggiano le vie aeree</strong>. Distruggono le ciglia vibratili e irritano le mucose. Acetone, ammoniaca, formaldeide, acido cianidrico.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>⚡ Tolleranza, astinenza, dipendenza: il vocabolario</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box orange">
+          <strong>Dipendenza</strong> = il bisogno compulsivo di una sostanza. Il cervello non funziona più "normalmente" senza di essa.
+        </div>
+        <div class="highlight-box orange">
+          <strong>Tolleranza</strong> = il corpo si abitua alla sostanza → servono dosi sempre maggiori per ottenere lo stesso effetto.
+        </div>
+        <div class="highlight-box orange">
+          <strong>Astinenza</strong> = i sintomi che compaiono quando la sostanza manca: ansia, irritabilità, nervosismo, difficoltà di concentrazione, desiderio irresistibile (craving).
+        </div>
+        Il fumatore non fuma per piacere — fuma per <strong>eliminare il malessere</strong> che la sigaretta stessa ha creato. È un circolo vizioso.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>⚠ Il collegamento: fumo e apparato respiratorio</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Il fumo colpisce punto per punto tutto ciò che abbiamo studiato sull'apparato respiratorio:
+        <div class="highlight-box red">
+          <strong>Ciglia vibratili</strong> → il fumo le <strong>paralizza e distrugge</strong>. Il sistema muco-ciliare si blocca: polvere e germi raggiungono i polmoni senza filtro.
+        </div>
+        <div class="highlight-box red">
+          <strong>Bronchi</strong> → infiammazione cronica (<strong>bronchite cronica</strong>), tosse persistente, produzione eccessiva di muco.
+        </div>
+        <div class="highlight-box red">
+          <strong>Alveoli</strong> → si distruggono progressivamente (<strong>enfisema</strong>). La superficie di scambio gassoso si riduce: meno O₂ nel sangue, respiro sempre più difficile.
+        </div>
+        <div class="highlight-box red">
+          <strong>Emoglobina</strong> → il CO della sigaretta la "occupa", rubando il posto all'O₂. Meno ossigeno per tutto il corpo.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ E-cig: perché non sono innocue</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box purple">
+          <strong>Contengono nicotina</strong> → creano la stessa dipendenza chimica delle sigarette tradizionali.
+        </div>
+        <div class="highlight-box purple">
+          <strong>Non è vapore acqueo</strong> → l'aerosol contiene glicole propilenico, glicerina vegetale, aromi artificiali e particelle fini che entrano nei polmoni.
+        </div>
+        <div class="highlight-box purple">
+          <strong>Effetti a lungo termine sconosciuti</strong> → le e-cig sono sul mercato da pochi anni. Non sappiamo ancora tutti i danni che possono causare.
+        </div>
+        <div class="highlight-box purple">
+          <strong>Porta d'ingresso</strong> → per i giovani non fumatori, le e-cig sono spesso il primo passo verso la dipendenza da nicotina.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>✦ Smettere si può: la timeline del recupero</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Il corpo è una macchina straordinaria — inizia a recuperare <strong>immediatamente</strong>:
+        <div class="highlight-box green">
+          <strong>20 minuti</strong> → pressione arteriosa e battito cardiaco tornano normali.
+          <br><strong>24 ore</strong> → il monossido di carbonio scompare dal sangue. L'emoglobina torna a trasportare O₂ normalmente.
+          <br><strong>1 mese</strong> → la funzione polmonare migliora. Meno tosse, più fiato.
+          <br><strong>1 anno</strong> → il rischio di malattie cardiovascolari si dimezza.
+          <br><strong>10 anni</strong> → il rischio di tumore al polmone si riduce del 50%.
+        </div>
+        La prevenzione parte dalla conoscenza: la dipendenza è un meccanismo chimico, non una scelta. Chi sa come funziona è molto più difficile da ingannare.
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 5 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 4: Quiz -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi clicca "Verifica Risposte".</div>
+  <div class="quiz-area" id="quizArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- FASE 5: Ripasso -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"sostanze",categoryLabel:"Sostanze della Sigaretta",question:"Quante sostanze chimiche contiene una sigaretta?",options:["Circa 40","Circa 400","Oltre 4 000","Circa 100"],correct:2,explanation:"Una sigaretta contiene oltre 4 000 sostanze chimiche, tra cui nicotina, catrame, monossido di carbonio e numerose sostanze irritanti e cancerogene."},
+{category:"sostanze",categoryLabel:"Sostanze della Sigaretta",question:"Quale sostanza della sigaretta si lega all'emoglobina al posto dell'ossigeno?",options:["La nicotina","Il catrame","Il monossido di carbonio (CO)","L'ammoniaca"],correct:2,explanation:"Il monossido di carbonio si lega all'emoglobina con una forza 200 volte superiore all'ossigeno, riducendo il trasporto di O₂ nel sangue."},
+{category:"dipendenza",categoryLabel:"La Dipendenza",question:"In quanto tempo la nicotina raggiunge il cervello dopo l'inalazione?",options:["Circa 1 minuto","Circa 10 secondi","Circa 5 minuti","Circa 30 secondi"],correct:1,explanation:"La nicotina raggiunge il cervello in circa 10 secondi dall'inalazione — più velocemente di un farmaco iniettato in vena."},
+{category:"dipendenza",categoryLabel:"La Dipendenza",question:"Cos'è la 'tolleranza' nel contesto della dipendenza?",options:["La capacità di smettere facilmente","Il fatto che servono dosi sempre maggiori per ottenere lo stesso effetto","La resistenza del corpo alle malattie","L'abitudine a fumare in compagnia"],correct:1,explanation:"La tolleranza significa che il corpo si abitua alla sostanza e ne richiede dosi sempre maggiori per ottenere lo stesso effetto di piacere/sollievo."},
+{category:"dipendenza",categoryLabel:"La Dipendenza",question:"Qual è la ragione più frequente per cui gli adolescenti iniziano a fumare?",options:["La dipendenza da nicotina","La pressione sociale e il desiderio di sentirsi accettati","Il gusto piacevole della sigaretta","La raccomandazione dei medici"],correct:1,explanation:"Nessuno inizia per dipendenza (arriva dopo). Le ragioni sono sociali: pressione del gruppo, curiosità, imitazione, falsa immagine di maturità. La maggior parte dei fumatori ha iniziato prima dei 18 anni."},
+{category:"danni",categoryLabel:"I Danni del Fumo",question:"Il fumo è la causa di quale percentuale dei tumori al polmone?",options:["Circa il 20%","Circa il 50%","Circa il 70%","Circa l'85–90%"],correct:3,explanation:"Il fumo è responsabile dell'85–90% dei casi di tumore al polmone. È la principale causa prevenibile di questa malattia."},
+{category:"danni",categoryLabel:"I Danni del Fumo",question:"Cos'è l'enfisema polmonare?",options:["Un'infiammazione dei bronchi","La distruzione progressiva degli alveoli, che riduce la superficie di scambio gassoso","Un accumulo di catrame nella trachea","Un tumore dei polmoni"],correct:1,explanation:"Nell'enfisema gli alveoli si distruggono progressivamente: la superficie di scambio gassoso si riduce e il respiro diventa sempre più difficile."},
+{category:"passivo",categoryLabel:"Fumo Passivo e E-cig",question:"Perché il fumo passivo può essere più pericoloso del fumo diretto?",options:["Perché contiene più nicotina","Perché il fumo laterale della sigaretta non è filtrato","Perché si inala più aria","Perché proviene da sigarette più grandi"],correct:1,explanation:"Il fumo che esce dalla punta della sigaretta (fumo laterale) non passa attraverso il filtro, per cui può contenere concentrazioni più elevate di sostanze tossiche."},
+{category:"passivo",categoryLabel:"Fumo Passivo e E-cig",question:"Le sigarette elettroniche sono innocue?",options:["Sì, producono solo vapore acqueo","No, contengono nicotina e sostanze chimiche con effetti ancora in fase di studio","Sì, sono consigliate ai giovani come alternativa","No, ma solo perché hanno un cattivo sapore"],correct:1,explanation:"Le e-cig contengono nicotina (creano dipendenza), glicole propilenico, aromi e particelle fini. Non sono innocue e rappresentano una porta d'ingresso verso la dipendenza da nicotina per i giovani."},
+{category:"prevenzione",categoryLabel:"Prevenzione",question:"Dopo quanto tempo dalla cessazione del fumo il rischio di tumore al polmone si riduce del 50%?",options:["Dopo 1 mese","Dopo 1 anno","Dopo 5 anni","Dopo 10 anni"],correct:3,explanation:"Dopo 10 anni dalla cessazione del fumo, il rischio di tumore al polmone si riduce del 50%. Il corpo inizia a recuperare subito, ma per i danni più gravi servono anni."}
+];
+let currentPhase=1;
+let phaseState={1:{total:5,opened:new Set()},2:{total:6,opened:new Set()},3:{total:5,opened:new Set()}};
+let quizAnswers={},quizVerified=false;
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById('phase'+n).classList.add('active');currentPhase=n;updateProgress();window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){for(let i=1;i<=5;i++){const d=document.getElementById('dot'+i);d.classList.remove('active','done');if(i<currentPhase)d.classList.add('done');else if(i===currentPhase)d.classList.add('active');if(i<5)document.getElementById('conn'+i).classList.toggle('done',i<currentPhase)}}
+function toggleElement(card){const phase=parseInt(card.dataset.phase);card.classList.add('opened');const grid=card.closest('.elements-grid');const cards=grid.querySelectorAll('.element-card');phaseState[phase].opened.add(Array.from(cards).indexOf(card));updateCounter(phase)}
+function updateCounter(phase){const s=phaseState[phase];const c=s.opened.size;const suffix=phase===3?'completate':'completati';document.getElementById('counter'+phase).textContent=c+' / '+s.total+' '+suffix;document.getElementById('next'+phase).disabled=c<s.total}
+function toggleConcept(card){const wasExp=card.classList.contains('expanded');card.classList.toggle('expanded');if(!wasExp){card.classList.add('opened');const all=card.closest('.concept-cards').querySelectorAll('.concept-card');phaseState[3].opened.add(Array.from(all).indexOf(card));updateCounter(3)}}
+function buildQuiz(){const area=document.getElementById('quizArea');const letters=['A','B','C','D'];let h='';quizData.forEach((q,i)=>{h+='<div class="quiz-question" id="qq'+i+'"><div class="q-number">'+q.categoryLabel+' — Domanda '+(i+1)+'</div><div class="q-text">'+q.question+'</div><div class="q-options">';q.options.forEach((o,j)=>{h+='<div class="q-option" data-q="'+i+'" data-opt="'+j+'" onclick="selectOption(this)"><div class="q-label">'+letters[j]+'</div><span>'+o+'</span></div>'});h+='</div><div class="q-feedback" id="fb'+i+'"></div></div>'});area.innerHTML=h}
+function selectOption(el){if(quizVerified)return;const q=parseInt(el.dataset.q);quizAnswers[q]=parseInt(el.dataset.opt);document.querySelectorAll('.q-option[data-q="'+q+'"]').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function verifyQuiz(){if(quizVerified){goToPhase(5);return}const un=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)un.push(i)});if(un.length>0){const f=un[0];const el=document.getElementById('qq'+f);el.classList.add('missed');setTimeout(()=>el.classList.remove('missed'),2000);el.scrollIntoView({behavior:'smooth',block:'center'});alert(un.length===1?'Manca la risposta alla domanda '+(f+1)+'.':'Mancano le risposte alle domande: '+un.map(u=>u+1).join(', ')+'.');return}quizVerified=true;quizData.forEach((q,i)=>{const qEl=document.getElementById('qq'+i);const fb=document.getElementById('fb'+i);const ok=quizAnswers[i]===q.correct;qEl.classList.add(ok?'correct':'wrong');document.querySelectorAll('.q-option[data-q="'+i+'"]').forEach(o=>{o.classList.add('locked');const oi=parseInt(o.dataset.opt);if(oi===q.correct)o.classList.add('show-correct');else if(oi===quizAnswers[i]&&!ok)o.classList.add('show-wrong')});fb.className='q-feedback '+(ok?'correct':'wrong');fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});document.getElementById('verifyBtn').textContent='Vai al Ripasso →';document.getElementById('verifyBtn').className='btn btn-primary';buildReview()}
+function buildReview(){const cats={};quizData.forEach((q,i)=>{if(!cats[q.category])cats[q.category]={label:q.categoryLabel,correct:0,total:0};cats[q.category].total++;if(quizAnswers[i]===q.correct)cats[q.category].correct++});const tc=quizData.filter((q,i)=>quizAnswers[i]===q.correct).length;const pct=Math.round((tc/quizData.length)*100);let ft,fc;if(pct>=90){ft='Ottimo lavoro! Padronanza eccellente.';fc='var(--success)'}else if(pct>=70){ft='Buon risultato! Rivedi le aree evidenziate.';fc='var(--blu)'}else if(pct>=50){ft='Ci sei quasi! Concentrati sulle aree da rivedere.';fc='var(--warning)'}else{ft='Continua a esercitarti! Ripassa con attenzione le schede.';fc='var(--error)'}
+document.getElementById('reviewScore').innerHTML='<div class="score-number" style="color:'+fc+'">'+tc+' / '+quizData.length+'</div><div class="score-label">'+pct+'% di risposte corrette</div><div class="score-feedback" style="color:'+fc+'">'+ft+'</div>';
+const rc={sostanze:{review:'<ul><li>Oltre <strong>4 000 sostanze chimiche</strong> in una sigaretta.</li><li><strong>Nicotina:</strong> crea dipendenza (stimola dopamina).</li><li><strong>Catrame:</strong> cancerogeno, si deposita nei polmoni.</li><li><strong>CO:</strong> si lega all\'emoglobina al posto dell\'O₂ (forza 200x).</li><li><strong>Irritanti:</strong> distruggono ciglia vibratili e mucose.</li></ul>',summary:'Le 4 sostanze chiave della sigaretta.'},dipendenza:{review:'<ul><li>Nicotina al cervello in <strong>10 secondi</strong> → dopamina → piacere.</li><li><strong>Tolleranza:</strong> servono dosi sempre maggiori.</li><li><strong>Astinenza:</strong> ansia, irritabilità, craving.</li><li>Si inizia per <strong>pressione sociale</strong>, curiosità, imitazione — non per dipendenza.</li><li>La maggior parte dei fumatori ha iniziato <strong>prima dei 18 anni</strong>.</li></ul>',summary:'Meccanismo della dipendenza e ragioni per cui si inizia.'},danni:{review:'<ul><li><strong>Respiratorio:</strong> ciglia distrutte, bronchite cronica, enfisema (alveoli distrutti), tumore al polmone (85–90% dei casi).</li><li><strong>Circolatorio:</strong> aterosclerosi, infarto, ictus.</li><li><strong>Altri:</strong> tumori a bocca/gola/vescica, invecchiamento pelle.</li><li><strong>OMS:</strong> 8 milioni di morti/anno, prima causa prevenibile.</li></ul>',summary:'I danni del fumo apparato per apparato.'},passivo:{review:'<ul><li>Il <strong>fumo passivo</strong> contiene le stesse sostanze tossiche, spesso in concentrazioni più alte (fumo laterale non filtrato).</li><li>Bambini più vulnerabili: asma, infezioni, otiti.</li><li><strong>E-cig non innocue:</strong> contengono nicotina, sostanze chimiche, particelle fini. Porta d\'ingresso per i giovani.</li></ul>',summary:'Fumo passivo e sigarette elettroniche.'},prevenzione:{review:'<ul><li><strong>20 min:</strong> pressione normale. <strong>24 ore:</strong> CO scompare. <strong>1 anno:</strong> rischio cardiovascolare dimezzato. <strong>10 anni:</strong> tumore polmone −50%.</li><li>Prevenzione: conoscere i fatti, saper dire no, non sottovalutare le e-cig.</li></ul>',summary:'Benefici della cessazione e prevenzione.'}};
+let rh='';for(const cat in cats){const c=cats[cat];const good=(c.correct/c.total)>=0.7;rh+='<div class="review-section '+(good?'good':'review')+'"><h3>'+(good?'✔ Hai capito bene':'⚠ Da rivedere')+' — '+c.label+'</h3>';if(good)rh+='<p>'+rc[cat].summary+' ('+c.correct+'/'+c.total+' corrette)</p>';else{rh+='<p>Hai risposto correttamente a '+c.correct+' su '+c.total+'. Ripassa:</p>';rh+=rc[cat].review}rh+='</div>'}document.getElementById('reviewArea').innerHTML=rh}
+function restart(){quizAnswers={};quizVerified=false;phaseState={1:{total:5,opened:new Set()},2:{total:6,opened:new Set()},3:{total:5,opened:new Set()}};document.querySelectorAll('.element-card').forEach(c=>c.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));for(let i=1;i<=3;i++)updateCounter(i);buildQuiz();document.getElementById('verifyBtn').textContent='Verifica Risposte';document.getElementById('verifyBtn').className='btn btn-success';goToPhase(1)}
+buildQuiz();
+</script>
+</body>
+</html>
