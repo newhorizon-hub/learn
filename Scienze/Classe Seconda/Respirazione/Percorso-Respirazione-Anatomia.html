@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anatomia dell'Apparato Respiratorio</title>
+<style>
+:root {
+  --rosa: #C2185B; --rosa-light: #FCE4EC; --rosa-bg: #FDE8EF;
+  --blu: #1565C0; --blu-light: #BBDEFB; --blu-bg: #E3F2FD;
+  --verde: #2E7D32; --verde-light: #C8E6C9; --verde-bg: #E8F5E9;
+  --viola: #6A1B9A; --viola-light: #E1BEE7; --viola-bg: #F3E5F5;
+  --arancio: #E65100; --arancio-light: #FFE0B2;
+  --gray-dark: #2C3E50; --gray-mid: #566573; --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC; --white: #FFFFFF;
+  --success: #27AE60; --error: #E74C3C; --warning: #F39C12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-light);color:var(--gray-dark);line-height:1.6;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--rosa) 0%,#E91E63 100%);color:white;padding:28px 24px;border-radius:16px;margin-bottom:20px;text-align:center}
+header h1{font-size:1.6em;font-weight:700;margin-bottom:4px}
+header p{font-size:0.95em;opacity:0.9}
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;background:var(--gray-border);color:var(--gray-mid);transition:all 0.3s}
+.step-dot.active{background:var(--rosa);color:white;box-shadow:0 2px 8px rgba(194,24,91,0.35)}
+.step-dot.done{background:var(--success);color:white}
+.step-connector{width:28px;height:3px;background:var(--gray-border);border-radius:2px;transition:background 0.3s}
+.step-connector.done{background:var(--success)}
+.phase{display:none;animation:fadeIn 0.4s ease}.phase.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.phase-title{font-size:1.25em;font-weight:700;color:var(--gray-dark);margin-bottom:6px}
+.phase-instruction{font-size:0.92em;color:var(--gray-mid);margin-bottom:16px;padding:10px 14px;background:var(--rosa-bg);border-left:4px solid var(--rosa);border-radius:0 8px 8px 0}
+.elements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.element-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.element-card::after{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gray-border);border-radius:0 10px 10px 0;transition:all 0.35s ease}
+.element-card.opened::after{background:var(--success);width:6px;box-shadow:0 0 8px rgba(39,174,96,0.3)}
+.element-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.element-card.opened{border-color:var(--success)}
+.element-card .card-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05em;color:var(--gray-dark)}
+.element-card .card-header .icon{font-size:1.3em}
+.element-card .card-header::after{content:'›';font-size:1.2em;color:var(--gray-border);transition:all 0.3s;font-weight:700}
+.element-card.opened .card-header::after{content:'✔';color:var(--success);font-size:0.9em}
+.element-card .card-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border);font-size:0.93em;color:var(--gray-mid);line-height:1.65;display:none}
+.element-card.opened .card-body{display:block}
+.element-card .card-body strong{color:var(--gray-dark)}
+.example{margin-top:8px;padding:8px 12px;background:var(--gray-light);border-radius:8px;font-size:0.9em}
+.element-card.funz{border-left:5px solid var(--rosa)}.element-card.funz.opened{background:var(--rosa-bg);border-color:var(--rosa)}
+.element-card.vie{border-left:5px solid var(--blu)}.element-card.vie.opened{background:var(--blu-bg);border-color:var(--blu)}
+.element-card.polm{border-left:5px solid var(--verde)}.element-card.polm.opened{background:var(--verde-bg);border-color:var(--verde)}
+.element-card.voce{border-left:5px solid var(--viola)}.element-card.voce.opened{background:var(--viola-bg);border-color:var(--viola)}
+.concept-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.concept-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;overflow:hidden;transition:border-color 0.3s}
+.concept-card.opened{border-color:var(--success)}
+.concept-card .concept-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:1em;color:var(--gray-dark);transition:background 0.2s;user-select:none;gap:10px}
+.concept-card .concept-header:hover{background:var(--gray-light)}
+.concept-card .concept-header .arrow{transition:transform 0.3s;font-size:0.9em;color:var(--gray-mid)}
+.concept-card.expanded .concept-header .arrow{transform:rotate(180deg)}
+.concept-card .concept-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;font-size:0.93em;color:var(--gray-mid);line-height:1.7}
+.concept-card.expanded .concept-body{max-height:800px;padding:0 16px 16px 16px}
+.concept-card .concept-body strong{color:var(--gray-dark)}
+.highlight-box{margin:10px 0;padding:10px 14px;border-radius:8px;font-size:0.93em}
+.highlight-box.pink{background:var(--rosa-light);border-left:4px solid var(--rosa)}
+.highlight-box.blue{background:var(--blu-light);border-left:4px solid var(--blu)}
+.highlight-box.green{background:var(--verde-light);border-left:4px solid var(--verde)}
+.highlight-box.purple{background:var(--viola-light);border-left:4px solid var(--viola)}
+.highlight-box.orange{background:var(--arancio-light);border-left:4px solid var(--arancio)}
+.quiz-area{margin-bottom:20px}
+.quiz-question{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color 0.3s}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF0F0}
+.quiz-question.missed{border-color:var(--warning);background:#FFF8E8}
+.q-number{font-size:0.8em;font-weight:700;color:var(--rosa);text-transform:uppercase;margin-bottom:6px}
+.q-text{font-weight:600;font-size:1em;margin-bottom:12px;color:var(--gray-dark)}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:0.93em}
+.q-option:hover{border-color:var(--rosa);background:var(--rosa-bg)}
+.q-option.selected{border-color:var(--rosa);background:var(--rosa-light);font-weight:600}
+.q-option.locked{pointer-events:none;opacity:0.85}
+.q-option.show-correct{border-color:var(--success);background:#D5F5E3;font-weight:600}
+.q-option.show-wrong{border-color:var(--error);background:#FADBD8}
+.q-label{width:26px;height:26px;border-radius:6px;border:2px solid var(--gray-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8em;color:var(--gray-mid);transition:all 0.2s}
+.q-option.selected .q-label{border-color:var(--rosa);background:var(--rosa);color:white}
+.q-option.show-correct .q-label{border-color:var(--success);background:var(--success);color:white}
+.q-option.show-wrong .q-label{border-color:var(--error);background:var(--error);color:white}
+.q-feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.9em;display:none;line-height:1.5}
+.q-feedback.correct{display:block;background:#D5F5E3;color:#1E7E34}
+.q-feedback.wrong{display:block;background:#FADBD8;color:#C0392B}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;border:2px solid var(--gray-border);margin-bottom:20px}
+.score-number{font-size:3em;font-weight:800}.score-label{font-size:1em;color:var(--gray-mid);margin-top:4px}
+.score-feedback{font-size:1.1em;font-weight:600;margin-top:10px}
+.review-area{margin-bottom:20px}
+.review-section{border-radius:12px;padding:16px;margin-bottom:12px;border-left:5px solid}
+.review-section.good{background:#D5F5E3;border-color:var(--success)}
+.review-section.review{background:#FEF9E7;border-color:var(--warning)}
+.review-section h3{font-size:1em;margin-bottom:8px}
+.review-section.good h3{color:var(--success)}.review-section.review h3{color:#B7950B}
+.review-section p,.review-section ul{font-size:0.93em;color:var(--gray-dark);line-height:1.65}
+.review-section ul{padding-left:1.3em;margin-top:6px}.review-section li{margin-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:10px;font-size:0.95em;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--rosa);color:white}.btn-primary:hover{background:#A01550}
+.btn-primary:disabled{background:var(--gray-border);color:var(--gray-mid);cursor:not-allowed}
+.btn-secondary{background:var(--white);color:var(--rosa);border:2px solid var(--rosa)}.btn-secondary:hover{background:var(--rosa-bg)}
+.btn-success{background:var(--success);color:white}.btn-success:hover{background:#1E8449}
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px}
+.counter-badge{background:var(--rosa-bg);color:var(--rosa);padding:6px 14px;border-radius:20px;font-size:0.85em;font-weight:600}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}header,.progress-bar,.nav-buttons,.btn,button{display:none!important}.review-section{break-inside:avoid}}
+@media(max-width:600px){.container{padding:10px}header{padding:20px 16px}header h1{font-size:1.3em}.elements-grid{grid-template-columns:1fr}.step-connector{width:14px}.step-dot{width:30px;height:30px;font-size:0.75em}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Anatomia dell'Apparato Respiratorio</h1>
+  <p>Percorso didattico interattivo</p>
+</header>
+<div class="progress-bar">
+  <div class="step-dot active" id="dot1">1</div><div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div><div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div><div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div><div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- FASE 1 -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — Le Vie Respiratorie</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card funz" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> A cosa serve l'apparato respiratorio</span></div>
+      <div class="card-body">
+        L'<strong>apparato respiratorio</strong> ha la funzione di rifornire di <strong>ossigeno</strong> (O₂) tutti gli organi del corpo e di eliminare l'<strong>anidride carbonica</strong> (CO₂), il gas di scarto prodotto dalle cellule.
+        <br><br>Questo ciclo si ripete continuamente, senza mai interrompersi, per tutta la vita. È formato da due parti: le <strong>vie respiratorie</strong> (trasportano l'aria) e i <strong>polmoni</strong> (dove avvengono gli scambi gassosi).
+      </div>
+    </div>
+
+    <div class="element-card vie" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> Naso e bocca</span></div>
+      <div class="card-body">
+        L'aria entra nell'organismo attraverso il <strong>naso</strong> e in minor misura attraverso la <strong>bocca</strong>.
+        <br><br>Nel naso l'aria viene: <strong>riscaldata</strong> (dai vasi sanguigni della mucosa), <strong>umidificata</strong> (dal muco) e <strong>filtrata</strong> (dai peli e dal muco che intrappolano polvere e germi).
+        <div class="example">➤ L'aria che entra dalla bocca non viene né riscaldata né filtrata — ecco perché è meglio respirare dal naso, soprattutto quando fa freddo.</div>
+      </div>
+    </div>
+
+    <div class="element-card vie" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> Faringe ed epiglottide</span></div>
+      <div class="card-body">
+        La <strong>faringe</strong> è una cavità comune all'aria che respiriamo e al cibo che inghiottiamo: collega sia alla laringe (per l'aria) sia all'esofago (per il cibo).
+        <br><br>Tra faringe e laringe si trova l'<strong>epiglottide</strong>, una valvola che si chiude automaticamente quando inghiottiamo un boccone o un sorso d'acqua, impedendo al cibo di entrare nella trachea.
+        <div class="example">➤ Quando "va di traverso" significa che l'epiglottide non si è chiusa in tempo e un po' di cibo è entrato nelle vie respiratorie.</div>
+      </div>
+    </div>
+
+    <div class="element-card vie" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> Laringe e trachea</span></div>
+      <div class="card-body">
+        La <strong>laringe</strong> collega la faringe alla trachea e contiene le <strong>corde vocali</strong> (responsabili della produzione dei suoni).
+        <br><br>La <strong>trachea</strong> è un tubo di 16–20 <strong>anelli di cartilagine</strong> che scende davanti all'esofago. Gli anelli le impediscono di chiudersi, mantenendola sempre aperta per il passaggio dell'aria.
+        <div class="example">➤ La cartilagine della trachea è la stessa che puoi sentire toccandoti il collo sotto il pomo d'Adamo.</div>
+      </div>
+    </div>
+
+    <div class="element-card vie" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> Bronchi e bronchioli</span></div>
+      <div class="card-body">
+        In basso, la trachea si <strong>biforca</strong> in due <strong>bronchi</strong> (uno per ogni polmone). I bronchi si ramificano in tubicini sempre più piccoli, chiamati <strong>bronchioli</strong>.
+        <br><br>L'insieme di trachea, bronchi e bronchioli forma una struttura che assomiglia a un albero rovesciato, chiamata <strong>albero bronchiale</strong>.
+        <div class="example">➤ Ogni bronchiolo termina con un grappolo di microscopici sacchetti: gli alveoli polmonari.</div>
+      </div>
+    </div>
+
+    <div class="element-card vie" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> Purificazione dell'aria</span></div>
+      <div class="card-body">
+        Le vie respiratorie sono rivestite internamente da due tipi di cellule specializzate:
+        <br><br>
+        <strong>Cellule che producono muco</strong> — il muco è una sostanza densa e viscosa che <strong>intrappola</strong> germi, polvere e particelle di sporco.
+        <br><br>
+        <strong>Cellule con ciglia vibratili</strong> — le ciglia si muovono continuamente e <strong>spingono</strong> il muco carico di impurità verso il naso e la bocca, dove viene espulso.
+        <div class="example">➤ È un sistema di pulizia automatico che protegge i polmoni 24 ore su 24. Il fumo di sigaretta danneggia le ciglia e compromette questo meccanismo.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 2 -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — Polmoni e Funzione Fonatoria</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid2">
+
+    <div class="element-card polm" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🫁</span> Struttura dei polmoni</span></div>
+      <div class="card-body">
+        I <strong>polmoni</strong> si trovano nella cavità toracica, ai lati del cuore. Il polmone <strong>destro</strong> ha <strong>3 lobi</strong>, il <strong>sinistro</strong> ha <strong>2 lobi</strong> (più piccolo, per lasciare spazio al cuore).
+        <br><br>Ogni polmone è avvolto da una doppia membrana chiamata <strong>pleura</strong>, con liquido lubrificante che permette ai polmoni di dilatarsi e contrarsi senza attrito con la gabbia toracica.
+        <div class="example">➤ I polmoni sono organi <strong>passivi</strong>: non contengono muscoli. Si espandono e si svuotano grazie al diaframma e ai muscoli intercostali.</div>
+      </div>
+    </div>
+
+    <div class="element-card polm" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🫁</span> Gli alveoli polmonari</span></div>
+      <div class="card-body">
+        Ogni bronchiolo termina con un grappolo di microscopici sacchetti: gli <strong>alveoli polmonari</strong>. Nei polmoni ce ne sono circa <strong>300 milioni</strong>.
+        <br><br>Gli alveoli sono avvolti da una fittissima rete di <strong>capillari sanguigni</strong>. Le loro pareti sono <strong>sottilissime</strong> (circa un millesimo di millimetro): questa sottigliezza permette lo <strong>scambio gassoso</strong> tra l'aria e il sangue.
+        <div class="example">➤ Negli alveoli il sangue si carica di O₂ e cede CO₂: è qui che avviene la <strong>respirazione polmonare</strong>.</div>
+      </div>
+    </div>
+
+    <div class="element-card voce" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Le corde vocali</span></div>
+      <div class="card-body">
+        Nella laringe si trovano le <strong>corde vocali</strong>, due membrane che producono i suoni.
+        <br><br>
+        <strong>Quando respiriamo:</strong> le corde vocali sono distanziate → l'aria passa liberamente → nessun suono.
+        <br><strong>Quando parliamo:</strong> le corde vocali si avvicinano → l'aria le fa vibrare → si produce il suono.
+        <br><br>
+        Più le corde sono <strong>tese</strong>, più la voce è <strong>acuta</strong>. Più sono <strong>rilassate</strong>, più la voce è <strong>grave</strong>.
+      </div>
+    </div>
+
+    <div class="element-card voce" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> La muta vocale e il pomo d'Adamo</span></div>
+      <div class="card-body">
+        Durante la pubertà la laringe si <strong>ingrandisce</strong>, soprattutto nei maschi. Questo ingrossamento corrisponde alla comparsa del <strong>pomo d'Adamo</strong> (la sporgenza sul collo).
+        <br><br>La voce diventa più <strong>grave</strong> — nei ragazzi può scendere anche di un'ottava. Questo fenomeno si chiama <strong>muta vocale</strong>.
+        <div class="example">➤ Le voci infantili sono chiamate "voci bianche" perché sono acute. La muta vocale è più evidente nei maschi.</div>
+      </div>
+    </div>
+
+    <div class="element-card voce" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Casse di risonanza e articolazione</span></div>
+      <div class="card-body">
+        Le <strong>casse di risonanza</strong> — faringe, naso, cavità del cranio — amplificano il suono prodotto dalle corde vocali, come la cassa di una chitarra amplifica il suono delle corde.
+        <br><br>Il <strong>volume della voce</strong> dipende dalla pressione dell'aria che esce dai polmoni: più forte la pressione, più forte la voce.
+        <br><br>I <strong>denti, le labbra, le guance e la lingua</strong> permettono l'<strong>articolazione</strong> del linguaggio, cioè la formazione delle parole.
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 5 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 3 -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri ogni scheda per approfondire. Devi aprirle tutte per procedere.</div>
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔸 Il percorso dell'aria — dalla A alla Z</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        L'aria compie un percorso preciso, sempre nello stesso ordine:
+        <div class="highlight-box blue">
+          <strong>Naso/Bocca → Faringe → Epiglottide → Laringe → Trachea → Bronchi → Bronchioli → Alveoli</strong>
+        </div>
+        Ogni tappa ha una funzione: il naso filtra e riscalda, l'epiglottide protegge, la trachea conduce, gli alveoli scambiano i gas. Il percorso inverso (espirazione) segue lo stesso tragitto al contrario.
+        <div class="highlight-box pink">
+          ➤ <strong>Trucco per ricordare:</strong> pensa a un albero rovesciato. La trachea è il tronco, i bronchi i rami principali, i bronchioli i rametti, gli alveoli le foglie.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 La purificazione: muco + ciglia = sistema di difesa</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Le vie respiratorie non sono semplici "tubi": sono un sistema di <strong>difesa attivo</strong>.
+        <div class="highlight-box blue">
+          <strong>Muco</strong> = sostanza densa e viscosa che <strong>intrappola</strong> germi, polvere e particelle. Funziona come carta moschicida.
+        </div>
+        <div class="highlight-box blue">
+          <strong>Ciglia vibratili</strong> = minuscole "spazzole" che si muovono a onda e <strong>spingono</strong> il muco sporco verso l'esterno (naso e bocca).
+        </div>
+        Questo sistema funziona 24 ore su 24. Il fumo di sigaretta paralizza le ciglia e aumenta la produzione di muco: ecco perché i fumatori tossiscono spesso — la tosse è l'ultimo meccanismo di difesa rimasto.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🫁 Alveoli: dove avviene la magia</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Gli alveoli sono il punto chiave di tutto l'apparato respiratorio — è qui che avviene lo <strong>scambio gassoso</strong>:
+        <br><br>
+        • L'<strong>ossigeno</strong> (O₂) passa dall'aria al sangue attraverso le pareti sottilissime.
+        <br>• L'<strong>anidride carbonica</strong> (CO₂) passa dal sangue all'aria e viene espulsa con l'espirazione.
+        <div class="highlight-box green">
+          <strong>Numeri da ricordare:</strong>
+          <br>• Circa <strong>300 milioni</strong> di alveoli per polmone.
+          <br>• Pareti spesse circa <strong>un millesimo di mm</strong>.
+          <br>• Se li stendessimo tutti, coprirebbero un'area grande come un campo da tennis (~70 m²).
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🫁 Polmoni passivi: chi li muove?</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        I polmoni <strong>non contengono muscoli</strong> e non si muovono da soli. Si espandono e si svuotano grazie a:
+        <div class="highlight-box green">
+          <strong>Diaframma</strong> — un muscolo largo e piatto che separa la cavità toracica da quella addominale. Quando si contrae (si abbassa), i polmoni si espandono e l'aria entra. Quando si rilassa (si alza), i polmoni si comprimono e l'aria esce.
+        </div>
+        <div class="highlight-box green">
+          <strong>Muscoli intercostali</strong> — sollevano le costole durante l'inspirazione, allargando la gabbia toracica.
+        </div>
+        La pleura, la doppia membrana lubrificata che avvolge ogni polmone, permette questo movimento senza attrito.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ La voce: dalle corde vocali alle parole</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        La produzione della voce coinvolge tre elementi:
+        <div class="highlight-box purple">
+          <strong>1. Corde vocali</strong> (nella laringe) — vibrano al passaggio dell'aria, producendo il suono base. Tese = acuto, rilassate = grave.
+        </div>
+        <div class="highlight-box purple">
+          <strong>2. Casse di risonanza</strong> (faringe, naso, cranio) — amplificano il suono, come la cassa di una chitarra.
+        </div>
+        <div class="highlight-box purple">
+          <strong>3. Articolazione</strong> (denti, labbra, lingua, guance) — modellano il suono in parole comprensibili.
+        </div>
+        Il <strong>volume</strong> dipende dalla pressione dell'aria. La <strong>muta vocale</strong> durante la pubertà è causata dall'ingrossamento della laringe (pomo d'Adamo).
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 5 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 4 -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi clicca "Verifica Risposte".</div>
+  <div class="quiz-area" id="quizArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- FASE 5 -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"funzione",categoryLabel:"Funzione",question:"Qual è la funzione principale dell'apparato respiratorio?",options:["Digerire il cibo","Rifornire di ossigeno il corpo ed eliminare l'anidride carbonica","Pompare il sangue in tutto il corpo","Filtrare le sostanze di scarto dal sangue"],correct:1,explanation:"L'apparato respiratorio rifornisce di O₂ tutti gli organi del corpo e elimina la CO₂, il gas di scarto prodotto dalle cellule."},
+{category:"vie",categoryLabel:"Le Vie Respiratorie",question:"Perché è meglio respirare dal naso piuttosto che dalla bocca?",options:["Perché il naso è più grande della bocca","Perché nel naso l'aria viene riscaldata, umidificata e filtrata","Perché la bocca serve solo per mangiare","Perché l'aria entra più velocemente dal naso"],correct:1,explanation:"Nel naso l'aria viene riscaldata dai vasi sanguigni, umidificata e filtrata dal muco e dai peli. L'aria che entra dalla bocca non subisce questi trattamenti."},
+{category:"vie",categoryLabel:"Le Vie Respiratorie",question:"Qual è la funzione dell'epiglottide?",options:["Produrre i suoni","Riscaldare l'aria","Chiudere la laringe quando inghiottiamo, impedendo al cibo di entrare nella trachea","Collegare i bronchi ai polmoni"],correct:2,explanation:"L'epiglottide è una valvola che si chiude automaticamente durante la deglutizione per impedire che cibo o liquidi entrino nella trachea."},
+{category:"vie",categoryLabel:"Le Vie Respiratorie",question:"Da cosa è formata la trachea?",options:["Da muscoli lisci","Da 16–20 anelli di cartilagine","Da tessuto osseo","Da membrane elastiche"],correct:1,explanation:"La trachea è formata da 16–20 anelli di cartilagine che la mantengono sempre aperta per il passaggio dell'aria."},
+{category:"vie",categoryLabel:"Le Vie Respiratorie",question:"Qual è la funzione del muco e delle ciglia vibratili nelle vie respiratorie?",options:["Riscaldare l'aria fredda","Produrre ossigeno","Intrappolare le impurità (muco) e spingerle verso l'esterno (ciglia)","Rallentare il flusso dell'aria"],correct:2,explanation:"Il muco intrappola germi e polvere come carta moschicida. Le ciglia vibratili si muovono a onda e spingono il muco sporco verso il naso e la bocca per espellerlo."},
+{category:"polmoni",categoryLabel:"I Polmoni",question:"Quanti lobi ha il polmone destro e quanti il sinistro?",options:["2 destro, 3 sinistro","3 destro, 2 sinistro","3 destro, 3 sinistro","2 destro, 2 sinistro"],correct:1,explanation:"Il polmone destro ha 3 lobi, il sinistro ne ha solo 2 perché deve lasciare spazio al cuore."},
+{category:"polmoni",categoryLabel:"I Polmoni",question:"Perché i polmoni sono definiti organi 'passivi'?",options:["Perché non producono ossigeno","Perché non contengono muscoli e si muovono grazie al diaframma e ai muscoli intercostali","Perché non filtrano l'aria","Perché non partecipano alla respirazione"],correct:1,explanation:"I polmoni non contengono muscoli propri. Si espandono e si svuotano grazie alla contrazione del diaframma e dei muscoli intercostali."},
+{category:"polmoni",categoryLabel:"I Polmoni",question:"Cosa sono gli alveoli polmonari?",options:["I muscoli che muovono i polmoni","Le membrane che avvolgono i polmoni","Microscopici sacchetti dove avviene lo scambio gassoso tra aria e sangue","I rami principali dell'albero bronchiale"],correct:2,explanation:"Gli alveoli sono microscopici sacchetti (circa 300 milioni) con pareti sottilissime, avvolti da capillari. Qui l'O₂ passa dall'aria al sangue e la CO₂ dal sangue all'aria."},
+{category:"voce",categoryLabel:"Funzione Fonatoria",question:"Dove si trovano le corde vocali?",options:["Nella faringe","Nella trachea","Nella laringe","Nei bronchi"],correct:2,explanation:"Le corde vocali si trovano nella laringe. Quando l'aria le attraversa e le fa vibrare, producono i suoni."},
+{category:"voce",categoryLabel:"Funzione Fonatoria",question:"Da cosa dipende il volume della voce?",options:["Dalla lunghezza delle corde vocali","Dalla tensione delle corde vocali","Dalla pressione dell'aria che esce dai polmoni","Dalla dimensione della bocca"],correct:2,explanation:"Il volume della voce dipende dalla pressione dell'aria che esce dai polmoni: più forte è la pressione, più forte è la voce. La tensione delle corde determina invece se la voce è acuta o grave."}
+];
+let currentPhase=1;
+let phaseState={1:{total:6,opened:new Set()},2:{total:5,opened:new Set()},3:{total:5,opened:new Set()}};
+let quizAnswers={},quizVerified=false;
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById('phase'+n).classList.add('active');currentPhase=n;updateProgress();window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){for(let i=1;i<=5;i++){const d=document.getElementById('dot'+i);d.classList.remove('active','done');if(i<currentPhase)d.classList.add('done');else if(i===currentPhase)d.classList.add('active');if(i<5)document.getElementById('conn'+i).classList.toggle('done',i<currentPhase)}}
+function toggleElement(card){const phase=parseInt(card.dataset.phase);card.classList.add('opened');const grid=card.closest('.elements-grid');const cards=grid.querySelectorAll('.element-card');phaseState[phase].opened.add(Array.from(cards).indexOf(card));updateCounter(phase)}
+function updateCounter(phase){const s=phaseState[phase];const c=s.opened.size;const suffix=phase===3?'completate':'completati';document.getElementById('counter'+phase).textContent=c+' / '+s.total+' '+suffix;document.getElementById('next'+phase).disabled=c<s.total}
+function toggleConcept(card){const wasExp=card.classList.contains('expanded');card.classList.toggle('expanded');if(!wasExp){card.classList.add('opened');const all=card.closest('.concept-cards').querySelectorAll('.concept-card');phaseState[3].opened.add(Array.from(all).indexOf(card));updateCounter(3)}}
+function buildQuiz(){const area=document.getElementById('quizArea');const letters=['A','B','C','D'];let h='';quizData.forEach((q,i)=>{h+='<div class="quiz-question" id="qq'+i+'"><div class="q-number">'+q.categoryLabel+' — Domanda '+(i+1)+'</div><div class="q-text">'+q.question+'</div><div class="q-options">';q.options.forEach((o,j)=>{h+='<div class="q-option" data-q="'+i+'" data-opt="'+j+'" onclick="selectOption(this)"><div class="q-label">'+letters[j]+'</div><span>'+o+'</span></div>'});h+='</div><div class="q-feedback" id="fb'+i+'"></div></div>'});area.innerHTML=h}
+function selectOption(el){if(quizVerified)return;const q=parseInt(el.dataset.q);quizAnswers[q]=parseInt(el.dataset.opt);document.querySelectorAll('.q-option[data-q="'+q+'"]').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function verifyQuiz(){if(quizVerified){goToPhase(5);return}const un=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)un.push(i)});if(un.length>0){const f=un[0];const el=document.getElementById('qq'+f);el.classList.add('missed');setTimeout(()=>el.classList.remove('missed'),2000);el.scrollIntoView({behavior:'smooth',block:'center'});alert(un.length===1?'Manca la risposta alla domanda '+(f+1)+'.':'Mancano le risposte alle domande: '+un.map(u=>u+1).join(', ')+'.');return}quizVerified=true;quizData.forEach((q,i)=>{const qEl=document.getElementById('qq'+i);const fb=document.getElementById('fb'+i);const ok=quizAnswers[i]===q.correct;qEl.classList.add(ok?'correct':'wrong');document.querySelectorAll('.q-option[data-q="'+i+'"]').forEach(o=>{o.classList.add('locked');const oi=parseInt(o.dataset.opt);if(oi===q.correct)o.classList.add('show-correct');else if(oi===quizAnswers[i]&&!ok)o.classList.add('show-wrong')});fb.className='q-feedback '+(ok?'correct':'wrong');fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});document.getElementById('verifyBtn').textContent='Vai al Ripasso →';document.getElementById('verifyBtn').className='btn btn-primary';buildReview()}
+function buildReview(){const cats={};quizData.forEach((q,i)=>{if(!cats[q.category])cats[q.category]={label:q.categoryLabel,correct:0,total:0};cats[q.category].total++;if(quizAnswers[i]===q.correct)cats[q.category].correct++});const tc=quizData.filter((q,i)=>quizAnswers[i]===q.correct).length;const pct=Math.round((tc/quizData.length)*100);let ft,fc;if(pct>=90){ft='Ottimo lavoro! Padronanza eccellente.';fc='var(--success)'}else if(pct>=70){ft='Buon risultato! Rivedi le aree evidenziate.';fc='var(--blu)'}else if(pct>=50){ft='Ci sei quasi! Concentrati sulle aree da rivedere.';fc='var(--warning)'}else{ft='Continua a esercitarti! Ripassa con attenzione le schede.';fc='var(--error)'}
+document.getElementById('reviewScore').innerHTML='<div class="score-number" style="color:'+fc+'">'+tc+' / '+quizData.length+'</div><div class="score-label">'+pct+'% di risposte corrette</div><div class="score-feedback" style="color:'+fc+'">'+ft+'</div>';
+const rc={funzione:{review:'<ul><li>L\'apparato respiratorio <strong>rifornisce di O₂</strong> il corpo ed <strong>elimina CO₂</strong>.</li><li>È formato da <strong>vie respiratorie</strong> (trasporto) e <strong>polmoni</strong> (scambio gassoso).</li></ul>',summary:'Funzione generale dell\'apparato respiratorio.'},vie:{review:'<ul><li><strong>Naso:</strong> riscalda, umidifica e filtra l\'aria. La bocca no.</li><li><strong>Faringe:</strong> cavità comune ad aria e cibo.</li><li><strong>Epiglottide:</strong> valvola che chiude la laringe quando inghiottiamo.</li><li><strong>Laringe:</strong> contiene le corde vocali.</li><li><strong>Trachea:</strong> 16–20 anelli di cartilagine.</li><li><strong>Bronchi/bronchioli:</strong> albero bronchiale.</li><li><strong>Muco + ciglia vibratili:</strong> sistema di purificazione.</li></ul>',summary:'Le vie respiratorie: percorso dell\'aria e purificazione.'},polmoni:{review:'<ul><li>Polmone destro <strong>3 lobi</strong>, sinistro <strong>2 lobi</strong> (spazio per il cuore).</li><li><strong>Pleura:</strong> doppia membrana lubrificata.</li><li>Polmoni <strong>passivi</strong>: si muovono grazie al diaframma e ai muscoli intercostali.</li><li><strong>Alveoli:</strong> ~300 milioni, pareti sottilissime, scambio O₂/CO₂.</li></ul>',summary:'Struttura dei polmoni e alveoli polmonari.'},voce:{review:'<ul><li><strong>Corde vocali</strong> nella laringe: vibrano con l\'aria per produrre suoni.</li><li>Tese = voce acuta; rilassate = voce grave.</li><li><strong>Volume</strong> = pressione dell\'aria dai polmoni.</li><li><strong>Muta vocale:</strong> ingrossamento della laringe durante la pubertà.</li><li><strong>Articolazione:</strong> denti, labbra, lingua, guance formano le parole.</li></ul>',summary:'Corde vocali, muta vocale e produzione della voce.'}};
+let rh='';for(const cat in cats){const c=cats[cat];const good=(c.correct/c.total)>=0.7;rh+='<div class="review-section '+(good?'good':'review')+'"><h3>'+(good?'✔ Hai capito bene':'⚠ Da rivedere')+' — '+c.label+'</h3>';if(good)rh+='<p>'+rc[cat].summary+' ('+c.correct+'/'+c.total+' corrette)</p>';else{rh+='<p>Hai risposto correttamente a '+c.correct+' su '+c.total+'. Ripassa:</p>';rh+=rc[cat].review}rh+='</div>'}document.getElementById('reviewArea').innerHTML=rh}
+function restart(){quizAnswers={};quizVerified=false;phaseState={1:{total:6,opened:new Set()},2:{total:5,opened:new Set()},3:{total:5,opened:new Set()}};document.querySelectorAll('.element-card').forEach(c=>c.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));for(let i=1;i<=3;i++)updateCounter(i);buildQuiz();document.getElementById('verifyBtn').textContent='Verifica Risposte';document.getElementById('verifyBtn').className='btn btn-success';goToPhase(1)}
+buildQuiz();
+</script>
+</body>
+</html>

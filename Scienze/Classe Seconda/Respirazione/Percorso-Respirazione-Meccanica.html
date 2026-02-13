@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Respirazione: Meccanica e Scambi Gassosi</title>
+<style>
+:root {
+  --rosa: #C2185B; --rosa-light: #FCE4EC; --rosa-bg: #FDE8EF;
+  --blu: #1565C0; --blu-light: #BBDEFB; --blu-bg: #E3F2FD;
+  --verde: #2E7D32; --verde-light: #C8E6C9; --verde-bg: #E8F5E9;
+  --viola: #6A1B9A; --viola-light: #E1BEE7; --viola-bg: #F3E5F5;
+  --rosso: #B71C1C; --rosso-light: #FFCDD2; --rosso-bg: #FFEBEE;
+  --arancio: #E65100; --arancio-light: #FFE0B2;
+  --gray-dark: #2C3E50; --gray-mid: #566573; --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC; --white: #FFFFFF;
+  --success: #27AE60; --error: #E74C3C; --warning: #F39C12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-light);color:var(--gray-dark);line-height:1.6;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--rosa) 0%,#E91E63 100%);color:white;padding:28px 24px;border-radius:16px;margin-bottom:20px;text-align:center}
+header h1{font-size:1.5em;font-weight:700;margin-bottom:4px}
+header p{font-size:0.95em;opacity:0.9}
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;background:var(--gray-border);color:var(--gray-mid);transition:all 0.3s}
+.step-dot.active{background:var(--rosa);color:white;box-shadow:0 2px 8px rgba(194,24,91,0.35)}
+.step-dot.done{background:var(--success);color:white}
+.step-connector{width:28px;height:3px;background:var(--gray-border);border-radius:2px;transition:background 0.3s}
+.step-connector.done{background:var(--success)}
+.phase{display:none;animation:fadeIn 0.4s ease}.phase.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.phase-title{font-size:1.25em;font-weight:700;color:var(--gray-dark);margin-bottom:6px}
+.phase-instruction{font-size:0.92em;color:var(--gray-mid);margin-bottom:16px;padding:10px 14px;background:var(--rosa-bg);border-left:4px solid var(--rosa);border-radius:0 8px 8px 0}
+.elements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.element-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.element-card::after{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gray-border);border-radius:0 10px 10px 0;transition:all 0.35s ease}
+.element-card.opened::after{background:var(--success);width:6px;box-shadow:0 0 8px rgba(39,174,96,0.3)}
+.element-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.element-card.opened{border-color:var(--success)}
+.element-card .card-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05em;color:var(--gray-dark)}
+.element-card .card-header .icon{font-size:1.3em}
+.element-card .card-header::after{content:'›';font-size:1.2em;color:var(--gray-border);transition:all 0.3s;font-weight:700}
+.element-card.opened .card-header::after{content:'✔';color:var(--success);font-size:0.9em}
+.element-card .card-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border);font-size:0.93em;color:var(--gray-mid);line-height:1.65;display:none}
+.element-card.opened .card-body{display:block}
+.element-card .card-body strong{color:var(--gray-dark)}
+.example{margin-top:8px;padding:8px 12px;background:var(--gray-light);border-radius:8px;font-size:0.9em}
+.element-card.aria{border-left:5px solid var(--blu)}.element-card.aria.opened{background:var(--blu-bg);border-color:var(--blu)}
+.element-card.mecc{border-left:5px solid var(--rosa)}.element-card.mecc.opened{background:var(--rosa-bg);border-color:var(--rosa)}
+.element-card.scambio{border-left:5px solid var(--verde)}.element-card.scambio.opened{background:var(--verde-bg);border-color:var(--verde)}
+.element-card.trasporto{border-left:5px solid var(--rosso)}.element-card.trasporto.opened{background:var(--rosso-bg);border-color:var(--rosso)}
+.element-card.cellulare{border-left:5px solid var(--viola)}.element-card.cellulare.opened{background:var(--viola-bg);border-color:var(--viola)}
+.concept-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.concept-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;overflow:hidden;transition:border-color 0.3s}
+.concept-card.opened{border-color:var(--success)}
+.concept-card .concept-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:1em;color:var(--gray-dark);transition:background 0.2s;user-select:none;gap:10px}
+.concept-card .concept-header:hover{background:var(--gray-light)}
+.concept-card .concept-header .arrow{transition:transform 0.3s;font-size:0.9em;color:var(--gray-mid)}
+.concept-card.expanded .concept-header .arrow{transform:rotate(180deg)}
+.concept-card .concept-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;font-size:0.93em;color:var(--gray-mid);line-height:1.7}
+.concept-card.expanded .concept-body{max-height:800px;padding:0 16px 16px 16px}
+.concept-card .concept-body strong{color:var(--gray-dark)}
+.highlight-box{margin:10px 0;padding:10px 14px;border-radius:8px;font-size:0.93em}
+.highlight-box.pink{background:var(--rosa-light);border-left:4px solid var(--rosa)}
+.highlight-box.blue{background:var(--blu-light);border-left:4px solid var(--blu)}
+.highlight-box.green{background:var(--verde-light);border-left:4px solid var(--verde)}
+.highlight-box.purple{background:var(--viola-light);border-left:4px solid var(--viola)}
+.highlight-box.red{background:var(--rosso-light);border-left:4px solid var(--rosso)}
+.quiz-area{margin-bottom:20px}
+.quiz-question{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color 0.3s}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF0F0}
+.quiz-question.missed{border-color:var(--warning);background:#FFF8E8}
+.q-number{font-size:0.8em;font-weight:700;color:var(--rosa);text-transform:uppercase;margin-bottom:6px}
+.q-text{font-weight:600;font-size:1em;margin-bottom:12px;color:var(--gray-dark)}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:0.93em}
+.q-option:hover{border-color:var(--rosa);background:var(--rosa-bg)}
+.q-option.selected{border-color:var(--rosa);background:var(--rosa-light);font-weight:600}
+.q-option.locked{pointer-events:none;opacity:0.85}
+.q-option.show-correct{border-color:var(--success);background:#D5F5E3;font-weight:600}
+.q-option.show-wrong{border-color:var(--error);background:#FADBD8}
+.q-label{width:26px;height:26px;border-radius:6px;border:2px solid var(--gray-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8em;color:var(--gray-mid);transition:all 0.2s}
+.q-option.selected .q-label{border-color:var(--rosa);background:var(--rosa);color:white}
+.q-option.show-correct .q-label{border-color:var(--success);background:var(--success);color:white}
+.q-option.show-wrong .q-label{border-color:var(--error);background:var(--error);color:white}
+.q-feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.9em;display:none;line-height:1.5}
+.q-feedback.correct{display:block;background:#D5F5E3;color:#1E7E34}
+.q-feedback.wrong{display:block;background:#FADBD8;color:#C0392B}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;border:2px solid var(--gray-border);margin-bottom:20px}
+.score-number{font-size:3em;font-weight:800}.score-label{font-size:1em;color:var(--gray-mid);margin-top:4px}
+.score-feedback{font-size:1.1em;font-weight:600;margin-top:10px}
+.review-area{margin-bottom:20px}
+.review-section{border-radius:12px;padding:16px;margin-bottom:12px;border-left:5px solid}
+.review-section.good{background:#D5F5E3;border-color:var(--success)}
+.review-section.review{background:#FEF9E7;border-color:var(--warning)}
+.review-section h3{font-size:1em;margin-bottom:8px}
+.review-section.good h3{color:var(--success)}.review-section.review h3{color:#B7950B}
+.review-section p,.review-section ul{font-size:0.93em;color:var(--gray-dark);line-height:1.65}
+.review-section ul{padding-left:1.3em;margin-top:6px}.review-section li{margin-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:10px;font-size:0.95em;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--rosa);color:white}.btn-primary:hover{background:#A01550}
+.btn-primary:disabled{background:var(--gray-border);color:var(--gray-mid);cursor:not-allowed}
+.btn-secondary{background:var(--white);color:var(--rosa);border:2px solid var(--rosa)}.btn-secondary:hover{background:var(--rosa-bg)}
+.btn-success{background:var(--success);color:white}.btn-success:hover{background:#1E8449}
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px}
+.counter-badge{background:var(--rosa-bg);color:var(--rosa);padding:6px 14px;border-radius:20px;font-size:0.85em;font-weight:600}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}header,.progress-bar,.nav-buttons,.btn,button{display:none!important}.review-section{break-inside:avoid}}
+@media(max-width:600px){.container{padding:10px}header{padding:20px 16px}header h1{font-size:1.2em}.elements-grid{grid-template-columns:1fr}.step-connector{width:14px}.step-dot{width:30px;height:30px;font-size:0.75em}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>La Respirazione: Meccanica e Scambi Gassosi</h1>
+  <p>Percorso didattico interattivo</p>
+</header>
+<div class="progress-bar">
+  <div class="step-dot active" id="dot1">1</div><div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div><div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div><div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div><div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- FASE 1: Aria e Meccanica -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — L'aria e la meccanica respiratoria</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card aria" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> La composizione dell'aria</span></div>
+      <div class="card-body">
+        L'aria che respiriamo non è ossigeno puro — è una <strong>miscela di gas</strong>:
+        <br><br>
+        <strong>Azoto (N₂): ~78%</strong> — gas inerte, non partecipa alla respirazione. Funziona da <strong>diluente</strong>: l'ossigeno puro sarebbe tossico per le nostre cellule.
+        <br><br>
+        <strong>Ossigeno (O₂): ~21%</strong> — il gas indispensabile per la vita delle cellule.
+        <br><br>
+        <strong>Altri gas: ~1%</strong> — anidride carbonica (CO₂), vapore acqueo, gas nobili.
+        <div class="example">➤ Pensaci: su 5 respiri, solo in circa 1 su 5 di quell'aria c'è l'ossigeno che ti serve. Il resto è azoto!</div>
+      </div>
+    </div>
+
+    <div class="element-card mecc" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> L'inspirazione</span></div>
+      <div class="card-body">
+        L'<strong>inspirazione</strong> è la fase in cui l'aria <strong>entra</strong> nei polmoni:
+        <br><br>
+        1. Il <strong>diaframma</strong> si contrae e si <strong>abbassa</strong>
+        <br>2. I <strong>muscoli intercostali</strong> sollevano le costole
+        <br>3. La gabbia toracica si <strong>espande</strong>
+        <br>4. I polmoni si dilatano → l'aria entra
+        <div class="example">➤ Appoggia le mani sulle costole e inspira a fondo: senti la gabbia toracica che si allarga? È il diaframma che si abbassa e i muscoli intercostali che sollevano le costole.</div>
+      </div>
+    </div>
+
+    <div class="element-card mecc" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> L'espirazione</span></div>
+      <div class="card-body">
+        L'<strong>espirazione</strong> è la fase in cui l'aria <strong>esce</strong> dai polmoni:
+        <br><br>
+        1. Il <strong>diaframma</strong> si rilassa e <strong>risale</strong>
+        <br>2. I <strong>muscoli intercostali</strong> si rilassano
+        <br>3. La gabbia toracica si <strong>restringe</strong>
+        <br>4. I polmoni si comprimono → l'aria esce
+        <div class="example">➤ A riposo l'espirazione è <strong>passiva</strong> — i muscoli si rilassano e l'elasticità dei polmoni fa uscire l'aria. Sotto sforzo diventa attiva: i muscoli addominali spingono il diaframma verso l'alto.</div>
+      </div>
+    </div>
+
+    <div class="element-card aria" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> I volumi polmonari</span></div>
+      <div class="card-body">
+        I polmoni non si riempiono e svuotano completamente ad ogni respiro:
+        <br><br>
+        <strong>Volume corrente:</strong> ~0,5 L — l'aria che entra ed esce in un atto respiratorio normale.
+        <br><br>
+        <strong>Capacità vitale:</strong> ~3–5 L — la massima quantità d'aria che puoi espirare dopo un'inspirazione massima.
+        <br><br>
+        <strong>Volume residuo:</strong> ~1–1,5 L — l'aria che resta nei polmoni anche dopo aver soffiato al massimo. I polmoni non si svuotano mai del tutto.
+      </div>
+    </div>
+
+    <div class="element-card mecc" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> La frequenza respiratoria</span></div>
+      <div class="card-body">
+        La <strong>frequenza respiratoria</strong> è il numero di atti respiratori al minuto:
+        <br><br>
+        <strong>A riposo (adulto):</strong> 12–20 atti/minuto
+        <br><strong>Nei bambini:</strong> 20–30 atti/minuto (più alta)
+        <br><strong>Sotto sforzo:</strong> fino a 40–60 atti/minuto
+        <br><br>
+        In un giorno, un adulto compie circa <strong>20 000 atti respiratori</strong> e utilizza circa <strong>10 000 litri d'aria</strong>.
+        <div class="example">➤ Prova a contare i tuoi atti respiratori per un minuto: troverai un numero compreso tra 12 e 20.</div>
+      </div>
+    </div>
+
+    <div class="element-card mecc" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> Il centro respiratorio</span></div>
+      <div class="card-body">
+        Il ritmo del respiro è regolato automaticamente dal <strong>centro respiratorio</strong>, una struttura situata nel <strong>midollo allungato</strong> (parte del tronco encefalico, alla base del cranio).
+        <br><br>
+        Il centro respiratorio monitora costantemente i <strong>livelli di CO₂</strong> nel sangue: quando la CO₂ aumenta (per esempio sotto sforzo), invia il segnale di respirare più velocemente. Ecco perché il respiro accelera automaticamente durante l'attività fisica.
+        <div class="example">➤ Non devi "decidere" di respirare: il cervello lo fa per te, anche mentre dormi.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 2: Scambi e Trasporto -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — Scambi gassosi, trasporto e respirazione cellulare</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid2">
+
+    <div class="element-card scambio" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🫁</span> Lo scambio gassoso negli alveoli</span></div>
+      <div class="card-body">
+        Negli <strong>alveoli polmonari</strong> avviene la <strong>respirazione polmonare</strong>: il passaggio dei gas tra aria e sangue.
+        <br><br>
+        <strong>O₂:</strong> dall'alveolo → al sangue dei capillari
+        <br><strong>CO₂:</strong> dal sangue → all'alveolo (poi espulsa con l'espirazione)
+        <br><br>
+        Questo scambio avviene per <strong>diffusione</strong>: ogni gas si sposta spontaneamente dal punto dove è più concentrato verso quello dove è meno concentrato.
+        <div class="example">➤ È lo stesso principio per cui un profumo spruzzato in un angolo della stanza si diffonde ovunque.</div>
+      </div>
+    </div>
+
+    <div class="element-card scambio" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🫁</span> Aria inspirata vs aria espirata</span></div>
+      <div class="card-body">
+        La composizione dell'aria cambia dopo il passaggio nei polmoni:
+        <br><br>
+        <strong>Ossigeno (O₂):</strong> nell'aria inspirata 21% → nell'aria espirata 16%
+        <br><strong>Anidride carbonica (CO₂):</strong> nell'aria inspirata 0,04% → nell'aria espirata 4%
+        <br><strong>Azoto (N₂):</strong> resta uguale al 78% — non partecipa allo scambio
+        <div class="example">➤ L'aria espirata contiene ancora ossigeno (16%): ecco perché la respirazione bocca a bocca funziona nel primo soccorso.</div>
+      </div>
+    </div>
+
+    <div class="element-card trasporto" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔴</span> Il trasporto dell'ossigeno</span></div>
+      <div class="card-body">
+        L'ossigeno non viaggia "libero" nel sangue: si lega all'<strong>emoglobina</strong>, una proteina contenuta nei <strong>globuli rossi</strong>.
+        <br><br>
+        L'emoglobina contiene <strong>ferro</strong> — proprio il ferro che lega l'ossigeno dà al sangue ossigenato il suo colore <strong>rosso vivo</strong>.
+        <br><br>
+        Il sangue trasporta così l'O₂ dai polmoni a <strong>tutte le cellule</strong> del corpo, attraverso l'apparato circolatorio.
+        <div class="example">➤ Quando sei anemico (poco ferro) ti senti stanco: i globuli rossi non riescono a trasportare abbastanza ossigeno.</div>
+      </div>
+    </div>
+
+    <div class="element-card trasporto" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔴</span> Il trasporto della CO₂</span></div>
+      <div class="card-body">
+        La <strong>CO₂</strong> prodotta come scarto dalle cellule entra nel sangue e viene trasportata <strong>ai polmoni</strong> per essere eliminata.
+        <br><br>
+        Viaggia in due modi: in parte <strong>disciolta nel plasma</strong> (la parte liquida del sangue), in parte <strong>legata all'emoglobina</strong>.
+        <br><br>
+        Il sangue carico di CO₂ è <strong>rosso scuro</strong> e si chiama sangue <strong>venoso</strong>. Attenzione: non è blu — il colore bluastro delle vene è solo un effetto ottico della pelle.
+      </div>
+    </div>
+
+    <div class="element-card cellulare" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> La respirazione cellulare</span></div>
+      <div class="card-body">
+        La <strong>respirazione cellulare</strong> avviene in tutte le cellule del corpo: utilizzano l'ossigeno per "bruciare" il <strong>glucosio</strong> (ricavato dal cibo) e produrre <strong>energia</strong>.
+        <br><br>
+        <strong>Formula:</strong>
+        <br>C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + Energia
+        <br><em>Glucosio + Ossigeno → Anidride Carbonica + Acqua + Energia</em>
+        <div class="example">➤ Questa formula è il filo conduttore che collega tre apparati: il <strong>respiratorio</strong> (fornisce O₂), il <strong>digerente</strong> (fornisce glucosio) e il <strong>circolatorio</strong> (trasporta tutto).</div>
+      </div>
+    </div>
+
+    <div class="element-card cellulare" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Due significati di "respirazione"</span></div>
+      <div class="card-body">
+        La parola "respirazione" ha <strong>due significati diversi</strong> in biologia:
+        <br><br>
+        <strong>Respirazione polmonare</strong> (o esterna) = lo scambio di gas tra aria e sangue negli alveoli. È il processo meccanico: inspirare, espirare.
+        <br><br>
+        <strong>Respirazione cellulare</strong> (o interna) = il processo chimico che avviene in ogni cellula per produrre energia dal glucosio.
+        <div class="example">➤ Quando diciamo "respira!" parliamo della prima. Quando studiamo la formula con il glucosio, parliamo della seconda. Non confonderle!</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 6 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 3: Concetti Chiave -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri ogni scheda per approfondire. Devi aprirle tutte per procedere.</div>
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔸 Inspirazione vs Espirazione — il confronto</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box pink">
+          <strong>Inspirazione</strong> (aria entra): diaframma si contrae e <strong>scende</strong> → muscoli intercostali <strong>sollevano</strong> le costole → gabbia toracica si <strong>espande</strong> → polmoni si dilatano → aria entra.
+        </div>
+        <div class="highlight-box blue">
+          <strong>Espirazione</strong> (aria esce): diaframma si rilassa e <strong>sale</strong> → muscoli intercostali si <strong>rilassano</strong> → gabbia toracica si <strong>restringe</strong> → polmoni si comprimono → aria esce.
+        </div>
+        A riposo l'espirazione è passiva (l'elasticità dei polmoni basta). Sotto sforzo diventa attiva: i muscoli addominali spingono il diaframma verso l'alto.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 I volumi polmonari — non tutta l'aria si muove</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        I polmoni non si riempiono e svuotano completamente ad ogni respiro:
+        <div class="highlight-box blue">
+          <strong>Volume corrente</strong> (~0,5 L) — l'aria che entra ed esce in un atto normale. Mezzo litro a respiro.
+        </div>
+        <div class="highlight-box blue">
+          <strong>Capacità vitale</strong> (~3–5 L) — tutta l'aria che puoi espirare dopo un'inspirazione massima. È la tua "capacità massima utile".
+        </div>
+        <div class="highlight-box blue">
+          <strong>Volume residuo</strong> (~1–1,5 L) — l'aria che resta nei polmoni anche dopo aver soffiato al massimo. I polmoni non si svuotano <strong>mai</strong> del tutto.
+        </div>
+        In un giorno: ~20 000 atti respiratori, ~10 000 litri d'aria.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🫁 Lo scambio gassoso: diffusione e numeri</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Lo scambio avviene per <strong>diffusione</strong>: ogni gas si sposta dal punto dove è più concentrato verso quello dove lo è meno, spontaneamente.
+        <div class="highlight-box green">
+          <strong>Negli alveoli:</strong> l'O₂ è molto concentrato nell'aria e poco nel sangue → passa dall'alveolo al sangue. La CO₂ è il contrario → passa dal sangue all'alveolo.
+        </div>
+        <strong>Aria inspirata vs espirata:</strong>
+        <br>• O₂: 21% → 16% (cede il 5% al sangue)
+        <br>• CO₂: 0,04% → 4% (riceve CO₂ dal sangue — un aumento di 100 volte!)
+        <br>• N₂: 78% → 78% (non cambia mai)
+        <div class="highlight-box green">
+          ➤ L'aria espirata contiene ancora il 16% di O₂: ecco perché la respirazione bocca a bocca funziona.
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔴 L'emoglobina: il corriere dell'ossigeno</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        L'<strong>emoglobina</strong> è una proteina contenuta nei globuli rossi, specializzata nel trasporto dei gas:
+        <div class="highlight-box red">
+          <strong>Nei polmoni:</strong> l'emoglobina lega l'O₂ → il sangue diventa <strong>rosso vivo</strong> (sangue arterioso).
+        </div>
+        <div class="highlight-box red">
+          <strong>Nelle cellule:</strong> l'emoglobina rilascia l'O₂ e lega la CO₂ → il sangue diventa <strong>rosso scuro</strong> (sangue venoso).
+        </div>
+        Il ferro presente nell'emoglobina è il responsabile del colore rosso. Quando sei anemico (poco ferro), i globuli rossi trasportano meno ossigeno → ti senti stanco e affaticato.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ La formula della respirazione cellulare</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        La <strong>respirazione cellulare</strong> è il processo chimico che avviene in tutte le cellule per produrre energia:
+        <div class="highlight-box purple">
+          <strong>C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + Energia</strong>
+          <br>Glucosio + Ossigeno → Anidride Carbonica + Acqua + Energia
+        </div>
+        Questa formula è il <strong>filo conduttore</strong> che collega tre apparati:
+        <br>• <strong>Apparato respiratorio</strong> → fornisce O₂, elimina CO₂
+        <br>• <strong>Apparato digerente</strong> → fornisce il glucosio
+        <br>• <strong>Apparato circolatorio</strong> → trasporta gas e nutrienti ovunque
+        <div class="highlight-box purple">
+          ➤ Il <strong>centro respiratorio</strong> nel midollo allungato regola il ritmo: quando la CO₂ aumenta (sforzo), il respiro accelera automaticamente.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 5 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 4: Quiz -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi clicca "Verifica Risposte".</div>
+  <div class="quiz-area" id="quizArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- FASE 5: Ripasso -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"aria",categoryLabel:"Composizione dell'Aria",question:"Qual è il gas più abbondante nell'aria che respiriamo?",options:["Ossigeno (O₂)","Anidride carbonica (CO₂)","Azoto (N₂)","Vapore acqueo"],correct:2,explanation:"L'azoto (N₂) costituisce circa il 78% dell'aria. L'ossigeno è solo il 21%. L'azoto non partecipa alla respirazione ma funziona da diluente."},
+{category:"aria",categoryLabel:"Composizione dell'Aria",question:"Perché l'azoto è importante nell'aria, anche se non lo usiamo per respirare?",options:["Perché nutre le cellule","Perché funziona da diluente: l'ossigeno puro sarebbe tossico","Perché serve ai polmoni per espandersi","Perché trasporta la CO₂"],correct:1,explanation:"L'azoto funziona da diluente: se respirassimo ossigeno puro, sarebbe tossico per le nostre cellule. L'azoto 'diluisce' l'ossigeno alla giusta concentrazione."},
+{category:"meccanica",categoryLabel:"Meccanica Respiratoria",question:"Cosa succede al diaframma durante l'inspirazione?",options:["Si rilassa e sale","Si contrae e si abbassa","Si gonfia d'aria","Resta fermo"],correct:1,explanation:"Durante l'inspirazione il diaframma si contrae e si abbassa, aumentando il volume della gabbia toracica e facendo entrare l'aria nei polmoni."},
+{category:"meccanica",categoryLabel:"Meccanica Respiratoria",question:"Perché la frequenza respiratoria aumenta durante l'attività fisica?",options:["Perché i polmoni si ingrandiscono","Perché il centro respiratorio rileva l'aumento di CO₂ nel sangue","Perché i muscoli intercostali diventano più forti","Perché il diaframma si rilassa completamente"],correct:1,explanation:"Il centro respiratorio nel midollo allungato monitora i livelli di CO₂ nel sangue. Quando aumentano (durante lo sforzo), invia il segnale di respirare più velocemente."},
+{category:"meccanica",categoryLabel:"Meccanica Respiratoria",question:"Cos'è il 'volume residuo'?",options:["L'aria che entra ed esce a ogni respiro","La massima aria espirabile","L'aria che resta nei polmoni anche dopo un'espirazione massima","La quantità di aria inquinata"],correct:2,explanation:"Il volume residuo (~1–1,5 L) è l'aria che resta nei polmoni anche dopo aver soffiato al massimo. I polmoni non si svuotano mai completamente."},
+{category:"scambio",categoryLabel:"Scambi Gassosi",question:"Come si chiama il processo con cui l'O₂ passa dall'alveolo al sangue?",options:["Osmosi","Filtrazione","Diffusione","Compressione"],correct:2,explanation:"Lo scambio avviene per diffusione: ogni gas si sposta spontaneamente dal punto dove è più concentrato verso quello dove lo è meno."},
+{category:"scambio",categoryLabel:"Scambi Gassosi",question:"Nell'aria espirata, quanto ossigeno rimane?",options:["0% — viene tutto assorbito","Circa il 4%","Circa il 16%","Circa il 21% — uguale all'aria inspirata"],correct:2,explanation:"L'aria espirata contiene ancora circa il 16% di O₂ (dall'originale 21%). Ecco perché la respirazione bocca a bocca può funzionare."},
+{category:"trasporto",categoryLabel:"Trasporto dei Gas",question:"A cosa si lega l'ossigeno per essere trasportato nel sangue?",options:["Al plasma","Ai globuli bianchi","All'emoglobina nei globuli rossi","Alle piastrine"],correct:2,explanation:"L'O₂ si lega all'emoglobina, una proteina contenuta nei globuli rossi. L'emoglobina contiene ferro, che dà al sangue ossigenato il suo colore rosso vivo."},
+{category:"trasporto",categoryLabel:"Trasporto dei Gas",question:"Il sangue venoso è di colore blu?",options:["Sì, è blu perché carico di CO₂","No, è rosso scuro — il blu delle vene è un effetto ottico della pelle","Sì, diventa blu quando perde l'ossigeno","No, è trasparente"],correct:1,explanation:"Il sangue venoso (carico di CO₂) è rosso scuro, non blu. Il colore bluastro delle vene visibili sotto la pelle è un effetto ottico dovuto al modo in cui la luce attraversa la pelle."},
+{category:"cellulare",categoryLabel:"Respirazione Cellulare",question:"Quali sono i prodotti della respirazione cellulare?",options:["Glucosio e ossigeno","Anidride carbonica, acqua ed energia","Solo energia","Azoto e vapore acqueo"],correct:1,explanation:"La respirazione cellulare produce CO₂ + H₂O + Energia a partire dal glucosio e dall'ossigeno. La CO₂ è lo scarto che viene poi eliminato dai polmoni."}
+];
+let currentPhase=1;
+let phaseState={1:{total:6,opened:new Set()},2:{total:6,opened:new Set()},3:{total:5,opened:new Set()}};
+let quizAnswers={},quizVerified=false;
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById('phase'+n).classList.add('active');currentPhase=n;updateProgress();window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){for(let i=1;i<=5;i++){const d=document.getElementById('dot'+i);d.classList.remove('active','done');if(i<currentPhase)d.classList.add('done');else if(i===currentPhase)d.classList.add('active');if(i<5)document.getElementById('conn'+i).classList.toggle('done',i<currentPhase)}}
+function toggleElement(card){const phase=parseInt(card.dataset.phase);card.classList.add('opened');const grid=card.closest('.elements-grid');const cards=grid.querySelectorAll('.element-card');phaseState[phase].opened.add(Array.from(cards).indexOf(card));updateCounter(phase)}
+function updateCounter(phase){const s=phaseState[phase];const c=s.opened.size;const suffix=phase===3?'completate':'completati';document.getElementById('counter'+phase).textContent=c+' / '+s.total+' '+suffix;document.getElementById('next'+phase).disabled=c<s.total}
+function toggleConcept(card){const wasExp=card.classList.contains('expanded');card.classList.toggle('expanded');if(!wasExp){card.classList.add('opened');const all=card.closest('.concept-cards').querySelectorAll('.concept-card');phaseState[3].opened.add(Array.from(all).indexOf(card));updateCounter(3)}}
+function buildQuiz(){const area=document.getElementById('quizArea');const letters=['A','B','C','D'];let h='';quizData.forEach((q,i)=>{h+='<div class="quiz-question" id="qq'+i+'"><div class="q-number">'+q.categoryLabel+' — Domanda '+(i+1)+'</div><div class="q-text">'+q.question+'</div><div class="q-options">';q.options.forEach((o,j)=>{h+='<div class="q-option" data-q="'+i+'" data-opt="'+j+'" onclick="selectOption(this)"><div class="q-label">'+letters[j]+'</div><span>'+o+'</span></div>'});h+='</div><div class="q-feedback" id="fb'+i+'"></div></div>'});area.innerHTML=h}
+function selectOption(el){if(quizVerified)return;const q=parseInt(el.dataset.q);quizAnswers[q]=parseInt(el.dataset.opt);document.querySelectorAll('.q-option[data-q="'+q+'"]').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function verifyQuiz(){if(quizVerified){goToPhase(5);return}const un=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)un.push(i)});if(un.length>0){const f=un[0];const el=document.getElementById('qq'+f);el.classList.add('missed');setTimeout(()=>el.classList.remove('missed'),2000);el.scrollIntoView({behavior:'smooth',block:'center'});alert(un.length===1?'Manca la risposta alla domanda '+(f+1)+'.':'Mancano le risposte alle domande: '+un.map(u=>u+1).join(', ')+'.');return}quizVerified=true;quizData.forEach((q,i)=>{const qEl=document.getElementById('qq'+i);const fb=document.getElementById('fb'+i);const ok=quizAnswers[i]===q.correct;qEl.classList.add(ok?'correct':'wrong');document.querySelectorAll('.q-option[data-q="'+i+'"]').forEach(o=>{o.classList.add('locked');const oi=parseInt(o.dataset.opt);if(oi===q.correct)o.classList.add('show-correct');else if(oi===quizAnswers[i]&&!ok)o.classList.add('show-wrong')});fb.className='q-feedback '+(ok?'correct':'wrong');fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});document.getElementById('verifyBtn').textContent='Vai al Ripasso →';document.getElementById('verifyBtn').className='btn btn-primary';buildReview()}
+function buildReview(){const cats={};quizData.forEach((q,i)=>{if(!cats[q.category])cats[q.category]={label:q.categoryLabel,correct:0,total:0};cats[q.category].total++;if(quizAnswers[i]===q.correct)cats[q.category].correct++});const tc=quizData.filter((q,i)=>quizAnswers[i]===q.correct).length;const pct=Math.round((tc/quizData.length)*100);let ft,fc;if(pct>=90){ft='Ottimo lavoro! Padronanza eccellente.';fc='var(--success)'}else if(pct>=70){ft='Buon risultato! Rivedi le aree evidenziate.';fc='var(--blu)'}else if(pct>=50){ft='Ci sei quasi! Concentrati sulle aree da rivedere.';fc='var(--warning)'}else{ft='Continua a esercitarti! Ripassa con attenzione le schede.';fc='var(--error)'}
+document.getElementById('reviewScore').innerHTML='<div class="score-number" style="color:'+fc+'">'+tc+' / '+quizData.length+'</div><div class="score-label">'+pct+'% di risposte corrette</div><div class="score-feedback" style="color:'+fc+'">'+ft+'</div>';
+const rc={aria:{review:'<ul><li>L\'aria è composta da <strong>78% azoto</strong>, <strong>21% ossigeno</strong>, 1% altri gas.</li><li>L\'azoto funziona da <strong>diluente</strong>: l\'ossigeno puro sarebbe tossico.</li></ul>',summary:'Composizione dell\'aria atmosferica.'},meccanica:{review:'<ul><li><strong>Inspirazione:</strong> diaframma si contrae (scende) → costole si alzano → gabbia si espande → aria entra.</li><li><strong>Espirazione:</strong> diaframma si rilassa (sale) → costole si abbassano → gabbia si restringe → aria esce.</li><li><strong>Frequenza:</strong> 12–20 atti/min a riposo, regolata dal centro respiratorio nel midollo allungato.</li><li><strong>Volume corrente:</strong> ~0,5 L; <strong>capacità vitale:</strong> ~3–5 L; <strong>volume residuo:</strong> ~1–1,5 L.</li></ul>',summary:'Meccanica respiratoria: inspirazione, espirazione, volumi e frequenza.'},scambio:{review:'<ul><li>Negli alveoli: O₂ dall\'aria al sangue, CO₂ dal sangue all\'aria, per <strong>diffusione</strong>.</li><li>Aria inspirata: 21% O₂, 0,04% CO₂. Aria espirata: 16% O₂, 4% CO₂.</li><li>L\'azoto (78%) non cambia mai.</li></ul>',summary:'Scambio gassoso alveolare per diffusione.'},trasporto:{review:'<ul><li>L\'O₂ si lega all\'<strong>emoglobina</strong> nei globuli rossi → sangue rosso vivo (arterioso).</li><li>La CO₂ viaggia nel plasma e legata all\'emoglobina → sangue rosso scuro (venoso).</li><li>Il sangue venoso <strong>non è blu</strong>: è un effetto ottico della pelle.</li></ul>',summary:'Trasporto dei gas tramite emoglobina.'},cellulare:{review:'<ul><li><strong>Formula:</strong> C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + Energia</li><li>Collega tre apparati: respiratorio (O₂), digerente (glucosio), circolatorio (trasporto).</li><li><strong>Due significati:</strong> respirazione polmonare (scambio nei polmoni) ≠ respirazione cellulare (reazione chimica nelle cellule).</li></ul>',summary:'La respirazione cellulare e il collegamento tra apparati.'}};
+let rh='';for(const cat in cats){const c=cats[cat];const good=(c.correct/c.total)>=0.7;rh+='<div class="review-section '+(good?'good':'review')+'"><h3>'+(good?'✔ Hai capito bene':'⚠ Da rivedere')+' — '+c.label+'</h3>';if(good)rh+='<p>'+rc[cat].summary+' ('+c.correct+'/'+c.total+' corrette)</p>';else{rh+='<p>Hai risposto correttamente a '+c.correct+' su '+c.total+'. Ripassa:</p>';rh+=rc[cat].review}rh+='</div>'}document.getElementById('reviewArea').innerHTML=rh}
+function restart(){quizAnswers={};quizVerified=false;phaseState={1:{total:6,opened:new Set()},2:{total:6,opened:new Set()},3:{total:5,opened:new Set()}};document.querySelectorAll('.element-card').forEach(c=>c.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));for(let i=1;i<=3;i++)updateCounter(i);buildQuiz();document.getElementById('verifyBtn').textContent='Verifica Risposte';document.getElementById('verifyBtn').className='btn btn-success';goToPhase(1)}
+buildQuiz();
+</script>
+</body>
+</html>
