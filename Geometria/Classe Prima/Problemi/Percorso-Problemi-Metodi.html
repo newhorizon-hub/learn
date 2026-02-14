@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Metodi Risolutivi dei Problemi con i Segmenti</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --primary: #2a6e3f;
+    --primary-light: #e8f5ec;
+    --accent1: #2b62a3;
+    --accent1-light: #e1edf8;
+    --accent2: #a34729;
+    --accent2-light: #fceee5;
+    --accent3: #82298a;
+    --accent3-light: #f3e1f8;
+    --gray: #f5f5f5;
+    --gray-border: #ddd;
+    --text: #333;
+    --success: #2e7d32;
+    --success-bg: #e8f5e9;
+    --error: #c62828;
+    --error-bg: #ffebee;
+    --warning-bg: #fff8e1;
+    --warning-border: #f9a825;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #fafafa;
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 80px;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary), #1b5e30);
+    color: white;
+    padding: 28px 20px 22px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.5em; margin-bottom: 4px; }
+  header p { font-size: 0.95em; opacity: 0.9; }
+
+  /* Progress bar */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+    border-bottom: 1px solid var(--gray-border);
+    padding: 10px 16px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+  .progress-step {
+    width: 48px; height: 6px;
+    border-radius: 3px;
+    background: var(--gray-border);
+    transition: background 0.3s;
+  }
+  .progress-step.active { background: var(--primary); }
+  .progress-step.done { background: var(--success); }
+  .progress-label {
+    font-size: 0.75em;
+    color: #888;
+    margin-left: 8px;
+    min-width: 80px;
+  }
+
+  /* Phase containers */
+  .phase {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+  .phase.active { display: block; }
+
+  .phase-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .phase-intro {
+    color: #666;
+    margin-bottom: 16px;
+    font-size: 0.95em;
+  }
+
+  /* Clickable method cards (Phase 1 & 2) */
+  .method-card {
+    background: white;
+    border: 2px solid var(--gray-border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .method-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .method-card.opened { border-color: var(--success); }
+
+  .method-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 1.05em;
+  }
+  .method-header .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .method-card.opened .check {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+
+  .method-body {
+    display: none;
+    padding: 0 16px 16px;
+    animation: fadeIn 0.3s;
+  }
+  .method-card.opened .method-body { display: block; }
+
+  /* Method colors */
+  .method-card[data-method="sf"] .method-header { background: var(--accent1-light); color: var(--accent1); }
+  .method-card[data-method="sd"] .method-header { background: var(--accent3-light); color: var(--accent3); }
+  .method-card[data-method="df"] .method-header { background: var(--accent2-light); color: var(--accent2); }
+  .method-card[data-method="riepilogo"] .method-header { background: var(--primary-light); color: var(--primary); }
+
+  /* Diagram bars */
+  .diagram { margin: 14px 0; padding: 12px; background: var(--gray); border-radius: 8px; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 8px; }
+  .bar-label { width: 32px; font-weight: 700; font-size: 0.85em; text-align: right; margin-right: 8px; flex-shrink: 0; }
+  .bar-container { display: flex; gap: 2px; }
+  .bar-part {
+    height: 30px;
+    min-width: 36px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75em; font-weight: 600; color: white;
+  }
+  .bar-ab { background: #5b9bd5; }
+  .bar-cd { background: #e07850; }
+  .bar-diff { background: #5b9bd5; opacity: 0.4; border: 2px dashed #5b9bd5; color: #2b62a3; }
+
+  .diagram-note {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-left: 3px solid;
+    font-size: 0.9em;
+    border-radius: 0 6px 6px 0;
+  }
+  .diagram-note.sf { border-color: var(--accent1); background: var(--accent1-light); }
+  .diagram-note.sd { border-color: var(--accent3); background: var(--accent3-light); }
+  .diagram-note.df { border-color: var(--accent2); background: var(--accent2-light); }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .step-badge {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88em;
+    flex: 1 1 170px;
+  }
+  .step-badge strong { display: block; font-size: 0.8em; text-transform: uppercase; color: #999; margin-bottom: 2px; }
+
+  /* Solved example */
+  .example-box {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .example-box h4 { font-size: 0.9em; color: #666; margin-bottom: 6px; }
+
+  /* Phase 3: expandable concept cards */
+  .concept-card {
+    background: white;
+    border: 2px solid var(--gray-border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .concept-card.opened { border-color: var(--success); }
+  .concept-header {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 0.95em;
+    background: var(--gray);
+    transition: background 0.3s;
+  }
+  .concept-header:hover { background: #eee; }
+  .concept-header .arrow { transition: transform 0.3s; font-size: 0.8em; }
+  .concept-card.opened .concept-header .arrow { transform: rotate(90deg); }
+  .concept-header .check-c {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7em;
+    margin-right: 10px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .concept-card.opened .check-c {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+  .concept-body {
+    display: none;
+    padding: 14px 16px;
+    font-size: 0.93em;
+    line-height: 1.7;
+  }
+  .concept-card.opened .concept-body { display: block; animation: fadeIn 0.3s; }
+
+  /* Phase 4: Quiz */
+  .quiz-q {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .quiz-q.correct { border-color: var(--success); background: var(--success-bg); }
+  .quiz-q.wrong { border-color: var(--error); background: var(--error-bg); }
+
+  .q-text { font-weight: 600; margin-bottom: 10px; font-size: 0.95em; }
+  .q-category { font-size: 0.75em; color: #999; margin-bottom: 4px; }
+
+  .q-options { display: flex; flex-direction: column; gap: 6px; }
+  .q-option {
+    padding: 10px 14px;
+    border: 2px solid var(--gray-border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .q-option:hover:not(.locked) { border-color: var(--primary); background: var(--primary-light); }
+  .q-option.selected { border-color: var(--primary); background: var(--primary-light); font-weight: 600; }
+  .q-option.locked { cursor: default; }
+  .q-option.correct-answer { border-color: var(--success); background: var(--success-bg); }
+  .q-option.wrong-answer { border-color: var(--error); background: var(--error-bg); }
+
+  .q-option .radio {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-border);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .q-option.selected .radio { border-color: var(--primary); background: var(--primary); }
+
+  .q-feedback {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.88em;
+  }
+  .q-feedback.show { display: block; animation: fadeIn 0.3s; }
+  .q-feedback.ok { background: var(--success-bg); color: var(--success); }
+  .q-feedback.ko { background: var(--error-bg); color: var(--error); }
+
+  .q-missing {
+    display: none;
+    padding: 6px 10px;
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 6px;
+    font-size: 0.85em;
+    margin-top: 6px;
+    color: #8a6d00;
+  }
+
+  /* Phase 5: Review */
+  .review-area {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .review-area.good { background: var(--success-bg); border-left: 4px solid var(--success); }
+  .review-area.bad { background: var(--warning-bg); border-left: 4px solid var(--warning-border); }
+  .review-area h3 { font-size: 1em; margin-bottom: 6px; }
+  .review-area p, .review-area ul { font-size: 0.9em; }
+  .review-area ul { padding-left: 18px; }
+
+  .score-display {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 16px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--gray-border);
+  }
+  .score-number { font-size: 2.5em; font-weight: 800; }
+  .score-msg { font-size: 1em; color: #666; margin-top: 4px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #1b5e30; }
+  .btn-primary:disabled { background: #bbb; cursor: default; }
+  .btn-secondary { background: white; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-secondary:hover { background: var(--primary-light); }
+  .btn-center { text-align: center; margin-top: 20px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .formula-highlight {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    display: inline-block;
+    margin: 4px 2px;
+  }
+
+  /* Comparison table */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88em;
+    margin: 10px 0;
+  }
+  .cmp-table th, .cmp-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--gray-border);
+    text-align: left;
+  }
+  .cmp-table th { background: var(--gray); font-weight: 700; }
+
+  @media print {
+    [id^="phase"] { display: none !important; }
+    #phase5 { display: block !important; }
+    header, .progress-bar, .btn, .btn-center { display: none !important; }
+  }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.2em; }
+    .steps { flex-direction: column; }
+    .step-badge { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>I Metodi Risolutivi dei Problemi con i Segmenti</h1>
+  <p>Percorso di studio interattivo</p>
+</header>
+
+<div class="progress-bar">
+  <div class="progress-step" id="prog1"></div>
+  <div class="progress-step" id="prog2"></div>
+  <div class="progress-step" id="prog3"></div>
+  <div class="progress-step" id="prog4"></div>
+  <div class="progress-step" id="prog5"></div>
+  <span class="progress-label" id="progLabel">Fase 1/5</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 1: I metodi con la somma -->
+<!-- ============================================================ -->
+<div class="phase active" id="phase1">
+  <div class="phase-title">Fase 1 &mdash; I metodi con la somma</div>
+  <p class="phase-intro">Clicca su ogni metodo per scoprirne il funzionamento. Devi aprirli tutti per proseguire.</p>
+
+  <div class="method-card" data-method="sf" onclick="toggleMethod(this)">
+    <div class="method-header">
+      <span>&#9654; Somma e Frazione</span>
+      <div class="check"></div>
+    </div>
+    <div class="method-body">
+      <p><strong>Quando si usa:</strong> conosci la <em>somma</em> di due segmenti e sai che uno è una <em>frazione</em> dell'altro.</p>
+      <p style="margin-top:6px"><strong>Dati:</strong> \(AB + CD = S\) &nbsp;e&nbsp; \(CD = \dfrac{m}{n} \cdot AB\)</p>
+
+      <div class="diagram">
+        <div class="bar-row">
+          <div class="bar-label">AB</div>
+          <div class="bar-container">
+            <div class="bar-part bar-ab" style="width:50px">1</div>
+            <div class="bar-part bar-ab" style="width:50px">2</div>
+            <div class="bar-part bar-ab" style="width:50px">3</div>
+            <div class="bar-part bar-ab" style="width:50px">4</div>
+            <div class="bar-part bar-ab" style="width:50px">5</div>
+          </div>
+          <span style="margin-left:8px;font-size:0.8em;color:#666">\(\frac{5}{5}\) di AB = 5 parti</span>
+        </div>
+        <div class="bar-row" style="margin-bottom:0">
+          <div class="bar-label">CD</div>
+          <div class="bar-container">
+            <div class="bar-part bar-cd" style="width:50px">1</div>
+            <div class="bar-part bar-cd" style="width:50px">2</div>
+          </div>
+          <span style="margin-left:8px;font-size:0.8em;color:#666">\(\frac{2}{5}\) di AB = 2 parti</span>
+        </div>
+        <div class="diagram-note sf">
+          Le parti si <strong>sommano</strong>: &nbsp;\(5 + 2 = 7\) parti totali &nbsp;&rarr;&nbsp; \(1\) parte \(= S : 7\)
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step-badge"><strong>Passo 1</strong>Riscrivo \(AB = \frac{n}{n}\) di \(AB\)</div>
+        <div class="step-badge"><strong>Passo 2</strong>Parti totali: \(n + m\)</div>
+        <div class="step-badge"><strong>Passo 3</strong>\(1\) parte \(= S : (n + m)\)</div>
+        <div class="step-badge"><strong>Passo 4</strong>\(AB = 1\text{p} \times n\); &nbsp;\(CD = 1\text{p} \times m\)</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Esercizio svolto</h4>
+        <p>\(AB + CD = 35\) cm; &nbsp;\(CD = \frac{2}{5}\) di \(AB\).</p>
+        <p>Parti: \(5 + 2 = 7\). &nbsp;\(1\) p \(= 35 : 7 = 5\) cm. &nbsp;\(AB = 5 \times 5 = 25\) cm; &nbsp;\(CD = 5 \times 2 = 10\) cm.</p>
+        <p style="color:var(--success)"><em>Verifica: \(25 + 10 = 35\) &#10003;</em></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="method-card" data-method="sd" onclick="toggleMethod(this)">
+    <div class="method-header">
+      <span>&#9654; Somma e Differenza</span>
+      <div class="check"></div>
+    </div>
+    <div class="method-body">
+      <p><strong>Quando si usa:</strong> conosci la <em>somma</em> e la <em>differenza</em> di due segmenti.</p>
+      <p style="margin-top:6px"><strong>Dati:</strong> \(AB + CD = S\) &nbsp;e&nbsp; \(AB - CD = D\)</p>
+
+      <div class="diagram">
+        <div class="bar-row">
+          <div class="bar-label">AB</div>
+          <div class="bar-container" style="position:relative">
+            <div class="bar-part bar-ab" style="width:240px">26 cm</div>
+          </div>
+        </div>
+        <div class="bar-row" style="margin-bottom:0">
+          <div class="bar-label">CD</div>
+          <div class="bar-container" style="position:relative">
+            <div class="bar-part bar-cd" style="width:166px">18 cm</div>
+            <div class="bar-part bar-diff" style="width:72px;font-size:0.7em">D = 8</div>
+          </div>
+        </div>
+        <div class="diagram-note sd">
+          \(AB = (S + D) : 2 = (44 + 8) : 2 = 26\) cm &nbsp;&nbsp;|&nbsp;&nbsp; \(CD = (S - D) : 2 = (44 - 8) : 2 = 18\) cm
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step-badge"><strong>Passo 1</strong>Maggiore: \(AB = (S + D) : 2\)</div>
+        <div class="step-badge"><strong>Passo 2</strong>Minore: \(CD = (S - D) : 2\)</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Esercizio svolto</h4>
+        <p>\(AB + CD = 44\) cm; &nbsp;\(AB - CD = 8\) cm.</p>
+        <p>\(AB = (44 + 8) : 2 = 26\) cm. &nbsp;\(CD = (44 - 8) : 2 = 18\) cm.</p>
+        <p style="color:var(--success)"><em>Verifica: \(26 + 18 = 44\) &#10003; &nbsp;\(26 - 18 = 8\) &#10003;</em></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-center">
+    <button class="btn btn-primary" id="btn1" disabled onclick="goPhase(2)">Continua &#8594;</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 2: Il metodo con la differenza + riconoscimento -->
+<!-- ============================================================ -->
+<div class="phase" id="phase2">
+  <div class="phase-title">Fase 2 &mdash; Il metodo con la differenza</div>
+  <p class="phase-intro">Clicca su ogni elemento per esplorarlo. Devi aprirli tutti per proseguire.</p>
+
+  <div class="method-card" data-method="df" onclick="toggleMethod(this)">
+    <div class="method-header">
+      <span>&#9654; Differenza e Frazione</span>
+      <div class="check"></div>
+    </div>
+    <div class="method-body">
+      <p><strong>Quando si usa:</strong> conosci la <em>differenza</em> di due segmenti e sai che uno è una <em>frazione</em> dell'altro.</p>
+      <p style="margin-top:6px"><strong>Dati:</strong> \(AB - CD = D\) &nbsp;e&nbsp; \(CD = \dfrac{m}{n} \cdot AB\)</p>
+
+      <div class="diagram">
+        <div class="bar-row">
+          <div class="bar-label">AB</div>
+          <div class="bar-container">
+            <div class="bar-part bar-ab" style="width:50px">1</div>
+            <div class="bar-part bar-ab" style="width:50px">2</div>
+            <div class="bar-part bar-diff" style="width:50px">3</div>
+            <div class="bar-part bar-diff" style="width:50px">4</div>
+            <div class="bar-part bar-diff" style="width:50px">5</div>
+          </div>
+          <span style="margin-left:8px;font-size:0.8em;color:#666">\(\frac{5}{5}\) di AB = 5 parti</span>
+        </div>
+        <div class="bar-row" style="margin-bottom:0">
+          <div class="bar-label">CD</div>
+          <div class="bar-container">
+            <div class="bar-part bar-cd" style="width:50px">1</div>
+            <div class="bar-part bar-cd" style="width:50px">2</div>
+          </div>
+          <span style="margin-left:8px;font-size:0.8em;color:#666">\(\frac{2}{5}\) di AB = 2 parti</span>
+        </div>
+        <div class="diagram-note df">
+          Le parti si <strong>sottraggono</strong>: &nbsp;\(5 - 2 = 3\) parti (la differenza) &nbsp;&rarr;&nbsp; \(1\) parte \(= D : 3\)
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step-badge"><strong>Passo 1</strong>Riscrivo \(AB = \frac{n}{n}\) di \(AB\)</div>
+        <div class="step-badge"><strong>Passo 2</strong>Parti della differenza: \(n - m\)</div>
+        <div class="step-badge"><strong>Passo 3</strong>\(1\) parte \(= D : (n - m)\)</div>
+        <div class="step-badge"><strong>Passo 4</strong>\(AB = 1\text{p} \times n\); &nbsp;\(CD = 1\text{p} \times m\)</div>
+      </div>
+
+      <div class="example-box">
+        <h4>Esercizio svolto</h4>
+        <p>\(AB - CD = 15\) cm; &nbsp;\(CD = \frac{2}{5}\) di \(AB\).</p>
+        <p>Parti: \(5 - 2 = 3\). &nbsp;\(1\) p \(= 15 : 3 = 5\) cm. &nbsp;\(AB = 5 \times 5 = 25\) cm; &nbsp;\(CD = 5 \times 2 = 10\) cm.</p>
+        <p style="color:var(--success)"><em>Verifica: \(25 - 10 = 15\) &#10003;</em></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="method-card" data-method="riepilogo" onclick="toggleMethod(this)">
+    <div class="method-header">
+      <span>&#9654; Come riconoscere il metodo</span>
+      <div class="check"></div>
+    </div>
+    <div class="method-body">
+      <p>Leggi con attenzione il testo del problema e individua i <strong>due dati</strong> forniti:</p>
+      <table class="cmp-table">
+        <tr><th>Il problema fornisce...</th><th>Metodo</th><th>Formula chiave</th></tr>
+        <tr><td>Somma + Frazione</td><td>Somma e Fraz.</td><td>\(1\) p \(= S : (n + m)\)</td></tr>
+        <tr><td>Somma + Differenza</td><td>Somma e Diff.</td><td>\(AB = (S+D):2\)<br>\(CD = (S-D):2\)</td></tr>
+        <tr><td>Differenza + Frazione</td><td>Diff. e Fraz.</td><td>\(1\) p \(= D : (n - m)\)</td></tr>
+      </table>
+      <div style="margin-top:10px;padding:10px;background:var(--warning-bg);border-radius:8px;font-size:0.9em">
+        <strong>Attenzione:</strong> Somma e Frazione e Differenza e Frazione funzionano allo stesso modo. L'unica differenza: con la somma le parti si <strong>sommano</strong> (\(n + m\)), con la differenza si <strong>sottraggono</strong> (\(n - m\)).
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-center">
+    <button class="btn btn-secondary" onclick="goPhase(1)">&larr; Indietro</button>
+    <button class="btn btn-primary" id="btn2" disabled onclick="goPhase(3)">Continua &#8594;</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 3: Concetti chiave -->
+<!-- ============================================================ -->
+<div class="phase" id="phase3">
+  <div class="phase-title">Fase 3 &mdash; Concetti chiave</div>
+  <p class="phase-intro">Clicca su ogni card per approfondire. Devi aprirle tutte per proseguire.</p>
+
+  <div class="concept-card" id="cc1">
+    <div class="concept-header" onclick="toggleConcept('cc1')">
+      <div style="display:flex;align-items:center"><div class="check-c"></div>Il significato delle "parti"</div>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="concept-body">
+      <p>Nei metodi con la frazione, pensiamo al segmento \(AB\) come diviso in \(n\) parti uguali. Se \(CD = \frac{m}{n}\) di \(AB\), allora \(CD\) contiene \(m\) di quelle stesse parti.</p>
+      <p style="margin-top:6px">La "parte" è l'unità di misura nascosta del problema: una volta trovata, basta moltiplicare per il numero giusto di parti.</p>
+    </div>
+  </div>
+
+  <div class="concept-card" id="cc2">
+    <div class="concept-header" onclick="toggleConcept('cc2')">
+      <div style="display:flex;align-items:center"><div class="check-c"></div>Perché nel metodo S+D si divide per 2</div>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="concept-body">
+      <p>Se sommi \(AB + CD\) e \(AB - CD\) ottieni \(2 \cdot AB\), perché il \(CD\) si annulla. Quindi \(AB = (S + D) : 2\).</p>
+      <p style="margin-top:6px">Se invece sottrai: \((AB + CD) - (AB - CD) = 2 \cdot CD\). Quindi \(CD = (S - D) : 2\).</p>
+    </div>
+  </div>
+
+  <div class="concept-card" id="cc3">
+    <div class="concept-header" onclick="toggleConcept('cc3')">
+      <div style="display:flex;align-items:center"><div class="check-c"></div>La verifica: come controllare il risultato</div>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="concept-body">
+      <p>Dopo aver trovato i segmenti, <strong>verifica sempre</strong> che soddisfino entrambe le condizioni del problema.</p>
+      <p style="margin-top:6px">Per esempio, se il problema dice \(AB + CD = 35\) e \(CD = \frac{2}{5}\) di \(AB\):</p>
+      <ul style="margin:6px 0 0 16px">
+        <li>Controlla che \(25 + 10 = 35\) &#10003;</li>
+        <li>Controlla che \(\frac{2}{5} \times 25 = 10\) &#10003;</li>
+      </ul>
+      <p style="margin-top:6px">Se una delle due non torna, c'è un errore nei calcoli.</p>
+    </div>
+  </div>
+
+  <div class="concept-card" id="cc4">
+    <div class="concept-header" onclick="toggleConcept('cc4')">
+      <div style="display:flex;align-items:center"><div class="check-c"></div>Errori comuni da evitare</div>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="concept-body">
+      <p><strong>1. Confondere somma e differenza delle parti.</strong> Con la somma: \(n + m\). Con la differenza: \(n - m\). Se li scambi, il risultato è sbagliato.</p>
+      <p style="margin-top:6px"><strong>2. Dividere per la frazione anziché per le parti.</strong> Se \(CD = \frac{2}{5}\) di \(AB\), non si divide la somma per \(\frac{2}{5}\), ma per \(5 + 2 = 7\) parti.</p>
+      <p style="margin-top:6px"><strong>3. Dimenticare la verifica.</strong> Senza verifica non sai se hai sbagliato. Bastano 10 secondi per controllare.</p>
+    </div>
+  </div>
+
+  <div class="concept-card" id="cc5">
+    <div class="concept-header" onclick="toggleConcept('cc5')">
+      <div style="display:flex;align-items:center"><div class="check-c"></div>Problemi con tre segmenti</div>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="concept-body">
+      <p>Il procedimento si estende: se \(CD = \frac{m}{n}\) di \(AB\) e \(EF = \frac{p}{n}\) di \(AB\), allora le parti totali sono \(n + m + p\).</p>
+      <p style="margin-top:6px"><strong>Esempio:</strong> \(AB + CD + EF = 44\) cm, con \(CD = \frac{1}{2}\) di \(AB\) e \(EF = \frac{1}{3}\) di \(AB\).</p>
+      <p>\(AB = \frac{6}{6}\), \(CD = \frac{3}{6}\), \(EF = \frac{2}{6}\) &rarr; parti: \(6 + 3 + 2 = 11\). &nbsp;\(1\) p \(= 44 : 11 = 4\) cm.</p>
+      <p>\(AB = 24\) cm, \(CD = 12\) cm, \(EF = 8\) cm.</p>
+    </div>
+  </div>
+
+  <div class="btn-center">
+    <button class="btn btn-secondary" onclick="goPhase(2)">&larr; Indietro</button>
+    <button class="btn btn-primary" id="btn3" disabled onclick="goPhase(4)">Vai alla Verifica &#8594;</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 4: Quiz -->
+<!-- ============================================================ -->
+<div class="phase" id="phase4">
+  <div class="phase-title">Fase 4 &mdash; Verifica</div>
+  <p class="phase-intro">Rispondi a tutte le domande e poi clicca "Verifica Risposte".</p>
+
+  <div id="quizContainer"></div>
+
+  <div id="missingWarning" class="q-missing"></div>
+
+  <div class="btn-center">
+    <button class="btn btn-secondary" onclick="goPhase(3)">&larr; Indietro</button>
+    <button class="btn btn-primary" id="btnVerify" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FASE 5: Ripasso -->
+<!-- ============================================================ -->
+<div class="phase" id="phase5">
+  <div class="phase-title">Fase 5 &mdash; Ripasso personalizzato</div>
+
+  <div class="score-display" id="scoreDisplay"></div>
+  <div id="reviewContainer"></div>
+
+  <div class="btn-center">
+    <button class="btn btn-secondary" onclick="goPhase(4)">&larr; Rivedi Errori</button>
+    <button class="btn btn-secondary" onclick="printReview()">Stampa Ripasso</button>
+    <button class="btn btn-primary" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// QUIZ DATA
+// ============================================================
+const questions = [
+  {
+    cat: "Somma e Frazione",
+    text: "La somma di due segmenti è 28 cm e \\(CD = \\frac{3}{4}\\) di \\(AB\\). Quante sono le parti totali?",
+    options: ["7","4","3","12"],
+    correct: 0,
+    explanation: "AB = 4 parti, CD = 3 parti. Totale: 4 + 3 = 7 parti."
+  },
+  {
+    cat: "Somma e Frazione",
+    text: "La somma è 36 cm e \\(CD = \\frac{1}{2}\\) di \\(AB\\). Quanto vale 1 parte?",
+    options: ["18 cm","6 cm","12 cm","9 cm"],
+    correct: 2,
+    explanation: "AB = 2 parti, CD = 1 parte. Totale: 3 parti. 1 parte = 36 : 3 = 12 cm."
+  },
+  {
+    cat: "Somma e Frazione",
+    text: "La somma è 40 cm e \\(CD = \\frac{3}{5}\\) di \\(AB\\). Quanto misura \\(AB\\)?",
+    options: ["15 cm","24 cm","25 cm","20 cm"],
+    correct: 2,
+    explanation: "Parti totali: 5 + 3 = 8. 1 parte = 40 : 8 = 5 cm. AB = 5 × 5 = 25 cm."
+  },
+  {
+    cat: "Somma e Differenza",
+    text: "La somma è 52 cm e la differenza è 12 cm. Quanto misura il segmento maggiore?",
+    options: ["20 cm","26 cm","32 cm","40 cm"],
+    correct: 2,
+    explanation: "AB = (52 + 12) : 2 = 64 : 2 = 32 cm."
+  },
+  {
+    cat: "Somma e Differenza",
+    text: "La somma è 90 cm e la differenza è 30 cm. Quanto misura il segmento minore?",
+    options: ["30 cm","45 cm","60 cm","20 cm"],
+    correct: 0,
+    explanation: "CD = (90 − 30) : 2 = 60 : 2 = 30 cm."
+  },
+  {
+    cat: "Differenza e Frazione",
+    text: "La differenza è 12 cm e \\(CD = \\frac{1}{3}\\) di \\(AB\\). Quante sono le parti della differenza?",
+    options: ["4","3","2","1"],
+    correct: 2,
+    explanation: "AB = 3 parti, CD = 1 parte. Parti della differenza: 3 − 1 = 2."
+  },
+  {
+    cat: "Differenza e Frazione",
+    text: "La differenza è 15 cm e \\(CD = \\frac{2}{5}\\) di \\(AB\\). Quanto misura \\(CD\\)?",
+    options: ["25 cm","10 cm","6 cm","15 cm"],
+    correct: 1,
+    explanation: "Parti differenza: 5 − 2 = 3. 1 parte = 15 : 3 = 5 cm. CD = 5 × 2 = 10 cm."
+  },
+  {
+    cat: "Riconoscimento",
+    text: "Un problema dice: \"La somma di AB e CD è 48 cm. CD è i 2/7 di AB.\" Quale metodo usi?",
+    options: ["Somma e Differenza","Differenza e Frazione","Somma e Frazione","Nessuno dei tre"],
+    correct: 2,
+    explanation: "Hai la somma e una relazione frazionaria: è Somma e Frazione."
+  },
+  {
+    cat: "Riconoscimento",
+    text: "Un problema dice: \"La differenza è 8 cm e CD = 3/5 di AB.\" Quale metodo usi?",
+    options: ["Somma e Differenza","Differenza e Frazione","Somma e Frazione","Dipende dal contesto"],
+    correct: 1,
+    explanation: "Hai la differenza e una relazione frazionaria: è Differenza e Frazione."
+  },
+  {
+    cat: "Riconoscimento",
+    text: "Un problema dice: \"La somma è 78 cm e la differenza è 18 cm.\" Quale metodo usi?",
+    options: ["Somma e Differenza","Somma e Frazione","Differenza e Frazione","Serve la frazione"],
+    correct: 0,
+    explanation: "Hai somma e differenza numeriche: è Somma e Differenza."
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentPhase = 1;
+let quizAnswers = new Array(questions.length).fill(-1);
+let quizLocked = false;
+
+// ============================================================
+// PHASE NAVIGATION
+// ============================================================
+function goPhase(n) {
+  document.getElementById('phase' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase' + n).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('prog' + i);
+    el.classList.remove('active', 'done');
+    if (i < currentPhase) el.classList.add('done');
+    else if (i === currentPhase) el.classList.add('active');
+  }
+  document.getElementById('progLabel').textContent = 'Fase ' + currentPhase + '/5';
+}
+
+// ============================================================
+// PHASE 1 & 2: Method cards
+// ============================================================
+function toggleMethod(card) {
+  if (!card.classList.contains('opened')) {
+    card.classList.add('opened');
+    renderMath(card);
+  }
+  checkPhaseComplete();
+}
+
+function checkPhaseComplete() {
+  // Phase 1: 2 cards
+  const p1cards = document.querySelectorAll('#phase1 .method-card');
+  const p1done = [...p1cards].every(c => c.classList.contains('opened'));
+  document.getElementById('btn1').disabled = !p1done;
+
+  // Phase 2: 2 cards
+  const p2cards = document.querySelectorAll('#phase2 .method-card');
+  const p2done = [...p2cards].every(c => c.classList.contains('opened'));
+  document.getElementById('btn2').disabled = !p2done;
+
+  // Phase 3: concept cards
+  const ccs = document.querySelectorAll('.concept-card');
+  const p3done = [...ccs].every(c => c.classList.contains('opened'));
+  document.getElementById('btn3').disabled = !p3done;
+}
+
+// ============================================================
+// PHASE 3: Concept cards
+// ============================================================
+function toggleConcept(id) {
+  const card = document.getElementById(id);
+  if (!card.classList.contains('opened')) {
+    card.classList.add('opened');
+    renderMath(card);
+  } else {
+    card.classList.remove('opened');
+  }
+  checkPhaseComplete();
+}
+
+// ============================================================
+// PHASE 4: Quiz
+// ============================================================
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  let html = '';
+  questions.forEach((q, i) => {
+    html += `<div class="quiz-q" id="qq${i}">
+      <div class="q-category">${q.cat}</div>
+      <div class="q-text">${i+1}. ${q.text}</div>
+      <div class="q-options">`;
+    q.options.forEach((opt, j) => {
+      html += `<div class="q-option" data-q="${i}" data-o="${j}" onclick="selectOption(${i},${j})">
+        <div class="radio"></div><span>${opt}</span>
+      </div>`;
+    });
+    html += `</div><div class="q-feedback" id="fb${i}"></div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function selectOption(qi, oi) {
+  if (quizLocked) return;
+  quizAnswers[qi] = oi;
+  const opts = document.querySelectorAll(`.q-option[data-q="${qi}"]`);
+  opts.forEach(o => o.classList.remove('selected'));
+  opts[oi].classList.add('selected');
+  document.getElementById('missingWarning').style.display = 'none';
+}
+
+function verifyQuiz() {
+  // Check all answered
+  const missing = [];
+  quizAnswers.forEach((a, i) => { if (a === -1) missing.push(i + 1); });
+  if (missing.length > 0) {
+    const warn = document.getElementById('missingWarning');
+    warn.textContent = 'Rispondi prima alle domande: ' + missing.join(', ');
+    warn.style.display = 'block';
+    const first = document.getElementById('qq' + (missing[0] - 1));
+    first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  quizLocked = true;
+  document.getElementById('btnVerify').textContent = 'Vai al Ripasso →';
+  document.getElementById('btnVerify').onclick = function() { goPhase(5); buildReview(); };
+
+  // Lock and show feedback
+  document.querySelectorAll('.q-option').forEach(o => o.classList.add('locked'));
+
+  questions.forEach((q, i) => {
+    const qq = document.getElementById('qq' + i);
+    const fb = document.getElementById('fb' + i);
+    const opts = document.querySelectorAll(`.q-option[data-q="${i}"]`);
+
+    if (quizAnswers[i] === q.correct) {
+      qq.classList.add('correct');
+      fb.className = 'q-feedback show ok';
+      fb.textContent = '✓ Corretto! ' + q.explanation;
+    } else {
+      qq.classList.add('wrong');
+      opts[quizAnswers[i]].classList.add('wrong-answer');
+      opts[q.correct].classList.add('correct-answer');
+      fb.className = 'q-feedback show ko';
+      fb.textContent = '✗ ' + q.explanation;
+    }
+  });
+
+  renderMath(document.getElementById('quizContainer'));
+}
+
+// ============================================================
+// PHASE 5: Review
+// ============================================================
+function buildReview() {
+  let score = 0;
+  const catResults = {};
+  questions.forEach((q, i) => {
+    if (!catResults[q.cat]) catResults[q.cat] = { ok: 0, total: 0 };
+    catResults[q.cat].total++;
+    if (quizAnswers[i] === q.correct) { score++; catResults[q.cat].ok++; }
+  });
+
+  // Score
+  const pct = Math.round(score / questions.length * 100);
+  let msg = '';
+  if (pct >= 80) msg = 'Ottimo lavoro! Hai capito bene i metodi.';
+  else if (pct >= 60) msg = 'Buon risultato, ma ripassa le aree evidenziate.';
+  else msg = 'Da rivedere con attenzione. Rileggi i metodi e riprova.';
+
+  document.getElementById('scoreDisplay').innerHTML =
+    `<div class="score-number" style="color:${pct >= 60 ? 'var(--success)' : 'var(--error)'}">${score}/${questions.length}</div>
+     <div class="score-msg">${msg}</div>`;
+
+  // Review areas
+  const reviewContent = {
+    "Somma e Frazione": {
+      review: `<p><strong>Metodo Somma e Frazione</strong></p>
+        <ul>
+          <li>Riscrivi \\(AB = \\frac{n}{n}\\) di \\(AB\\)</li>
+          <li>Calcola le parti totali: \\(n + m\\)</li>
+          <li>\\(1\\) parte \\(= S : (n + m)\\)</li>
+          <li>\\(AB = 1\\text{p} \\times n\\), \\(CD = 1\\text{p} \\times m\\)</li>
+        </ul>`,
+      summary: "Somma + Frazione → le parti si sommano."
+    },
+    "Somma e Differenza": {
+      review: `<p><strong>Metodo Somma e Differenza</strong></p>
+        <ul>
+          <li>Segmento maggiore: \\(AB = (S + D) : 2\\)</li>
+          <li>Segmento minore: \\(CD = (S - D) : 2\\)</li>
+          <li>Ricorda: sommi S e D per il maggiore, sottrai per il minore.</li>
+        </ul>`,
+      summary: "Somma + Differenza → formule dirette con divisione per 2."
+    },
+    "Differenza e Frazione": {
+      review: `<p><strong>Metodo Differenza e Frazione</strong></p>
+        <ul>
+          <li>Riscrivi \\(AB = \\frac{n}{n}\\) di \\(AB\\)</li>
+          <li>Calcola le parti della differenza: \\(n - m\\)</li>
+          <li>\\(1\\) parte \\(= D : (n - m)\\)</li>
+          <li>\\(AB = 1\\text{p} \\times n\\), \\(CD = 1\\text{p} \\times m\\)</li>
+        </ul>`,
+      summary: "Differenza + Frazione → le parti si sottraggono."
+    },
+    "Riconoscimento": {
+      review: `<p><strong>Come riconoscere il metodo</strong></p>
+        <ul>
+          <li>Somma + Frazione → metodo Somma e Frazione</li>
+          <li>Somma + Differenza → metodo Somma e Differenza</li>
+          <li>Differenza + Frazione → metodo Differenza e Frazione</li>
+        </ul>
+        <p style="margin-top:6px">Leggi il problema, individua i due dati e scegli il metodo giusto.</p>`,
+      summary: "Individua i due dati → scegli il metodo."
+    }
+  };
+
+  let html = '';
+  for (const cat in catResults) {
+    const r = catResults[cat];
+    const good = r.ok === r.total;
+    html += `<div class="review-area ${good ? 'good' : 'bad'}">
+      <h3>${good ? '&#10003; ' : '&#9888; '}${cat} (${r.ok}/${r.total})</h3>
+      ${good
+        ? `<p>${reviewContent[cat].summary}</p>`
+        : reviewContent[cat].review}
+    </div>`;
+  }
+
+  document.getElementById('reviewContainer').innerHTML = html;
+  renderMath(document.getElementById('phase5'));
+}
+
+function printReview() { window.print(); }
+
+function restart() {
+  quizAnswers = new Array(questions.length).fill(-1);
+  quizLocked = false;
+
+  // Reset method cards
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('opened'));
+  document.querySelectorAll('.concept-card').forEach(c => c.classList.remove('opened'));
+
+  // Reset buttons
+  document.getElementById('btn1').disabled = true;
+  document.getElementById('btn2').disabled = true;
+  document.getElementById('btn3').disabled = true;
+  document.getElementById('btnVerify').textContent = 'Verifica Risposte';
+  document.getElementById('btnVerify').onclick = verifyQuiz;
+  document.getElementById('missingWarning').style.display = 'none';
+
+  // Rebuild quiz
+  buildQuiz();
+  renderMath(document.getElementById('quizContainer'));
+
+  goPhase(1);
+}
+
+// ============================================================
+// KATEX RENDER
+// ============================================================
+function renderMath(el) {
+  if (!el) el = document.body;
+  renderMathInElement(el, {
+    delimiters: [
+      { left: "\\(", right: "\\)", display: false },
+      { left: "\\[", right: "\\]", display: true }
+    ],
+    throwOnError: false
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  buildQuiz();
+  updateProgress();
+  renderMath();
+});
+</script>
+</body>
+</html>
