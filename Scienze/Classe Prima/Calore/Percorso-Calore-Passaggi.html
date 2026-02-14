@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Trasmissione del Calore e i Cambiamenti di Stato</title>
+<style>
+:root {
+  --rosso: #C62828; --rosso-light: #FFCDD2; --rosso-bg: #FFEBEE;
+  --arancio: #E65100; --arancio-light: #FFE0B2; --arancio-bg: #FFF3E0;
+  --blu: #1565C0; --blu-light: #BBDEFB; --blu-bg: #E3F2FD;
+  --giallo: #F9A825; --giallo-light: #FFF9C4; --giallo-bg: #FFFDE7;
+  --viola: #6A1B9A; --viola-light: #E1BEE7; --viola-bg: #F3E5F5;
+  --verde: #2E7D32; --verde-light: #C8E6C9;
+  --gray-dark: #2C3E50; --gray-mid: #566573; --gray-light: #F4F6F7;
+  --gray-border: #D5D8DC; --white: #FFFFFF;
+  --success: #27AE60; --error: #E74C3C; --warning: #F39C12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-light);color:var(--gray-dark);line-height:1.6;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--rosso) 0%,#E53935 100%);color:white;padding:28px 24px;border-radius:16px;margin-bottom:20px;text-align:center}
+header h1{font-size:1.45em;font-weight:700;margin-bottom:4px}
+header p{font-size:0.95em;opacity:0.9}
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;background:var(--gray-border);color:var(--gray-mid);transition:all 0.3s}
+.step-dot.active{background:var(--rosso);color:white;box-shadow:0 2px 8px rgba(198,40,40,0.35)}
+.step-dot.done{background:var(--success);color:white}
+.step-connector{width:28px;height:3px;background:var(--gray-border);border-radius:2px;transition:background 0.3s}
+.step-connector.done{background:var(--success)}
+.phase{display:none;animation:fadeIn 0.4s ease}.phase.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.phase-title{font-size:1.25em;font-weight:700;color:var(--gray-dark);margin-bottom:6px}
+.phase-instruction{font-size:0.92em;color:var(--gray-mid);margin-bottom:16px;padding:10px 14px;background:var(--rosso-bg);border-left:4px solid var(--rosso);border-radius:0 8px 8px 0}
+.elements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.element-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.element-card::after{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:var(--gray-border);border-radius:0 10px 10px 0;transition:all 0.35s ease}
+.element-card.opened::after{background:var(--success);width:6px;box-shadow:0 0 8px rgba(39,174,96,0.3)}
+.element-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.element-card.opened{border-color:var(--success)}
+.element-card .card-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05em;color:var(--gray-dark)}
+.element-card .card-header .icon{font-size:1.3em}
+.element-card .card-header::after{content:'›';font-size:1.2em;color:var(--gray-border);transition:all 0.3s;font-weight:700}
+.element-card.opened .card-header::after{content:'✔';color:var(--success);font-size:0.9em}
+.element-card .card-body{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-border);font-size:0.93em;color:var(--gray-mid);line-height:1.65;display:none}
+.element-card.opened .card-body{display:block}
+.element-card .card-body strong{color:var(--gray-dark)}
+.example{margin-top:8px;padding:8px 12px;background:var(--gray-light);border-radius:8px;font-size:0.9em}
+.element-card.princ{border-left:5px solid var(--rosso)}.element-card.princ.opened{background:var(--rosso-bg);border-color:var(--rosso)}
+.element-card.cond{border-left:5px solid var(--arancio)}.element-card.cond.opened{background:var(--arancio-bg);border-color:var(--arancio)}
+.element-card.conv{border-left:5px solid var(--blu)}.element-card.conv.opened{background:var(--blu-bg);border-color:var(--blu)}
+.element-card.irr{border-left:5px solid var(--giallo)}.element-card.irr.opened{background:var(--giallo-bg);border-color:var(--giallo)}
+.element-card.stati{border-left:5px solid var(--viola)}.element-card.stati.opened{background:var(--viola-bg);border-color:var(--viola)}
+.concept-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.concept-card{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;overflow:hidden;transition:border-color 0.3s}
+.concept-card.opened{border-color:var(--success)}
+.concept-card .concept-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:1em;color:var(--gray-dark);transition:background 0.2s;user-select:none;gap:10px}
+.concept-card .concept-header:hover{background:var(--gray-light)}
+.concept-card .concept-header .arrow{transition:transform 0.3s;font-size:0.9em;color:var(--gray-mid)}
+.concept-card.expanded .concept-header .arrow{transform:rotate(180deg)}
+.concept-card .concept-body{padding:0 16px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;font-size:0.93em;color:var(--gray-mid);line-height:1.7}
+.concept-card.expanded .concept-body{max-height:800px;padding:0 16px 16px 16px}
+.concept-card .concept-body strong{color:var(--gray-dark)}
+.highlight-box{margin:10px 0;padding:10px 14px;border-radius:8px;font-size:0.93em}
+.highlight-box.red{background:var(--rosso-light);border-left:4px solid var(--rosso)}
+.highlight-box.orange{background:var(--arancio-light);border-left:4px solid var(--arancio)}
+.highlight-box.blue{background:var(--blu-light);border-left:4px solid var(--blu)}
+.highlight-box.yellow{background:var(--giallo-light);border-left:4px solid var(--giallo)}
+.highlight-box.purple{background:var(--viola-light);border-left:4px solid var(--viola)}
+.quiz-area{margin-bottom:20px}
+.quiz-question{background:var(--white);border:2px solid var(--gray-border);border-radius:12px;padding:18px;margin-bottom:12px;transition:border-color 0.3s}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF0F0}
+.quiz-question.missed{border-color:var(--warning);background:#FFF8E8}
+.q-number{font-size:0.8em;font-weight:700;color:var(--rosso);text-transform:uppercase;margin-bottom:6px}
+.q-text{font-weight:600;font-size:1em;margin-bottom:12px;color:var(--gray-dark)}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--gray-border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:0.93em}
+.q-option:hover{border-color:var(--rosso);background:var(--rosso-bg)}
+.q-option.selected{border-color:var(--rosso);background:var(--rosso-light);font-weight:600}
+.q-option.locked{pointer-events:none;opacity:0.85}
+.q-option.show-correct{border-color:var(--success);background:#D5F5E3;font-weight:600}
+.q-option.show-wrong{border-color:var(--error);background:#FADBD8}
+.q-label{width:26px;height:26px;border-radius:6px;border:2px solid var(--gray-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8em;color:var(--gray-mid);transition:all 0.2s}
+.q-option.selected .q-label{border-color:var(--rosso);background:var(--rosso);color:white}
+.q-option.show-correct .q-label{border-color:var(--success);background:var(--success);color:white}
+.q-option.show-wrong .q-label{border-color:var(--error);background:var(--error);color:white}
+.q-feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.9em;display:none;line-height:1.5}
+.q-feedback.correct{display:block;background:#D5F5E3;color:#1E7E34}
+.q-feedback.wrong{display:block;background:#FADBD8;color:#C0392B}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;border:2px solid var(--gray-border);margin-bottom:20px}
+.score-number{font-size:3em;font-weight:800}.score-label{font-size:1em;color:var(--gray-mid);margin-top:4px}
+.score-feedback{font-size:1.1em;font-weight:600;margin-top:10px}
+.review-area{margin-bottom:20px}
+.review-section{border-radius:12px;padding:16px;margin-bottom:12px;border-left:5px solid}
+.review-section.good{background:#D5F5E3;border-color:var(--success)}
+.review-section.review{background:#FEF9E7;border-color:var(--warning)}
+.review-section h3{font-size:1em;margin-bottom:8px}
+.review-section.good h3{color:var(--success)}.review-section.review h3{color:#B7950B}
+.review-section p,.review-section ul{font-size:0.93em;color:var(--gray-dark);line-height:1.65}
+.review-section ul{padding-left:1.3em;margin-top:6px}.review-section li{margin-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:none;border-radius:10px;font-size:0.95em;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:var(--rosso);color:white}.btn-primary:hover{background:#8E1515}
+.btn-primary:disabled{background:var(--gray-border);color:var(--gray-mid);cursor:not-allowed}
+.btn-secondary{background:var(--white);color:var(--rosso);border:2px solid var(--rosso)}.btn-secondary:hover{background:var(--rosso-bg)}
+.btn-success{background:var(--success);color:white}.btn-success:hover{background:#1E8449}
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px}
+.counter-badge{background:var(--rosso-bg);color:var(--rosso);padding:6px 14px;border-radius:20px;font-size:0.85em;font-weight:600}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}header,.progress-bar,.nav-buttons,.btn,button{display:none!important}.review-section{break-inside:avoid}}
+@media(max-width:600px){.container{padding:10px}header{padding:20px 16px}header h1{font-size:1.2em}.elements-grid{grid-template-columns:1fr}.step-connector{width:14px}.step-dot{width:30px;height:30px;font-size:0.75em}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>La Trasmissione del Calore e i Cambiamenti di Stato</h1>
+  <p>Percorso didattico interattivo</p>
+</header>
+<div class="progress-bar">
+  <div class="step-dot active" id="dot1">1</div><div class="step-connector" id="conn1"></div>
+  <div class="step-dot" id="dot2">2</div><div class="step-connector" id="conn2"></div>
+  <div class="step-dot" id="dot3">3</div><div class="step-connector" id="conn3"></div>
+  <div class="step-dot" id="dot4">4</div><div class="step-connector" id="conn4"></div>
+  <div class="step-dot" id="dot5">5</div>
+</div>
+
+<!-- FASE 1: Le tre modalità di trasmissione -->
+<div class="phase active" id="phase1">
+  <h2 class="phase-title">Fase 1 — Le tre modalità di trasmissione del calore</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid1">
+
+    <div class="element-card princ" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔥</span> Il principio fondamentale</span></div>
+      <div class="card-body">Il calore passa <strong>spontaneamente</strong> dal corpo più caldo a quello più freddo — mai il contrario. Il passaggio continua finché i due corpi raggiungono la stessa temperatura: si dice che sono in <strong>equilibrio termico</strong>.<div class="example">➤ Il calore si propaga in tre modi: <strong>conduzione</strong> (contatto), <strong>convezione</strong> (movimento di materia), <strong>irraggiamento</strong> (raggi termici).</div></div>
+    </div>
+
+    <div class="element-card cond" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> La conduzione</span></div>
+      <div class="card-body">La <strong>conduzione</strong> è la trasmissione di calore per <strong>contatto diretto</strong>, senza spostamento di materia. È tipica dei <strong>solidi</strong>.<br><br>Gli atomi della zona calda vibrano più velocemente, urtano quelli vicini cedendo energia: il calore si propaga di atomo in atomo lungo tutto il materiale.<div class="example">➤ <strong>Esempio:</strong> un cucchiaio di metallo nel tè caldo — dopo poco anche il manico diventa caldo. Il calore si è propagato atomo per atomo lungo il cucchiaio.</div></div>
+    </div>
+
+    <div class="element-card cond" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔸</span> Conduttori e isolanti termici</span></div>
+      <div class="card-body">Non tutti i materiali conducono il calore allo stesso modo:<br><br><strong>Conduttori termici</strong> — conducono bene il calore. I metalli sono ottimi conduttori: argento (420), rame (380), alluminio (220), acciaio (52).<br><br><strong>Isolanti termici</strong> — conducono male il calore. Vetro (0,73), legno (0,15), polistirolo (0,032).<br><br>I numeri tra parentesi sono i <strong>coefficienti di conducibilità termica</strong>: più è alto, più il materiale conduce il calore velocemente.<div class="example">➤ Ecco perché le pentole sono di metallo (conduce il calore al cibo) ma i manici sono di plastica o legno (isolanti, non ti scotti).</div></div>
+    </div>
+
+    <div class="element-card conv" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">🔹</span> La convezione</span></div>
+      <div class="card-body">La <strong>convezione</strong> è la trasmissione di calore attraverso il <strong>movimento di materia</strong>. È tipica dei <strong>liquidi</strong> e dei <strong>gas</strong>.<br><br>Il fluido vicino alla sorgente di calore si riscalda, si dilata, diventa più leggero e <strong>sale</strong>. Il fluido freddo, più pesante, <strong>scende</strong> a prendere il suo posto. Si crea una <strong>corrente circolare</strong> chiamata <strong>moto convettivo</strong>.<div class="example">➤ <strong>Esempi:</strong> il calorifero riscalda l'aria che sale e crea correnti nell'ambiente; la pentola sul fuoco — l'acqua in basso si riscalda e sale; l'inchiostro nell'acqua calda sale in filamenti visibili.</div></div>
+    </div>
+
+    <div class="element-card irr" data-phase="1" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">☀</span> L'irraggiamento</span></div>
+      <div class="card-body">L'<strong>irraggiamento</strong> è la trasmissione di calore sotto forma di <strong>raggi termici</strong> (raggi infrarossi). Non richiede contatto né materia: attraversa anche il <strong>vuoto</strong>.<br><br>Ogni corpo caldo emette radiazioni termiche. Il calore del Sole raggiunge la Terra attraversando <strong>150 milioni di km</strong> di spazio vuoto — né conduzione né convezione potrebbero farlo.<div class="example">➤ Se avvicini la mano a un calorifero senza toccarlo, senti il calore: è irraggiamento. Persino gli animali emettono radiazioni termiche, visibili nei termogrammi.</div></div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <span class="counter-badge" id="counter1">0 / 5 completati</span>
+    <button class="btn btn-primary" id="next1" disabled onclick="goToPhase(2)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 2: I cambiamenti di stato -->
+<div class="phase" id="phase2">
+  <h2 class="phase-title">Fase 2 — I cambiamenti di stato</h2>
+  <div class="phase-instruction">Clicca su ogni elemento per scoprirne il contenuto. Devi aprirli tutti per procedere.</div>
+  <div class="elements-grid" id="grid2">
+
+    <div class="element-card stati" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Il principio dei cambiamenti</span></div>
+      <div class="card-body">Quando una sostanza passa da uno stato di aggregazione a un altro si ha un <strong>cambiamento di stato</strong>. Per avvenire, occorre <strong>fornire o sottrarre calore</strong> a un corpo.<br><br>Quando la temperatura <strong>aumenta</strong>, il corpo assorbe calore. Quando <strong>diminuisce</strong>, il corpo cede calore.<div class="example">➤ Regola fondamentale: <strong>durante</strong> il cambiamento di stato la temperatura resta <strong>costante</strong>. L'energia fornita serve a modificare i legami tra le molecole, non ad aumentare la temperatura.</div></div>
+    </div>
+
+    <div class="element-card stati" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Fusione e solidificazione</span></div>
+      <div class="card-body"><strong>Fusione</strong> = solido → liquido (assorbe calore)<br>Il corpo assorbe energia, i legami tra le molecole si indeboliscono, la struttura rigida si rompe e la sostanza diventa liquida.<br><br><strong>Solidificazione</strong> = liquido → solido (cede calore)<br>Il corpo cede energia, i legami si rafforzano, le molecole si dispongono in modo ordinato formando un solido.<div class="example">➤ <strong>Fusione:</strong> il ghiaccio si scioglie a 0 °C. <strong>Solidificazione:</strong> l'acqua gela a 0 °C. Sono il processo inverso l'uno dell'altro.</div></div>
+    </div>
+
+    <div class="element-card stati" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Vaporizzazione e condensazione</span></div>
+      <div class="card-body"><strong>Vaporizzazione</strong> = liquido → gas (assorbe calore)<br>Può avvenire in due modi: per <strong>evaporazione</strong> (lenta, dalla superficie, a qualsiasi temperatura) o per <strong>ebollizione</strong> (rapida, in tutta la massa, a una temperatura precisa).<br><br><strong>Condensazione</strong> = gas → liquido (cede calore)<br>Il gas si raffredda, le molecole rallentano e si raggruppano formando un liquido.<div class="example">➤ <strong>Vaporizzazione:</strong> l'acqua bolle a 100 °C; una pozzanghera evapora lentamente al sole. <strong>Condensazione:</strong> le goccioline sullo specchio del bagno dopo la doccia.</div></div>
+    </div>
+
+    <div class="element-card stati" data-phase="2" onclick="toggleElement(this)">
+      <div class="card-header"><span><span class="icon">◆</span> Sublimazione e brinamento</span></div>
+      <div class="card-body"><strong>Sublimazione</strong> = solido → gas direttamente, senza passare per il liquido (assorbe calore).<br><br><strong>Brinamento</strong> = gas → solido direttamente, senza passare per il liquido (cede calore).<div class="example">➤ <strong>Sublimazione:</strong> le palline di naftalina che "spariscono" nell'armadio, il ghiaccio secco che produce "fumo". <strong>Brinamento:</strong> la brina che si forma sulle superfici fredde al mattino (il vapore acqueo diventa direttamente ghiaccio).</div></div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(1)">← Indietro</button>
+    <span class="counter-badge" id="counter2">0 / 4 completati</span>
+    <button class="btn btn-primary" id="next2" disabled onclick="goToPhase(3)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 3 -->
+<div class="phase" id="phase3">
+  <h2 class="phase-title">Fase 3 — Concetti Chiave</h2>
+  <div class="phase-instruction">Apri ogni scheda per approfondire. Devi aprirle tutte per procedere.</div>
+  <div class="concept-cards" id="concepts3">
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔥 Le tre modalità a confronto</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box orange"><strong>Conduzione</strong> — per contatto, senza spostamento di materia. Tipica dei <strong>solidi</strong>. Di atomo in atomo. Esempio: cucchiaio nel tè.</div>
+        <div class="highlight-box blue"><strong>Convezione</strong> — per movimento di materia (moto convettivo). Tipica di <strong>liquidi e gas</strong>. Aria calda sale, fredda scende. Esempio: calorifero.</div>
+        <div class="highlight-box yellow"><strong>Irraggiamento</strong> — per raggi termici (infrarossi). Non serve materia, attraversa il <strong>vuoto</strong>. Esempio: calore del Sole → Terra.</div>
+        <strong>Domanda chiave:</strong> serve materia? Serve contatto? Se la risposta è "no" a entrambe → irraggiamento. Se serve materia ma non contatto → convezione. Se serve sia materia sia contatto → conduzione.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔸 Conduttori vs Isolanti — perché conta</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Il <strong>coefficiente di conducibilità termica</strong> misura quanto velocemente un materiale conduce il calore. Più è alto, più conduce.
+        <div class="highlight-box orange">
+          <strong>Conduttori</strong> (coefficiente alto): argento 420, rame 380, alluminio 220, acciaio 52. I metalli sono ottimi conduttori perché i loro atomi trasmettono rapidamente le vibrazioni.
+        </div>
+        <div class="highlight-box orange">
+          <strong>Isolanti</strong> (coefficiente basso): vetro 0,73, legno 0,15, polistirolo 0,032. I loro atomi trasmettono le vibrazioni con difficoltà.
+        </div>
+        ➤ <strong>Attenzione:</strong> la lana non "scalda" — è un isolante. Non produce calore, impedisce al calore del tuo corpo di disperdersi nell'aria fredda.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>◆ I 6 cambiamenti di stato — schema completo</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        <div class="highlight-box purple">
+          <strong>Assorbono calore</strong> (frecce "in salita"):
+          <br>• <strong>Fusione:</strong> solido → liquido (ghiaccio → acqua a 0 °C)
+          <br>• <strong>Vaporizzazione:</strong> liquido → gas (acqua → vapore a 100 °C)
+          <br>• <strong>Sublimazione:</strong> solido → gas (naftalina, ghiaccio secco)
+        </div>
+        <div class="highlight-box purple">
+          <strong>Cedono calore</strong> (frecce "in discesa"):
+          <br>• <strong>Solidificazione:</strong> liquido → solido (acqua → ghiaccio a 0 °C)
+          <br>• <strong>Condensazione:</strong> gas → liquido (vapore → goccioline)
+          <br>• <strong>Brinamento:</strong> gas → solido (vapore → brina)
+        </div>
+        ➤ <strong>Regola d'oro:</strong> durante il cambiamento di stato la temperatura resta <strong>costante</strong> — l'energia non scalda, rompe o forma legami tra molecole.
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>☀ Evaporazione ≠ Ebollizione ≠ Sublimazione</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Tre processi diversi che gli studenti spesso confondono:
+        <div class="highlight-box yellow"><strong>Evaporazione</strong> — vaporizzazione lenta, avviene solo dalla <strong>superficie</strong> del liquido, a <strong>qualsiasi temperatura</strong>. Es: pozzanghera che si asciuga al sole.</div>
+        <div class="highlight-box yellow"><strong>Ebollizione</strong> — vaporizzazione rapida, avviene in <strong>tutta la massa</strong> del liquido, a una <strong>temperatura precisa</strong> (100 °C per l'acqua). Es: pentola che bolle.</div>
+        <div class="highlight-box yellow"><strong>Sublimazione</strong> — passaggio diretto da <strong>solido a gas</strong>, saltando la fase liquida. Non è un tipo di vaporizzazione. Es: naftalina, ghiaccio secco.</div>
+      </div>
+    </div>
+
+    <div class="concept-card" data-phase="3">
+      <div class="concept-header" onclick="toggleConcept(this.parentElement)">
+        <span>🔹 Convezione: perché l'aria calda sale?</span><span class="arrow">▼</span>
+      </div>
+      <div class="concept-body">
+        Il moto convettivo si spiega con la <strong>dilatazione termica</strong>:
+        <div class="highlight-box blue">
+          1. Il fluido vicino alla fonte di calore si <strong>riscalda</strong>.
+          <br>2. Si <strong>dilata</strong> → stesso peso in un volume maggiore → la <strong>densità diminuisce</strong>.
+          <br>3. Essendo meno denso (più leggero) dell'aria circostante, <strong>sale</strong>.
+          <br>4. L'aria fredda sopra, più densa (più pesante), <strong>scende</strong> per prendere il suo posto.
+          <br>5. Si crea una <strong>corrente circolare</strong> continua.
+        </div>
+        Questo è lo stesso principio che spiega le <strong>mongolfiere</strong> (aria calda dentro = meno densa = sale) e le <strong>brezze marine</strong> (di giorno: terra calda → aria sale → brezza dal mare).
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(2)">← Indietro</button>
+    <span class="counter-badge" id="counter3">0 / 5 completate</span>
+    <button class="btn btn-primary" id="next3" disabled onclick="goToPhase(4)">Avanti →</button>
+  </div>
+</div>
+
+<!-- FASE 4 -->
+<div class="phase" id="phase4">
+  <h2 class="phase-title">Fase 4 — Verifica le tue conoscenze</h2>
+  <div class="phase-instruction">Rispondi a tutte le domande, poi clicca "Verifica Risposte".</div>
+  <div class="quiz-area" id="quizArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(3)">← Indietro</button>
+    <button class="btn btn-success" id="verifyBtn" onclick="verifyQuiz()">Verifica Risposte</button>
+  </div>
+</div>
+
+<!-- FASE 5 -->
+<div class="phase" id="phase5">
+  <h2 class="phase-title">Fase 5 — Ripasso personalizzato</h2>
+  <div class="review-score" id="reviewScore"></div>
+  <div class="review-area" id="reviewArea"></div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" onclick="goToPhase(4)">← Rivedi Errori</button>
+    <button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+    <button class="btn btn-success" onclick="restart()">Ricomincia</button>
+  </div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"conduzione",categoryLabel:"Conduzione",question:"La conduzione è caratteristica di quale tipo di materiale?",options:["Liquidi","Gas","Solidi","Vuoto"],correct:2,explanation:"La conduzione avviene per contatto diretto tra atomi ed è caratteristica dei solidi. Gli atomi vibrano e trasmettono l'energia a quelli vicini."},
+{category:"conduzione",categoryLabel:"Conduzione",question:"Quale dei seguenti è il miglior isolante termico?",options:["Rame (380)","Alluminio (220)","Vetro (0,73)","Polistirolo (0,032)"],correct:3,explanation:"Il polistirolo ha il coefficiente di conducibilità termica più basso (0,032): conduce il calore molto lentamente, per questo si usa per isolare."},
+{category:"convezione",categoryLabel:"Convezione",question:"Nella convezione, perché l'aria calda sale?",options:["Perché è più pesante dell'aria fredda","Perché si dilata, diventa meno densa e quindi più leggera","Perché viene spinta verso l'alto dalla sorgente di calore","Perché la gravità attira l'aria fredda verso il basso e l'aria calda verso l'alto"],correct:1,explanation:"L'aria calda si dilata, il suo volume aumenta ma la massa resta uguale → la densità diminuisce → diventa più leggera dell'aria circostante e sale."},
+{category:"convezione",categoryLabel:"Convezione",question:"Quale esperimento rende visibili le correnti convettive in un liquido?",options:["Un cucchiaio di metallo nell'acqua calda","Gocce di inchiostro nell'acqua calda","Una mano vicino al calorifero","Il ghiaccio che si scioglie"],correct:1,explanation:"Le gocce di inchiostro depositate sul fondo di un bicchiere in acqua calda salgono in filamenti visibili, rendendo evidenti i moti convettivi."},
+{category:"irraggiamento",categoryLabel:"Irraggiamento",question:"Come arriva il calore del Sole alla Terra?",options:["Per conduzione attraverso l'atmosfera","Per convezione attraverso lo spazio","Per irraggiamento, sotto forma di raggi termici che attraversano il vuoto","Per conduzione attraverso lo spazio"],correct:2,explanation:"Il calore del Sole attraversa 150 milioni di km di vuoto sotto forma di raggi termici (infrarossi). Né conduzione né convezione funzionano nel vuoto."},
+{category:"irraggiamento",categoryLabel:"Irraggiamento",question:"Quale modalità di trasmissione del calore NON richiede la presenza di materia?",options:["Conduzione","Convezione","Irraggiamento","Nessuna delle tre"],correct:2,explanation:"L'irraggiamento è l'unica modalità che non richiede materia: i raggi termici possono attraversare anche il vuoto."},
+{category:"stati",categoryLabel:"Cambiamenti di Stato",question:"Come si chiama il passaggio diretto da solido a gas?",options:["Evaporazione","Fusione","Sublimazione","Condensazione"],correct:2,explanation:"La sublimazione è il passaggio diretto da solido a gas, senza passare per lo stato liquido. Esempi: naftalina, ghiaccio secco."},
+{category:"stati",categoryLabel:"Cambiamenti di Stato",question:"Cosa succede alla temperatura durante un cambiamento di stato?",options:["Aumenta","Diminuisce","Resta costante","Dipende dalla sostanza"],correct:2,explanation:"Durante un cambiamento di stato la temperatura resta costante: l'energia fornita serve a modificare i legami tra le molecole, non ad aumentare la temperatura."},
+{category:"stati",categoryLabel:"Cambiamenti di Stato",question:"Qual è la differenza tra evaporazione ed ebollizione?",options:["L'evaporazione avviene solo a 100 °C","L'evaporazione è lenta e avviene dalla superficie; l'ebollizione è rapida e avviene in tutta la massa a una temperatura precisa","Sono la stessa cosa con nomi diversi","L'ebollizione avviene solo nei solidi"],correct:1,explanation:"L'evaporazione è lenta, avviene dalla superficie a qualsiasi temperatura. L'ebollizione è rapida, avviene in tutta la massa liquida a una temperatura precisa (100 °C per l'acqua)."},
+{category:"stati",categoryLabel:"Cambiamenti di Stato",question:"Come si chiama il passaggio da gas a solido?",options:["Solidificazione","Sublimazione","Brinamento","Condensazione"],correct:2,explanation:"Il brinamento è il passaggio diretto da gas a solido, senza passare per il liquido. Esempio: la brina che si forma sulle superfici fredde al mattino."}
+];
+let currentPhase=1;
+let phaseState={1:{total:5,opened:new Set()},2:{total:4,opened:new Set()},3:{total:5,opened:new Set()}};
+let quizAnswers={},quizVerified=false;
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById('phase'+n).classList.add('active');currentPhase=n;updateProgress();window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){for(let i=1;i<=5;i++){const d=document.getElementById('dot'+i);d.classList.remove('active','done');if(i<currentPhase)d.classList.add('done');else if(i===currentPhase)d.classList.add('active');if(i<5)document.getElementById('conn'+i).classList.toggle('done',i<currentPhase)}}
+function toggleElement(card){const phase=parseInt(card.dataset.phase);card.classList.add('opened');const grid=card.closest('.elements-grid');const cards=grid.querySelectorAll('.element-card');phaseState[phase].opened.add(Array.from(cards).indexOf(card));updateCounter(phase)}
+function updateCounter(phase){const s=phaseState[phase];const c=s.opened.size;const suffix=phase===3?'completate':'completati';document.getElementById('counter'+phase).textContent=c+' / '+s.total+' '+suffix;document.getElementById('next'+phase).disabled=c<s.total}
+function toggleConcept(card){const wasExp=card.classList.contains('expanded');card.classList.toggle('expanded');if(!wasExp){card.classList.add('opened');const all=card.closest('.concept-cards').querySelectorAll('.concept-card');phaseState[3].opened.add(Array.from(all).indexOf(card));updateCounter(3)}}
+function buildQuiz(){const area=document.getElementById('quizArea');const letters=['A','B','C','D'];let h='';quizData.forEach((q,i)=>{h+='<div class="quiz-question" id="qq'+i+'"><div class="q-number">'+q.categoryLabel+' — Domanda '+(i+1)+'</div><div class="q-text">'+q.question+'</div><div class="q-options">';q.options.forEach((o,j)=>{h+='<div class="q-option" data-q="'+i+'" data-opt="'+j+'" onclick="selectOption(this)"><div class="q-label">'+letters[j]+'</div><span>'+o+'</span></div>'});h+='</div><div class="q-feedback" id="fb'+i+'"></div></div>'});area.innerHTML=h}
+function selectOption(el){if(quizVerified)return;const q=parseInt(el.dataset.q);quizAnswers[q]=parseInt(el.dataset.opt);document.querySelectorAll('.q-option[data-q="'+q+'"]').forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function verifyQuiz(){if(quizVerified){goToPhase(5);return}const un=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)un.push(i)});if(un.length>0){const f=un[0];const el=document.getElementById('qq'+f);el.classList.add('missed');setTimeout(()=>el.classList.remove('missed'),2000);el.scrollIntoView({behavior:'smooth',block:'center'});alert(un.length===1?'Manca la risposta alla domanda '+(f+1)+'.':'Mancano le risposte alle domande: '+un.map(u=>u+1).join(', ')+'.');return}quizVerified=true;quizData.forEach((q,i)=>{const qEl=document.getElementById('qq'+i);const fb=document.getElementById('fb'+i);const ok=quizAnswers[i]===q.correct;qEl.classList.add(ok?'correct':'wrong');document.querySelectorAll('.q-option[data-q="'+i+'"]').forEach(o=>{o.classList.add('locked');const oi=parseInt(o.dataset.opt);if(oi===q.correct)o.classList.add('show-correct');else if(oi===quizAnswers[i]&&!ok)o.classList.add('show-wrong')});fb.className='q-feedback '+(ok?'correct':'wrong');fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});document.getElementById('verifyBtn').textContent='Vai al Ripasso →';document.getElementById('verifyBtn').className='btn btn-primary';buildReview()}
+function buildReview(){const cats={};quizData.forEach((q,i)=>{if(!cats[q.category])cats[q.category]={label:q.categoryLabel,correct:0,total:0};cats[q.category].total++;if(quizAnswers[i]===q.correct)cats[q.category].correct++});const tc=quizData.filter((q,i)=>quizAnswers[i]===q.correct).length;const pct=Math.round((tc/quizData.length)*100);let ft,fc;if(pct>=90){ft='Ottimo lavoro! Padronanza eccellente.';fc='var(--success)'}else if(pct>=70){ft='Buon risultato! Rivedi le aree evidenziate.';fc='var(--blu)'}else if(pct>=50){ft='Ci sei quasi! Concentrati sulle aree da rivedere.';fc='var(--warning)'}else{ft='Continua a esercitarti! Ripassa con attenzione le schede.';fc='var(--error)'}
+document.getElementById('reviewScore').innerHTML='<div class="score-number" style="color:'+fc+'">'+tc+' / '+quizData.length+'</div><div class="score-label">'+pct+'% di risposte corrette</div><div class="score-feedback" style="color:'+fc+'">'+ft+'</div>';
+const rc={conduzione:{review:'<ul><li><strong>Conduzione</strong> = trasmissione per contatto, senza spostamento di materia. Tipica dei <strong>solidi</strong>.</li><li><strong>Conduttori:</strong> argento 420, rame 380, alluminio 220. <strong>Isolanti:</strong> vetro 0,73, legno 0,15, polistirolo 0,032.</li><li>La lana non scalda: è un isolante che trattiene il calore del corpo.</li></ul>',summary:'Conduzione e conducibilità termica.'},convezione:{review:'<ul><li><strong>Convezione</strong> = trasmissione per movimento di materia. Tipica di <strong>liquidi e gas</strong>.</li><li>Fluido caldo si dilata → densità diminuisce → <strong>sale</strong>. Fluido freddo <strong>scende</strong>. Si crea il <strong>moto convettivo</strong>.</li><li>Esempi: calorifero, pentola sul fuoco, inchiostro nell\'acqua calda.</li></ul>',summary:'Convezione e moto convettivo.'},irraggiamento:{review:'<ul><li><strong>Irraggiamento</strong> = trasmissione per raggi termici (infrarossi). Non serve materia né contatto.</li><li>Attraversa il <strong>vuoto</strong>: il Sole scalda la Terra a 150 milioni di km.</li><li>Ogni corpo caldo emette radiazioni termiche.</li></ul>',summary:'Irraggiamento e raggi termici.'},stati:{review:'<ul><li><strong>Assorbono calore:</strong> fusione (solido→liquido), vaporizzazione (liquido→gas), sublimazione (solido→gas).</li><li><strong>Cedono calore:</strong> solidificazione (liquido→solido), condensazione (gas→liquido), brinamento (gas→solido).</li><li>Durante il cambiamento la <strong>temperatura resta costante</strong>.</li><li><strong>Evaporazione</strong> (lenta, superficie, qualsiasi T) ≠ <strong>ebollizione</strong> (rapida, tutta la massa, T precisa) ≠ <strong>sublimazione</strong> (solido→gas).</li></ul>',summary:'I 6 cambiamenti di stato e la regola della temperatura costante.'}};
+let rh='';for(const cat in cats){const c=cats[cat];const good=(c.correct/c.total)>=0.7;rh+='<div class="review-section '+(good?'good':'review')+'"><h3>'+(good?'✔ Hai capito bene':'⚠ Da rivedere')+' — '+c.label+'</h3>';if(good)rh+='<p>'+rc[cat].summary+' ('+c.correct+'/'+c.total+' corrette)</p>';else{rh+='<p>Hai risposto correttamente a '+c.correct+' su '+c.total+'. Ripassa:</p>';rh+=rc[cat].review}rh+='</div>'}document.getElementById('reviewArea').innerHTML=rh}
+function restart(){quizAnswers={};quizVerified=false;phaseState={1:{total:5,opened:new Set()},2:{total:4,opened:new Set()},3:{total:5,opened:new Set()}};document.querySelectorAll('.element-card').forEach(c=>c.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));for(let i=1;i<=3;i++)updateCounter(i);buildQuiz();document.getElementById('verifyBtn').textContent='Verifica Risposte';document.getElementById('verifyBtn').className='btn btn-success';goToPhase(1)}
+buildQuiz();
+</script>
+</body>
+</html>
