@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il Prisma</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{--blue:#29629B;--blue-light:#D6EAF8;--blue-bg:#EBF5FB;--green:#1E824C;--green-light:#D1F2DD;--green-bg:#EAFAF1;--orange:#B9770E;--orange-light:#FAE5C3;--orange-bg:#FEF5E7;--purple:#6C3483;--purple-light:#E8DAEF;--purple-bg:#F4ECF7;--teal:#117A78;--teal-light:#D0ECEB;--red:#B03A2E;--red-light:#F5D7D3;--gray-bg:#F0F3F6;--text:#2C3E50;--text-light:#5D6D7E;--white:#FFF;--success:#27AE60;--error:#C0392B;--warning:#F39C12}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--gray-bg);color:var(--text);line-height:1.6;padding:0}
+.container{max-width:800px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;padding:28px 20px;text-align:center;border-radius:0 0 16px 16px}
+header h1{font-size:1.5em;margin-bottom:4px}
+header p{font-size:.9em;opacity:.9}
+.progress-bar{background:var(--white);border-radius:12px;padding:14px 20px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:100}
+.progress-steps{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.progress-step{display:flex;flex-direction:column;align-items:center;flex:1;font-size:.7em;color:var(--text-light);position:relative}
+.step-circle{width:30px;height:30px;border-radius:50%;background:#DDE1E6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--text-light);margin-bottom:4px;transition:all .3s}
+.progress-step.active .step-circle{background:var(--blue);color:#fff;box-shadow:0 0 0 3px rgba(41,98,155,.25)}
+.progress-step.completed .step-circle{background:var(--success);color:#fff}
+.progress-step.active .step-label,.progress-step.completed .step-label{color:var(--text);font-weight:600}
+.step-label{text-align:center;line-height:1.2}
+.phase{display:none}.phase.active{display:block}
+.phase-header{font-size:1.2em;font-weight:700;margin:20px 0 6px;color:var(--blue)}
+.phase-instruction{font-size:.88em;color:var(--text-light);margin-bottom:16px;padding:10px 14px;background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 8px 8px 0}
+.click-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:550px){.click-grid{grid-template-columns:1fr}}
+.click-box{background:var(--white);border:2px solid #DDE1E6;border-radius:12px;padding:14px;cursor:pointer;transition:all .25s;position:relative}
+.click-box:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.click-box.opened{border-color:var(--success);background:#F0FFF4}
+.box-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.95em}
+.box-check{width:22px;height:22px;border-radius:50%;border:2px solid #DDE1E6;display:flex;align-items:center;justify-content:center;font-size:.75em;flex-shrink:0;transition:all .3s}
+.click-box.opened .box-check{border-color:var(--success);background:var(--success);color:#fff}
+.box-content{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;font-size:.88em;line-height:1.6}
+.click-box.opened .box-content{display:block}
+.concept-card{background:var(--white);border:2px solid #DDE1E6;border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .3s}
+.concept-card.opened{border-color:var(--success)}
+.card-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.95em;transition:background .2s}
+.card-header:hover{background:var(--gray-bg)}
+.card-icon{font-size:1.1em;transition:transform .3s}
+.concept-card.expanded .card-icon{transform:rotate(90deg)}
+.card-check{width:20px;height:20px;border-radius:50%;border:2px solid #DDE1E6;display:flex;align-items:center;justify-content:center;font-size:.7em;margin-right:8px;flex-shrink:0}
+.concept-card.opened .card-check{border-color:var(--success);background:var(--success);color:#fff}
+.card-body{display:none;padding:0 16px 14px;font-size:.88em;line-height:1.65}
+.concept-card.expanded .card-body{display:block}
+.quiz-category{font-size:.8em;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;padding:6px 12px;background:var(--purple-light);border-radius:6px;display:inline-block}
+.quiz-question{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid #E8E8E8;transition:border-color .3s}
+.quiz-question.missing{border-color:var(--warning)}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF5F5}
+.q-text{font-weight:600;margin-bottom:10px;font-size:.95em}
+.q-number{display:inline-block;background:var(--blue);color:#fff;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:.78em;font-weight:700;margin-right:6px}
+.quiz-option{display:flex;align-items:flex-start;padding:8px 12px;margin:4px 0;border-radius:8px;cursor:pointer;transition:background .2s;font-size:.9em;gap:8px}
+.quiz-option:hover{background:var(--blue-bg)}
+.quiz-option.selected{background:var(--blue-light);font-weight:600}
+.quiz-option.disabled{pointer-events:none;opacity:.85}
+.quiz-option.correct-answer{background:#D4EDDA}
+.quiz-option.wrong-answer{background:#F8D7DA}
+.quiz-radio{width:18px;height:18px;border:2px solid #CCC;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.quiz-option.selected .quiz-radio{border-color:var(--blue);background:var(--blue)}
+.quiz-option.selected .quiz-radio::after{content:'';width:6px;height:6px;background:#fff;border-radius:50%}
+.quiz-feedback{display:none;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:.85em;line-height:1.5}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:#D4EDDA;color:#155724}
+.quiz-feedback.wrong{background:#F8D7DA;color:#721C24}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border:none;border-radius:10px;font-size:.95em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-orange{background:var(--orange);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-container{text-align:center;margin:20px 0}
+.btn-container-flex{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.score-number{font-size:2.8em;font-weight:800}
+.score-label{font-size:.95em;color:var(--text-light);margin-top:4px}
+.score-feedback{margin-top:10px;font-size:1em;font-weight:600}
+.review-area{border-radius:12px;padding:16px;margin-bottom:12px}
+.review-area.needs-review{background:#FFF8E1;border-left:4px solid var(--warning)}
+.review-area.good{background:#E8F5E9;border-left:4px solid var(--success)}
+.area-label{font-weight:700;font-size:.85em;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.review-area.needs-review .area-label{color:var(--orange)}
+.review-area.good .area-label{color:var(--success)}
+.area-title{font-weight:700;font-size:1.05em;margin-bottom:6px}
+.area-content{font-size:.88em;line-height:1.6}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}.progress-bar,header,.btn,.btn-container,.btn-container-flex{display:none!important}body{background:#fff}.review-area{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+<h1>Il Prisma</h1>
+<p>Definizione, elementi, formule e casi particolari</p>
+</header>
+<div class="container">
+<div class="progress-bar">
+<div class="progress-steps">
+<div class="progress-step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Definizione</div></div>
+<div class="progress-step" data-step="2"><div class="step-circle">2</div><div class="step-label">Formule</div></div>
+<div class="progress-step" data-step="3"><div class="step-circle">3</div><div class="step-label">Concetti</div></div>
+<div class="progress-step" data-step="4"><div class="step-circle">4</div><div class="step-label">Verifica</div></div>
+<div class="progress-step" data-step="5"><div class="step-circle">5</div><div class="step-label">Ripasso</div></div>
+</div>
+</div>
+
+<!-- PHASE 1 -->
+<div id="phase1" class="phase active">
+<h2 class="phase-header">Definizione, elementi e tipologie</h2>
+<div class="phase-instruction">Clicca su ogni elemento per scoprirne le proprietà. Devi aprirli tutti per proseguire.</div>
+<div class="click-grid">
+<div class="click-box" data-id="p1-def"><div class="box-header"><span>📦 Definizione di prisma</span><div class="box-check">✓</div></div>
+<div class="box-content">Un <strong>prisma</strong> è un poliedro che ha per basi due <strong>poligoni congruenti e paralleli</strong>, collegati da facce laterali che sono <strong>parallelogrammi</strong>. Prende il nome dalla base: triangolare (3 lati), quadrangolare (4), pentagonale (5), esagonale (6), ecc.</div></div>
+
+<div class="click-box" data-id="p1-elem"><div class="box-header"><span>🔶 Gli elementi</span><div class="box-check">✓</div></div>
+<div class="box-content"><strong>Basi</strong>: i due poligoni congruenti e paralleli. <strong>Facce laterali</strong>: tanti parallelogrammi quanti i lati della base. <strong>Spigoli di base</strong>: i lati dei poligoni di base. <strong>Spigoli laterali</strong>: collegano i vertici corrispondenti delle due basi. <strong>Vertici</strong>: punti dove convergono tre o più spigoli. <strong>Altezza</strong> (\(h\)): distanza perpendicolare tra i piani delle basi.</div></div>
+
+<div class="click-box" data-id="p1-retto"><div class="box-header"><span>📐 Prisma retto</span><div class="box-check">✓</div></div>
+<div class="box-content">Nel prisma <strong>retto</strong>, gli spigoli laterali sono <strong>perpendicolari</strong> alle basi. Le facce laterali sono <strong>rettangoli</strong>. L'altezza \(h\) coincide con lo spigolo laterale. È il tipo di prisma su cui lavoreremo.</div></div>
+
+<div class="click-box" data-id="p1-obliquo"><div class="box-header"><span>↗ Prisma obliquo</span><div class="box-check">✓</div></div>
+<div class="box-content">Nel prisma <strong>obliquo</strong>, gli spigoli laterali <strong>non</strong> sono perpendicolari alle basi. Le facce laterali sono parallelogrammi generici (non rettangoli). L'altezza \(h\) è diversa dalla lunghezza dello spigolo laterale.</div></div>
+
+<div class="click-box" data-id="p1-regolare"><div class="box-header"><span>⬡ Prisma regolare</span><div class="box-check">✓</div></div>
+<div class="box-content">Un prisma <strong>regolare</strong> è un prisma retto le cui basi sono <strong>poligoni regolari</strong> (tutti i lati uguali e tutti gli angoli uguali). Le facce laterali sono rettangoli tutti congruenti tra loro.</div></div>
+
+<div class="click-box" data-id="p1-sviluppo"><div class="box-header"><span>✂ Lo sviluppo del prisma</span><div class="box-check">✓</div></div>
+<div class="box-content">Lo <strong>sviluppo</strong> si ottiene «aprendo» tutte le facce su un piano. Si ottiene un <strong>rettangolo grande</strong> (le facce laterali unite: base = perimetro \(p\), altezza = \(h\)) più i <strong>due poligoni di base</strong>. Questo spiega perché \(S_l = p \times h\): è l'area del rettangolo laterale.</div></div>
+</div>
+<div class="btn-container"><button class="btn btn-primary" id="btn-to-phase2" disabled onclick="goToPhase(2)">Avanti ➤</button></div>
+</div>
+
+<!-- PHASE 2 -->
+<div id="phase2" class="phase">
+<h2 class="phase-header">Formule e casi particolari</h2>
+<div class="phase-instruction">Clicca su ogni elemento per scoprire formule e proprietà. Devi aprirli tutti per proseguire.</div>
+<div class="click-grid">
+<div class="click-box" data-id="p2-sl"><div class="box-header"><span>📏 Superficie laterale</span><div class="box-check">✓</div></div>
+<div class="box-content">La <strong>superficie laterale</strong> è l'area del rettangolo ottenuto «srotolando» le facce laterali:<br><br>\(S_l = p \times h\)<br><br>dove \(p\) = perimetro di base e \(h\) = altezza. Non include le basi.</div></div>
+
+<div class="click-box" data-id="p2-st"><div class="box-header"><span>🧮 Superficie totale</span><div class="box-check">✓</div></div>
+<div class="box-content">La <strong>superficie totale</strong> è l'area dell'intero sviluppo: laterale + le due basi:<br><br>\(S_t = S_l + 2 \times S_b\)<br><br>dove \(S_b\) = area di una base. Il fattore 2 c'è perché le basi sono <strong>due</strong> e congruenti.</div></div>
+
+<div class="click-box" data-id="p2-vol"><div class="box-header"><span>📦 Volume</span><div class="box-check">✓</div></div>
+<div class="box-content">Il <strong>volume</strong> è lo spazio occupato dal solido:<br><br>\(V = S_b \times h\)<br><br>Area di base per altezza, qualunque sia la forma della base. Formule inverse: \(h = V / S_b\) e \(S_b = V / h\).</div></div>
+
+<div class="click-box" data-id="p2-parall"><div class="box-header"><span>▭ Il parallelepipedo rettangolo</span><div class="box-check">✓</div></div>
+<div class="box-content">Prisma retto con basi a <strong>rettangolo</strong>. Tutte e 6 le facce sono rettangoli. Dimensioni: \(a\), \(b\), \(h\).<br><br>\(S_l = 2(a+b) \times h\)<br>\(S_t = 2(ab + ah + bh)\)<br>\(V = a \times b \times h\)<br>Diagonale: \(d = \sqrt{a^2 + b^2 + h^2}\)</div></div>
+
+<div class="click-box" data-id="p2-cubo"><div class="box-header"><span>🧊 Il cubo</span><div class="box-check">✓</div></div>
+<div class="box-content">Parallelepipedo rettangolo con 6 facce a <strong>quadrato congruente</strong>. Ha una sola misura: il lato \(l\).<br><br>\(S_l = 4l^2\) &nbsp; (4 facce laterali)<br>\(S_t = 6l^2\) &nbsp; (6 facce totali)<br>\(V = l^3\)<br>Diagonale: \(d = l\sqrt{3}\)<br><br>1 cm³ è il volume di un cubo con lato 1 cm.</div></div>
+
+<div class="click-box" data-id="p2-dens"><div class="box-header"><span>⚗ Prisma e densità</span><div class="box-check">✓</div></div>
+<div class="box-content">Conoscendo il materiale, dalla densità si calcola la <strong>massa</strong>: \(m = d \times V\).<br><br><em>Esempio</em>: parallelepipedo di ferro (\(d = 7{,}87\) g/cm³), dimensioni 5×3×10 cm.<br>\(V = 150\) cm³ → \(m = 7{,}87 \times 150 = 1\,180{,}5\) g ≈ 1,18 kg.</div></div>
+</div>
+<div class="btn-container-flex">
+<button class="btn btn-orange" onclick="goToPhase(1)">◄ Indietro</button>
+<button class="btn btn-primary" id="btn-to-phase3" disabled onclick="goToPhase(3)">Avanti ➤</button>
+</div>
+</div>
+
+<!-- PHASE 3 -->
+<div id="phase3" class="phase">
+<h2 class="phase-header">Concetti chiave</h2>
+<div class="phase-instruction">Apri tutte le schede per approfondire. Devi leggerle tutte per proseguire.</div>
+
+<div class="concept-card" data-id="c1"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>✂ Dallo sviluppo alle formule</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Lo sviluppo del prisma è la chiave per capire le formule delle superfici. Quando «apri» un prisma retto, le facce laterali formano un unico grande rettangolo la cui base è il <strong>perimetro del poligono di base</strong> e la cui altezza è l'altezza del prisma.</p><p style="margin:8px 0">Ecco perché \(S_l = p \times h\): non è una formula da imparare a memoria, ma il risultato di un ragionamento geometrico. La superficie totale aggiunge le due basi: \(S_t = S_l + 2 \times S_b\).</p></div></div>
+
+<div class="concept-card" data-id="c2"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>📦 La logica del volume</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Il volume di un prisma è sempre <strong>area di base × altezza</strong>, indipendentemente dalla forma della base. Questa formula ha un significato intuitivo: immagina di «impilare» tante copie sottilissime della base una sull'altra per tutta l'altezza del prisma.</p><p style="margin:8px 0">Che la base sia un triangolo, un pentagono o un esagono, la logica non cambia: \(V = S_b \times h\). È lo stesso principio che ritroveremo nel cilindro.</p></div></div>
+
+<div class="concept-card" data-id="c3"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>▭ Dal prisma generico al parallelepipedo</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Il <strong>parallelepipedo rettangolo</strong> è un caso particolare di prisma retto in cui la base è un rettangolo. Tutte e 6 le facce sono rettangoli (3 coppie di rettangoli congruenti).</p><p style="margin:8px 0">Le formule generali si specificano: il perimetro di base diventa \(p = 2(a+b)\), l'area di base diventa \(S_b = a \times b\), e la superficie totale si può scrivere come \(S_t = 2(ab + ah + bh)\), cioè la somma delle aree delle tre coppie di facce.</p><p>Il <strong>cubo</strong> è un ulteriore caso particolare: \(a = b = h = l\), e tutto si semplifica: \(S_t = 6l^2\), \(V = l^3\).</p></div></div>
+
+<div class="concept-card" data-id="c4"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>↕ Retto vs obliquo: cosa cambia</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Nel prisma <strong>retto</strong> gli spigoli laterali sono perpendicolari alle basi, quindi l'altezza coincide con lo spigolo laterale e le facce laterali sono rettangoli. Nel prisma <strong>obliquo</strong> gli spigoli sono inclinati: l'altezza è più corta dello spigolo laterale e le facce laterali sono parallelogrammi.</p><p style="margin:8px 0">Attenzione: la formula \(V = S_b \times h\) vale per <strong>entrambi</strong> i tipi, purché \(h\) sia l'altezza vera (perpendicolare), non lo spigolo laterale. La formula \(S_l = p \times h\) vale invece solo per il prisma retto.</p></div></div>
+
+<div class="concept-card" data-id="c5"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>⚗ Densità e applicazioni</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Nei problemi sui solidi spesso si chiede la <strong>massa</strong> di un oggetto conoscendo il materiale. Il collegamento è la densità: \(m = d \times V\). Prima si calcola il volume con le formule del prisma, poi si moltiplica per la densità del materiale.</p><p style="margin:8px 0">Ricorda le unità: se il volume è in cm³ e la densità in g/cm³, la massa viene in grammi. Se vuoi i kg, dividi per 1000.</p></div></div>
+
+<div class="concept-card" data-id="c6"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>⚠ Errori da evitare</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p><strong>Confondere \(S_l\) e \(S_t\)</strong>: la superficie laterale non include le basi, la totale sì. Quando il problema chiede «la superficie», leggi bene quale delle due.</p><p style="margin:8px 0"><strong>Dimenticare il fattore 2</strong>: nella formula \(S_t = S_l + 2 \times S_b\), il 2 c'è perché le basi sono due. Errore frequentissimo.</p><p><strong>Confondere altezza e spigolo laterale</strong>: nel prisma obliquo non coincidono. Nei problemi, \(h\) è sempre la distanza perpendicolare tra le basi.</p><p style="margin-top:8px"><strong>Unità sbagliate</strong>: le superfici si misurano in cm² (unità quadrate), i volumi in cm³ (unità cubiche). Mai mescolarle.</p></div></div>
+
+<div class="btn-container-flex">
+<button class="btn btn-orange" onclick="goToPhase(2)">◄ Indietro</button>
+<button class="btn btn-primary" id="btn-to-phase4" disabled onclick="goToPhase(4)">Avanti ➤</button>
+</div>
+</div>
+
+<!-- PHASE 4 -->
+<div id="phase4" class="phase">
+<h2 class="phase-header">Verifica le tue conoscenze</h2>
+<div class="phase-instruction">Rispondi a tutte le domande, poi premi «Verifica Risposte».</div>
+<div id="quiz-container"></div>
+<div class="btn-container-flex">
+<button class="btn btn-orange" onclick="goToPhase(3)">◄ Indietro</button>
+<button class="btn btn-success" id="btn-verify" onclick="verifyQuiz()">Verifica Risposte ✔</button>
+</div>
+</div>
+
+<!-- PHASE 5 -->
+<div id="phase5" class="phase">
+<h2 class="phase-header">Il tuo ripasso personalizzato</h2>
+<div class="review-score" id="review-score"></div>
+<div id="review-areas"></div>
+<div class="btn-container-flex">
+<button class="btn btn-orange" onclick="goToPhase(4)">◄ Rivedi Errori</button>
+<button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+<button class="btn btn-success" onclick="restart()">Ricomincia ⟳</button>
+</div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"Definizione ed elementi",area:"def",question:"Un prisma è un poliedro con basi formate da:",options:["Due poligoni qualsiasi","Due poligoni congruenti e paralleli","Un solo poligono e un vertice","Due cerchi congruenti"],correct:1,explanation:"Per definizione, il prisma ha due basi che sono poligoni congruenti (uguali) e paralleli, collegate da facce laterali."},
+{category:"Definizione ed elementi",area:"def",question:"Le facce laterali di un prisma retto sono:",options:["Triangoli","Quadrati","Rettangoli","Parallelogrammi generici"],correct:2,explanation:"Nel prisma retto gli spigoli laterali sono perpendicolari alle basi, quindi le facce laterali sono rettangoli. Nel prisma obliquo sarebbero parallelogrammi generici."},
+{category:"Definizione ed elementi",area:"def",question:"In un prisma obliquo, l'altezza h:",options:["Coincide con lo spigolo laterale","È maggiore dello spigolo laterale","È minore dello spigolo laterale","Non esiste"],correct:2,explanation:"Nel prisma obliquo, l'altezza (distanza perpendicolare tra le basi) è sempre minore dello spigolo laterale, che è inclinato."},
+{category:"Sviluppo e formule",area:"form",question:"La formula della superficie laterale del prisma retto è \\(S_l = p \\times h\\). Perché?",options:["Perché le facce laterali sono triangoli","Perché srotolando le facce laterali si ottiene un rettangolo di base p e altezza h","Perché il perimetro è sempre uguale all'altezza","Perché le basi sono rettangoli"],correct:1,explanation:"Lo sviluppo delle facce laterali di un prisma retto forma un unico rettangolo la cui base è il perimetro del poligono di base (p) e la cui altezza è h."},
+{category:"Sviluppo e formule",area:"form",question:"Nella formula \\(S_t = S_l + 2 \\times S_b\\), perché compare il fattore 2?",options:["Perché il prisma ha due facce laterali","Perché le basi sono il doppio delle facce","Perché le basi sono due e congruenti","Perché si misura in cm²"],correct:2,explanation:"Il fattore 2 è presente perché il prisma ha due basi congruenti: bisogna contare l'area di entrambe."},
+{category:"Sviluppo e formule",area:"form",question:"Il volume di un prisma con area di base 24 cm² e altezza 10 cm è:",options:["34 cm³","240 cm²","240 cm³","2,4 cm³"],correct:2,explanation:"Il volume si calcola con V = Sb × h = 24 × 10 = 240 cm³. Attenzione all'unità di misura: il volume si esprime in cm³, non in cm²."},
+{category:"Parallelepipedo e cubo",area:"par",question:"La superficie totale di un cubo con lato 5 cm è:",options:["100 cm²","125 cm³","150 cm²","25 cm²"],correct:2,explanation:"Il cubo ha 6 facce quadrate uguali: St = 6l² = 6 × 25 = 150 cm². Attenzione a non confondere con il volume (l³ = 125 cm³)."},
+{category:"Parallelepipedo e cubo",area:"par",question:"Un parallelepipedo rettangolo con dimensioni 4 cm, 3 cm e 2 cm ha volume:",options:["9 cm³","24 cm³","24 cm²","52 cm²"],correct:1,explanation:"V = a × b × h = 4 × 3 × 2 = 24 cm³. L'opzione 52 cm² sarebbe la superficie totale: 2(12 + 8 + 6) = 52 cm²."},
+{category:"Parallelepipedo e cubo",area:"par",question:"Il cubo è un caso particolare di:",options:["Piramide regolare","Cilindro","Prisma triangolare","Parallelepipedo rettangolo"],correct:3,explanation:"Il cubo è un parallelepipedo rettangolo (prisma retto con basi rettangolari) in cui tutte e tre le dimensioni sono uguali: a = b = h = l."},
+{category:"Densità e applicazioni",area:"dens",question:"Un cubo di legno ha lato 10 cm e densità 0,6 g/cm³. Qual è la sua massa?",options:["6 g","60 g","600 g","6000 g"],correct:2,explanation:"V = l³ = 10³ = 1000 cm³. Massa = d × V = 0,6 × 1000 = 600 g. Si calcola prima il volume, poi si moltiplica per la densità."}
+];
+
+const reviewContent={
+def:{title:"Definizione ed elementi del prisma",full:"Il prisma è un poliedro con due basi (poligoni congruenti e paralleli) e facce laterali (parallelogrammi). Nel prisma retto gli spigoli laterali sono perpendicolari alle basi e le facce laterali sono rettangoli; l'altezza h coincide con lo spigolo laterale. Nel prisma obliquo, h è minore dello spigolo laterale. Il prisma regolare è un prisma retto con basi a poligoni regolari.",short:"Definizione ed elementi del prisma: concetti compresi. Retto = facce laterali rettangolari, h = spigolo laterale."},
+form:{title:"Sviluppo e formule",full:"Lo sviluppo del prisma retto produce un rettangolo (base = perimetro p, altezza = h) più due basi. Da qui: Sl = p × h (area del rettangolo laterale), St = Sl + 2 × Sb (laterale + due basi), V = Sb × h (area di base per altezza). Il fattore 2 in St è perché le basi sono due. Le formule inverse: h = V/Sb, Sb = V/h, p = Sl/h.",short:"Formule del prisma: comprese. Sl = p×h, St = Sl + 2Sb, V = Sb×h."},
+par:{title:"Parallelepipedo e cubo",full:"Il parallelepipedo rettangolo è un prisma retto con basi a rettangolo (dimensioni a, b, h): Sl = 2(a+b)×h, St = 2(ab+ah+bh), V = a×b×h. Il cubo è un parallelepipedo con a=b=h=l: Sl = 4l², St = 6l², V = l³. Attenzione a non confondere St (cm²) con V (cm³): sono grandezze diverse.",short:"Parallelepipedo e cubo: concetti compresi. Cubo: St = 6l², V = l³."},
+dens:{title:"Densità e applicazioni",full:"Per calcolare la massa di un prisma conoscendo il materiale: m = d × V. Prima si calcola il volume con le formule del prisma, poi si moltiplica per la densità. Unità coerenti: volume in cm³ con densità in g/cm³ dà massa in grammi.",short:"Densità applicata ai prismi: concetto compreso. m = d × V."}
+};
+
+let currentPhase=1;const phaseOpened={1:new Set(),2:new Set(),3:new Set()};const phaseTotal={1:6,2:6,3:6};let quizAnswers={};let quizVerified=false;
+
+function buildQuiz(){const c=document.getElementById('quiz-container');let h='',cat='';quizData.forEach((q,i)=>{if(q.category!==cat){cat=q.category;h+=`<div class="quiz-category">${cat}</div>`}h+=`<div class="quiz-question" id="qq-${i}"><div class="q-text"><span class="q-number">${i+1}</span>${q.question}</div>`;q.options.forEach((o,j)=>{h+=`<div class="quiz-option" data-q="${i}" data-o="${j}" onclick="selectOption(${i},${j})"><div class="quiz-radio"></div><span>${o}</span></div>`});h+=`<div class="quiz-feedback" id="fb-${i}"></div></div>`});c.innerHTML=h;renderMathInElement(c,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}]})}
+
+function selectOption(qi,oi){if(quizVerified)return;quizAnswers[qi]=oi;document.querySelectorAll(`.quiz-option[data-q="${qi}"]`).forEach(e=>e.classList.remove('selected'));document.querySelector(`.quiz-option[data-q="${qi}"][data-o="${oi}"]`).classList.add('selected');document.getElementById(`qq-${qi}`).classList.remove('missing')}
+
+function verifyQuiz(){const u=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)u.push(i)});if(u.length>0){u.forEach(i=>document.getElementById(`qq-${i}`).classList.add('missing'));document.getElementById(`qq-${u[0]}`).scrollIntoView({behavior:'smooth',block:'center'});return}quizVerified=true;quizData.forEach((q,i)=>{const ok=quizAnswers[i]===q.correct;document.getElementById(`qq-${i}`).classList.add(ok?'correct':'wrong');document.querySelectorAll(`.quiz-option[data-q="${i}"]`).forEach(e=>{e.classList.add('disabled');if(parseInt(e.dataset.o)===q.correct)e.classList.add('correct-answer');if(parseInt(e.dataset.o)===quizAnswers[i]&&!ok)e.classList.add('wrong-answer')});const fb=document.getElementById(`fb-${i}`);fb.className=`quiz-feedback show ${ok?'correct':'wrong'}`;fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});const b=document.getElementById('btn-verify');b.textContent='Vai al Ripasso ➤';b.className='btn btn-primary';b.onclick=()=>goToPhase(5)}
+
+function buildReview(){const as={};quizData.forEach((q,i)=>{if(!as[q.area])as[q.area]={total:0,correct:0};as[q.area].total++;if(quizAnswers[i]===q.correct)as[q.area].correct++});const tc=Object.values(as).reduce((s,a)=>s+a.correct,0),tq=quizData.length,pct=Math.round(tc/tq*100);let ft,fc;if(pct>=80){ft='Hai capito bene! Ottimo lavoro.';fc='var(--success)'}else if(pct>=50){ft='Ci sei quasi! Rivedi le aree evidenziate.';fc='var(--orange)'}else{ft='Da rivedere. Rileggi lo schema con attenzione.';fc='var(--error)'}document.getElementById('review-score').innerHTML=`<div class="score-number" style="color:${fc}">${tc}/${tq}</div><div class="score-label">Risposte corrette (${pct}%)</div><div class="score-feedback" style="color:${fc}">${ft}</div>`;let ah='';for(const[a,s]of Object.entries(as)){const g=s.correct===s.total;const r=reviewContent[a];ah+=`<div class="review-area ${g?'good':'needs-review'}"><div class="area-label">${g?'✔ Hai capito bene':'⚠ Da rivedere'}</div><div class="area-title">${r.title}</div><div class="area-content">${g?r.short:r.full}</div></div>`}document.getElementById('review-areas').innerHTML=ah}
+
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(`phase${n}`).classList.add('active');currentPhase=n;document.querySelectorAll('.progress-step').forEach(s=>{const sn=parseInt(s.dataset.step);s.classList.remove('active','completed');if(sn===n)s.classList.add('active');else if(sn<n)s.classList.add('completed')});if(n===5)buildReview();window.scrollTo({top:0,behavior:'smooth'})}
+
+document.querySelectorAll('.click-box').forEach(box=>{box.addEventListener('click',()=>{box.classList.add('opened');const id=box.dataset.id;const pn=id.startsWith('p1')?1:2;phaseOpened[pn].add(id);checkComplete(pn)})});
+
+function toggleCard(h){const c=h.parentElement;const w=c.classList.contains('expanded');if(w){c.classList.remove('expanded')}else{c.classList.add('expanded');c.classList.add('opened');phaseOpened[3].add(c.dataset.id);checkComplete(3)}}
+
+function checkComplete(pn){const ids={1:'btn-to-phase2',2:'btn-to-phase3',3:'btn-to-phase4'};const b=document.getElementById(ids[pn]);if(phaseOpened[pn].size>=phaseTotal[pn])b.disabled=false}
+
+function restart(){quizAnswers={};quizVerified=false;[1,2,3].forEach(n=>phaseOpened[n].clear());document.querySelectorAll('.click-box').forEach(b=>b.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));['btn-to-phase2','btn-to-phase3','btn-to-phase4'].forEach(id=>document.getElementById(id).disabled=true);buildQuiz();const b=document.getElementById('btn-verify');b.textContent='Verifica Risposte ✔';b.className='btn btn-success';b.onclick=verifyQuiz;goToPhase(1)}
+
+buildQuiz();
+document.addEventListener('DOMContentLoaded',()=>{renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}]})});
+</script>
+</body>
+</html>

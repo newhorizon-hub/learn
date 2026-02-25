@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Piramide</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{--blue:#29629B;--blue-light:#D6EAF8;--blue-bg:#EBF5FB;--green:#1E824C;--green-light:#D1F2DD;--green-bg:#EAFAF1;--orange:#B9770E;--orange-light:#FAE5C3;--orange-bg:#FEF5E7;--purple:#6C3483;--purple-light:#E8DAEF;--purple-bg:#F4ECF7;--teal:#117A78;--teal-light:#D0ECEB;--red:#B03A2E;--red-light:#F5D7D3;--gray-bg:#F0F3F6;--text:#2C3E50;--text-light:#5D6D7E;--white:#FFF;--success:#27AE60;--error:#C0392B;--warning:#F39C12}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--gray-bg);color:var(--text);line-height:1.6;padding:0}
+.container{max-width:800px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,var(--orange),#C0392B);color:#fff;padding:28px 20px;text-align:center;border-radius:0 0 16px 16px}
+header h1{font-size:1.5em;margin-bottom:4px}
+header p{font-size:.9em;opacity:.9}
+.progress-bar{background:var(--white);border-radius:12px;padding:14px 20px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:100}
+.progress-steps{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.progress-step{display:flex;flex-direction:column;align-items:center;flex:1;font-size:.7em;color:var(--text-light)}
+.step-circle{width:30px;height:30px;border-radius:50%;background:#DDE1E6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--text-light);margin-bottom:4px;transition:all .3s}
+.progress-step.active .step-circle{background:var(--orange);color:#fff;box-shadow:0 0 0 3px rgba(185,119,14,.25)}
+.progress-step.completed .step-circle{background:var(--success);color:#fff}
+.progress-step.active .step-label,.progress-step.completed .step-label{color:var(--text);font-weight:600}
+.step-label{text-align:center;line-height:1.2}
+.phase{display:none}.phase.active{display:block}
+.phase-header{font-size:1.2em;font-weight:700;margin:20px 0 6px;color:var(--orange)}
+.phase-instruction{font-size:.88em;color:var(--text-light);margin-bottom:16px;padding:10px 14px;background:var(--orange-bg);border-left:3px solid var(--orange);border-radius:0 8px 8px 0}
+.click-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:550px){.click-grid{grid-template-columns:1fr}}
+.click-box{background:var(--white);border:2px solid #DDE1E6;border-radius:12px;padding:14px;cursor:pointer;transition:all .25s}
+.click-box:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.click-box.opened{border-color:var(--success);background:#F0FFF4}
+.box-header{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.95em}
+.box-check{width:22px;height:22px;border-radius:50%;border:2px solid #DDE1E6;display:flex;align-items:center;justify-content:center;font-size:.75em;flex-shrink:0;transition:all .3s}
+.click-box.opened .box-check{border-color:var(--success);background:var(--success);color:#fff}
+.box-content{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;font-size:.88em;line-height:1.6}
+.click-box.opened .box-content{display:block}
+.concept-card{background:var(--white);border:2px solid #DDE1E6;border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .3s}
+.concept-card.opened{border-color:var(--success)}
+.card-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.95em;transition:background .2s}
+.card-header:hover{background:var(--gray-bg)}
+.card-icon{font-size:1.1em;transition:transform .3s}
+.concept-card.expanded .card-icon{transform:rotate(90deg)}
+.card-check{width:20px;height:20px;border-radius:50%;border:2px solid #DDE1E6;display:flex;align-items:center;justify-content:center;font-size:.7em;margin-right:8px;flex-shrink:0}
+.concept-card.opened .card-check{border-color:var(--success);background:var(--success);color:#fff}
+.card-body{display:none;padding:0 16px 14px;font-size:.88em;line-height:1.65}
+.concept-card.expanded .card-body{display:block}
+.quiz-category{font-size:.8em;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;padding:6px 12px;background:var(--purple-light);border-radius:6px;display:inline-block}
+.quiz-question{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:2px solid #E8E8E8;transition:border-color .3s}
+.quiz-question.missing{border-color:var(--warning)}
+.quiz-question.correct{border-color:var(--success);background:#F0FFF4}
+.quiz-question.wrong{border-color:var(--error);background:#FFF5F5}
+.q-text{font-weight:600;margin-bottom:10px;font-size:.95em}
+.q-number{display:inline-block;background:var(--orange);color:#fff;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:.78em;font-weight:700;margin-right:6px}
+.quiz-option{display:flex;align-items:flex-start;padding:8px 12px;margin:4px 0;border-radius:8px;cursor:pointer;transition:background .2s;font-size:.9em;gap:8px}
+.quiz-option:hover{background:var(--orange-bg)}
+.quiz-option.selected{background:var(--orange-light);font-weight:600}
+.quiz-option.disabled{pointer-events:none;opacity:.85}
+.quiz-option.correct-answer{background:#D4EDDA}
+.quiz-option.wrong-answer{background:#F8D7DA}
+.quiz-radio{width:18px;height:18px;border:2px solid #CCC;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.quiz-option.selected .quiz-radio{border-color:var(--orange);background:var(--orange)}
+.quiz-option.selected .quiz-radio::after{content:'';width:6px;height:6px;background:#fff;border-radius:50%}
+.quiz-feedback{display:none;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:.85em;line-height:1.5}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:#D4EDDA;color:#155724}
+.quiz-feedback.wrong{background:#F8D7DA;color:#721C24}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border:none;border-radius:10px;font-size:.95em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-back{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-container{text-align:center;margin:20px 0}
+.btn-container-flex{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.review-score{text-align:center;padding:24px;background:var(--white);border-radius:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.score-number{font-size:2.8em;font-weight:800}
+.score-label{font-size:.95em;color:var(--text-light);margin-top:4px}
+.score-feedback{margin-top:10px;font-size:1em;font-weight:600}
+.review-area{border-radius:12px;padding:16px;margin-bottom:12px}
+.review-area.needs-review{background:#FFF8E1;border-left:4px solid var(--warning)}
+.review-area.good{background:#E8F5E9;border-left:4px solid var(--success)}
+.area-label{font-weight:700;font-size:.85em;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.review-area.needs-review .area-label{color:var(--orange)}
+.review-area.good .area-label{color:var(--success)}
+.area-title{font-weight:700;font-size:1.05em;margin-bottom:6px}
+.area-content{font-size:.88em;line-height:1.6}
+@media print{[id^="phase"]{display:none!important}#phase5{display:block!important}.progress-bar,header,.btn,.btn-container,.btn-container-flex{display:none!important}body{background:#fff}.review-area{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+<h1>La Piramide</h1>
+<p>Definizione, elementi, formule e caso particolare a base quadrata</p>
+</header>
+<div class="container">
+<div class="progress-bar">
+<div class="progress-steps">
+<div class="progress-step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Definizione</div></div>
+<div class="progress-step" data-step="2"><div class="step-circle">2</div><div class="step-label">Formule</div></div>
+<div class="progress-step" data-step="3"><div class="step-circle">3</div><div class="step-label">Concetti</div></div>
+<div class="progress-step" data-step="4"><div class="step-circle">4</div><div class="step-label">Verifica</div></div>
+<div class="progress-step" data-step="5"><div class="step-circle">5</div><div class="step-label">Ripasso</div></div>
+</div>
+</div>
+
+<!-- PHASE 1 -->
+<div id="phase1" class="phase active">
+<h2 class="phase-header">Definizione, elementi e tipologie</h2>
+<div class="phase-instruction">Clicca su ogni elemento per scoprirne le proprietà. Devi aprirli tutti per proseguire.</div>
+<div class="click-grid">
+
+<div class="click-box" data-id="p1-def"><div class="box-header"><span>🔶 Definizione di piramide</span><div class="box-check">✓</div></div>
+<div class="box-content">La <strong>piramide</strong> è un poliedro con una <strong>base poligonale</strong> e <strong>facce laterali triangolari</strong> che convergono in un punto: il <strong>vertice</strong> (apice). Prende il nome dalla base: triangolare (3 lati), quadrangolare (4), pentagonale (5), esagonale (6).</div></div>
+
+<div class="click-box" data-id="p1-elem"><div class="box-header"><span>📐 Gli elementi</span><div class="box-check">✓</div></div>
+<div class="box-content"><strong>Base</strong>: il poligono su cui poggia. <strong>Vertice</strong>: il punto in cui convergono le facce laterali. <strong>Facce laterali</strong>: tanti triangoli quanti i lati della base. <strong>Spigoli di base</strong>: i lati del poligono. <strong>Spigoli laterali</strong>: dal vertice della base al vertice della piramide. <strong>Altezza</strong> (\(h\)): distanza perpendicolare dal vertice al piano della base.</div></div>
+
+<div class="click-box" data-id="p1-ap"><div class="box-header"><span>📏 L'apotema della piramide</span><div class="box-check">✓</div></div>
+<div class="box-content">L'<strong>apotema della piramide</strong> (\(a_p\)) è l'altezza di ciascun triangolo laterale: il segmento che va dal vertice della piramide al <strong>punto medio</strong> di uno spigolo di base. Non va confusa con l'altezza \(h\) della piramide (che è perpendicolare alla base) né con l'apotema di base \(a_b\) (che è l'apotema del poligono di base).</div></div>
+
+<div class="click-box" data-id="p1-reg"><div class="box-header"><span>★ Piramide retta e regolare</span><div class="box-check">✓</div></div>
+<div class="box-content"><strong>Piramide retta</strong>: il piede dell'altezza cade nel centro della base. <strong>Piramide regolare</strong>: è retta con base a <strong>poligono regolare</strong>. Le facce laterali sono triangoli isosceli tutti congruenti. Noi lavoriamo con le piramidi regolari.</div></div>
+
+<div class="click-box" data-id="p1-pit"><div class="box-header"><span>⚡ Relazione pitagorica</span><div class="box-check">✓</div></div>
+<div class="box-content">Nella piramide regolare, l'altezza \(h\), l'apotema di base \(a_b\) e l'apotema della piramide \(a_p\) formano un <strong>triangolo rettangolo</strong>:<br><br>\(a_p = \sqrt{h^2 + a_b^{\ 2}}\)<br><br>Da cui si ricavano: \(h = \sqrt{a_p^{\ 2} - a_b^{\ 2}}\) e \(a_b = \sqrt{a_p^{\ 2} - h^2}\).</div></div>
+
+<div class="click-box" data-id="p1-svil"><div class="box-header"><span>✂ Lo sviluppo</span><div class="box-check">✓</div></div>
+<div class="box-content">Aprendo la piramide si ottengono tanti <strong>triangoli isosceli</strong> (con altezza \(a_p\) e base = lato del poligono) quanti i lati della base, più il <strong>poligono di base</strong>. L'area dei triangoli dà la superficie laterale: \(S_l = \frac{p \times a_p}{2}\), dove \(p\) è il perimetro di base.</div></div>
+
+</div>
+<div class="btn-container"><button class="btn btn-primary" id="btn-to-phase2" disabled onclick="goToPhase(2)">Avanti ➤</button></div>
+</div>
+
+<!-- PHASE 2 -->
+<div id="phase2" class="phase">
+<h2 class="phase-header">Formule e confronto con il prisma</h2>
+<div class="phase-instruction">Clicca su ogni elemento per scoprire le formule. Devi aprirli tutti per proseguire.</div>
+<div class="click-grid">
+
+<div class="click-box" data-id="p2-sl"><div class="box-header"><span>📏 Superficie laterale</span><div class="box-check">✓</div></div>
+<div class="box-content">Somma delle aree dei triangoli laterali:<br><br>\(S_l = \dfrac{p \times a_p}{2}\)<br><br>dove \(p\) = perimetro di base e \(a_p\) = apotema della piramide. Il \(\div 2\) viene dall'area del triangolo (\(\frac{b \times h}{2}\)).</div></div>
+
+<div class="click-box" data-id="p2-st"><div class="box-header"><span>🧮 Superficie totale</span><div class="box-check">✓</div></div>
+<div class="box-content">Laterale + la base:<br><br>\(S_t = S_l + S_b\)<br><br>Attenzione: la piramide ha <strong>una sola base</strong>, non due! Non c'è il fattore 2 davanti a \(S_b\), a differenza del prisma e del cilindro.</div></div>
+
+<div class="click-box" data-id="p2-vol"><div class="box-header"><span>📦 Volume</span><div class="box-check">✓</div></div>
+<div class="box-content">\(V = \dfrac{S_b \times h}{3}\)<br><br>Area di base per altezza, <strong>diviso 3</strong>. Il fattore \(\frac{1}{3}\) compare perché la piramide occupa esattamente un terzo del prisma con stessa base e altezza.<br><br>Formule inverse: \(h = \frac{3V}{S_b}\) e \(S_b = \frac{3V}{h}\).</div></div>
+
+<div class="click-box" data-id="p2-13"><div class="box-header"><span>★ Perché diviso 3?</span><div class="box-check">✓</div></div>
+<div class="box-content">Il prisma ha \(V = S_b \times h\). La piramide ha la stessa base e la stessa altezza, ma «si stringe» verso il vertice. Si dimostra che servono esattamente <strong>3 piramidi identiche</strong> per riempire il prisma corrispondente. Lo stesso fattore \(\frac{1}{3}\) si ritrova nel cono rispetto al cilindro.</div></div>
+
+<div class="click-box" data-id="p2-quad"><div class="box-header"><span>◆ Caso: base quadrata</span><div class="box-check">✓</div></div>
+<div class="box-content">Il caso più frequente nei problemi. Base quadrata di lato \(l\):<br><br>\(p = 4l\), \(S_b = l^2\), \(a_b = \frac{l}{2}\)<br>\(S_l = 2l \cdot a_p\), \(S_t = 2l \cdot a_p + l^2\)<br>\(V = \frac{l^2 \times h}{3}\)<br>\(a_p = \sqrt{h^2 + \left(\frac{l}{2}\right)^2}\)</div></div>
+
+<div class="click-box" data-id="p2-dens"><div class="box-header"><span>⚗ Piramide e densità</span><div class="box-check">✓</div></div>
+<div class="box-content">Come sempre: \(m = d \times V\). Prima calcoli il volume, poi moltiplichi per la densità.<br><br><em>Esempio</em>: piramide a base quadrata di marmo (\(d = 2{,}7\) g/cm³), \(l = 6\) cm, \(h = 9\) cm.<br>\(V = \frac{36 \times 9}{3} = 108\) cm³<br>\(m = 2{,}7 \times 108 = 291{,}6\) g.</div></div>
+
+</div>
+<div class="btn-container-flex">
+<button class="btn btn-back" onclick="goToPhase(1)">◄ Indietro</button>
+<button class="btn btn-primary" id="btn-to-phase3" disabled onclick="goToPhase(3)">Avanti ➤</button>
+</div>
+</div>
+
+<!-- PHASE 3 -->
+<div id="phase3" class="phase">
+<h2 class="phase-header">Concetti chiave</h2>
+<div class="phase-instruction">Apri tutte le schede per approfondire. Devi leggerle tutte per proseguire.</div>
+
+<div class="concept-card" data-id="c1"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>✂ Dallo sviluppo alla formula di \(S_l\)</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Lo sviluppo della piramide regolare mostra tanti triangoli isosceli quanti i lati della base. Ogni triangolo ha come base un lato del poligono e come altezza l'apotema della piramide \(a_p\).</p><p style="margin:8px 0">L'area di un singolo triangolo è \(\frac{\text{lato} \times a_p}{2}\). Sommando tutti i triangoli, le basi danno il perimetro \(p\), e il \(\frac{1}{2}\) è comune a tutti: \(S_l = \frac{p \times a_p}{2}\). Non è una formula da memorizzare, ma il risultato diretto dello sviluppo.</p></div></div>
+
+<div class="concept-card" data-id="c2"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>📦 Il fattore 1/3 nel volume</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Il volume del prisma è \(V = S_b \times h\). La piramide con la stessa base e la stessa altezza occupa esattamente <strong>un terzo</strong> di quello spazio, perché si stringe verso il vertice.</p><p style="margin:8px 0">Intuitivamente: servono 3 piramidi identiche per riempire il prisma. Per questo \(V = \frac{S_b \times h}{3}\). Questo fattore \(\frac{1}{3}\) è il collegamento fondamentale tra prisma e piramide, e si ripresenta identico nel rapporto cilindro-cono.</p></div></div>
+
+<div class="concept-card" data-id="c3"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>⚡ Il triangolo rettangolo interno</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>Nella piramide regolare esiste un triangolo rettangolo «nascosto» formato da tre segmenti: l'altezza \(h\) (cateto verticale), l'apotema di base \(a_b\) (cateto orizzontale) e l'apotema della piramide \(a_p\) (ipotenusa).</p><p style="margin:8px 0">Con il Teorema di Pitagora puoi trovare qualsiasi dei tre se conosci gli altri due: \(a_p = \sqrt{h^2 + a_b^{\ 2}}\). Per la piramide a base quadrata, \(a_b = \frac{l}{2}\), quindi \(a_p = \sqrt{h^2 + \frac{l^2}{4}}\).</p></div></div>
+
+<div class="concept-card" data-id="c4"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>★ Piramide vs prisma e cilindro: una sola base</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>La differenza strutturale chiave: prisma e cilindro hanno <strong>due basi</strong>, la piramide ne ha <strong>una sola</strong>. Questo significa:</p><p style="margin:8px 0">Nella \(S_t\) del prisma/cilindro compare il fattore 2 (due basi): \(S_t = S_l + 2 S_b\). Nella \(S_t\) della piramide <strong>non c'è il fattore 2</strong>: \(S_t = S_l + S_b\). Dimenticare questa differenza è uno degli errori più frequenti.</p></div></div>
+
+<div class="concept-card" data-id="c5"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>◆ Il caso a base quadrata nei dettagli</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p>La piramide regolare a base quadrata è il caso più frequente nei problemi. Il poligono di base è un quadrato di lato \(l\), da cui: \(p = 4l\), \(S_b = l^2\), \(a_b = \frac{l}{2}\).</p><p style="margin:8px 0">Le formule generali si specializzano: \(S_l = \frac{4l \times a_p}{2} = 2l \cdot a_p\), \(V = \frac{l^2 \times h}{3}\). E il triangolo pitagorico diventa \(a_p = \sqrt{h^2 + \frac{l^2}{4}}\). Nei problemi, se ti danno \(l\) e \(h\), puoi calcolare tutto.</p></div></div>
+
+<div class="concept-card" data-id="c6"><div class="card-header" onclick="toggleCard(this)"><div style="display:flex;align-items:center;gap:8px"><div class="card-check">✓</div><span>⚠ Errori da evitare</span></div><span class="card-icon">➤</span></div>
+<div class="card-body"><p><strong>Dimenticare ÷ 3 nel volume</strong>: la formula è \(\frac{S_b \times h}{3}\), non \(S_b \times h\). Il fattore \(\frac{1}{3}\) distingue la piramide dal prisma.</p><p style="margin:8px 0"><strong>Scrivere 2×S<sub>b</sub> nella S<sub>t</sub></strong>: la piramide ha una sola base, quindi \(S_t = S_l + S_b\) senza il fattore 2.</p><p><strong>Confondere h con a<sub>p</sub></strong>: \(h\) è verticale (dal vertice alla base), \(a_p\) è obliqua (dal vertice al punto medio di uno spigolo). Sono segmenti diversi.</p><p style="margin-top:8px"><strong>Dimenticare ÷ 2 nella S<sub>l</sub></strong>: i triangoli hanno area \(\frac{b \times h}{2}\), non \(b \times h\).</p></div></div>
+
+<div class="btn-container-flex">
+<button class="btn btn-back" onclick="goToPhase(2)">◄ Indietro</button>
+<button class="btn btn-primary" id="btn-to-phase4" disabled onclick="goToPhase(4)">Avanti ➤</button>
+</div>
+</div>
+
+<!-- PHASE 4 -->
+<div id="phase4" class="phase">
+<h2 class="phase-header">Verifica le tue conoscenze</h2>
+<div class="phase-instruction">Rispondi a tutte le domande, poi premi «Verifica Risposte».</div>
+<div id="quiz-container"></div>
+<div class="btn-container-flex">
+<button class="btn btn-back" onclick="goToPhase(3)">◄ Indietro</button>
+<button class="btn btn-success" id="btn-verify" onclick="verifyQuiz()">Verifica Risposte ✔</button>
+</div>
+</div>
+
+<!-- PHASE 5 -->
+<div id="phase5" class="phase">
+<h2 class="phase-header">Il tuo ripasso personalizzato</h2>
+<div class="review-score" id="review-score"></div>
+<div id="review-areas"></div>
+<div class="btn-container-flex">
+<button class="btn btn-back" onclick="goToPhase(4)">◄ Rivedi Errori</button>
+<button class="btn btn-primary" onclick="window.print()">🖨 Stampa Ripasso</button>
+<button class="btn btn-success" onclick="restart()">Ricomincia ⟳</button>
+</div>
+</div>
+
+</div>
+<script>
+const quizData=[
+{category:"Definizione ed elementi",area:"def",question:"Le facce laterali della piramide sono:",options:["Rettangoli","Quadrati","Triangoli","Parallelogrammi"],correct:2,explanation:"Le facce laterali della piramide sono sempre triangoli che convergono nel vertice. I rettangoli sono le facce laterali del prisma retto."},
+{category:"Definizione ed elementi",area:"def",question:"L'apotema della piramide (\\(a_p\\)) è:",options:["L'altezza della piramide","Il raggio della base","L'altezza di ciascun triangolo laterale","Lo spigolo laterale"],correct:2,explanation:"L'apotema della piramide è l'altezza dei triangoli laterali: va dal vertice al punto medio di uno spigolo di base. Non va confusa con l'altezza h."},
+{category:"Definizione ed elementi",area:"def",question:"Una piramide regolare ha la base che è:",options:["Un poligono qualsiasi","Un poligono regolare","Sempre un quadrato","Sempre un triangolo equilatero"],correct:1,explanation:"La piramide regolare è una piramide retta la cui base è un poligono regolare (tutti i lati e tutti gli angoli uguali). Può essere triangolare, quadrata, pentagonale, ecc."},
+{category:"Formule e sviluppo",area:"form",question:"La formula della superficie laterale \\(S_l = \\frac{p \\times a_p}{2}\\) ha il fattore \\(\\div 2\\) perché:",options:["Le basi sono due","Le facce laterali sono triangoli","Il perimetro va dimezzato","L'apotema è la metà dell'altezza"],correct:1,explanation:"Il ÷ 2 viene dall'area del triangolo (base × altezza / 2). Ogni faccia laterale è un triangolo, e sommando tutti i triangoli il ÷ 2 resta."},
+{category:"Formule e sviluppo",area:"form",question:"La superficie totale della piramide è:",options:["\\(S_t = S_l + 2S_b\\)","\\(S_t = S_l + S_b\\)","\\(S_t = 2S_l + S_b\\)","\\(S_t = S_l + \\pi r^2\\)"],correct:1,explanation:"La piramide ha una sola base, quindi St = Sl + Sb senza il fattore 2. Il fattore 2 compare nel prisma e nel cilindro, che hanno due basi."},
+{category:"Formule e sviluppo",area:"form",question:"Il volume della piramide è \\(V = \\frac{S_b \\times h}{3}\\). Il fattore \\(\\frac{1}{3}\\) compare perché:",options:["Ha un terzo delle facce del prisma","Occupa un terzo del prisma con stessa base e altezza","Ha tre spigoli laterali","L'altezza è un terzo dell'apotema"],correct:1,explanation:"La piramide occupa esattamente 1/3 del volume del prisma corrispondente (stessa base, stessa altezza). Servirebbero 3 piramidi identiche per riempire il prisma."},
+{category:"Relazione pitagorica e caso quadrato",area:"pit",question:"Nella piramide regolare, \\(h\\), \\(a_b\\) e \\(a_p\\) formano:",options:["Un triangolo equilatero","Un triangolo isoscele","Un triangolo rettangolo","Non formano un triangolo"],correct:2,explanation:"Formano un triangolo rettangolo con cateti h (verticale) e ab (orizzontale) e ipotenusa ap. Si applica il Teorema di Pitagora: ap = √(h² + ab²)."},
+{category:"Relazione pitagorica e caso quadrato",area:"pit",question:"In una piramide regolare a base quadrata con \\(l = 8\\) cm, l'apotema di base \\(a_b\\) vale:",options:["8 cm","16 cm","4 cm","2 cm"],correct:2,explanation:"Per il quadrato, l'apotema di base è la metà del lato: ab = l/2 = 8/2 = 4 cm. È la distanza dal centro al punto medio di un lato."},
+{category:"Errori e applicazioni",area:"err",question:"Quale di questi è un errore?",options:["Usare \\(V = \\frac{S_b \\times h}{3}\\)","Scrivere \\(S_t = S_l + S_b\\)","Scrivere \\(S_t = S_l + 2S_b\\)","Usare Pitagora per trovare \\(a_p\\)"],correct:2,explanation:"La piramide ha una sola base: St = Sl + Sb, senza il fattore 2. Scrivere 2Sb è un errore tipico dovuto alla confusione con le formule del prisma."},
+{category:"Errori e applicazioni",area:"err",question:"Una piramide a base quadrata di granito (\\(d = 2{,}6\\) g/cm³) ha \\(l = 10\\) cm e \\(h = 12\\) cm. Il volume è:",options:["1200 cm³","400 cm³","600 cm³","120 cm³"],correct:1,explanation:"V = Sb × h / 3 = (10² × 12) / 3 = 1200 / 3 = 400 cm³. Attenzione: non dimenticare il ÷ 3!"}
+];
+
+const reviewContent={
+def:{title:"Definizione, elementi e tipologie",full:"La piramide è un poliedro con una base poligonale e facce laterali triangolari convergenti nel vertice. L'apotema della piramide (ap) è l'altezza dei triangoli laterali (non l'altezza h). La piramide regolare ha base a poligono regolare e facce laterali isosceli congruenti. Prende il nome dalla base: quadrangolare = base quadrata, pentagonale = base pentagonale, ecc.",short:"Definizione ed elementi: concetti compresi. Piramide = base poligonale + facce laterali triangolari, ap ≠ h."},
+form:{title:"Formule e sviluppo della piramide",full:"Lo sviluppo mostra i triangoli laterali + il poligono di base. Sl = p×ap/2 (somma delle aree dei triangoli, il ÷2 viene dall'area del triangolo). St = Sl + Sb (una sola base, senza fattore 2). V = Sb×h/3 (un terzo del prisma con stessa base e altezza). Formule inverse: h = 3V/Sb, Sb = 3V/h, ap = 2Sl/p, p = 2Sl/ap.",short:"Formule della piramide: comprese. Sl = p×ap/2, St = Sl + Sb (una base), V = Sb×h/3."},
+pit:{title:"Relazione pitagorica e caso a base quadrata",full:"Nella piramide regolare, h (cateto verticale), ab (cateto orizzontale, apotema di base) e ap (ipotenusa, apotema piramide) formano un triangolo rettangolo: ap = √(h² + ab²). Per la base quadrata: p = 4l, Sb = l², ab = l/2, quindi ap = √(h² + l²/4). Conoscendo l e h puoi calcolare tutto.",short:"Relazione pitagorica e caso quadrato: compresi. h, ab, ap → triangolo rettangolo. Base quadrata: ab = l/2."},
+err:{title:"Errori comuni e applicazioni",full:"Errori frequenti: dimenticare ÷3 nel volume (V = Sb×h/3, non Sb×h); scrivere 2Sb nella St (una sola base!); confondere h (verticale) con ap (obliqua); dimenticare ÷2 nella Sl. Per la densità: m = d × V, prima il volume poi la massa. Controlla sempre le unità (cm² per superfici, cm³ per volumi).",short:"Errori e applicazioni: concetti compresi. ÷3 nel volume, una sola base, h ≠ ap."}
+};
+
+let currentPhase=1;const phaseOpened={1:new Set(),2:new Set(),3:new Set()};const phaseTotal={1:6,2:6,3:6};let quizAnswers={};let quizVerified=false;
+
+function buildQuiz(){const c=document.getElementById('quiz-container');let h='',cat='';quizData.forEach((q,i)=>{if(q.category!==cat){cat=q.category;h+=`<div class="quiz-category">${cat}</div>`}h+=`<div class="quiz-question" id="qq-${i}"><div class="q-text"><span class="q-number">${i+1}</span>${q.question}</div>`;q.options.forEach((o,j)=>{h+=`<div class="quiz-option" data-q="${i}" data-o="${j}" onclick="selectOption(${i},${j})"><div class="quiz-radio"></div><span>${o}</span></div>`});h+=`<div class="quiz-feedback" id="fb-${i}"></div></div>`});c.innerHTML=h;renderMathInElement(c,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}]})}
+
+function selectOption(qi,oi){if(quizVerified)return;quizAnswers[qi]=oi;document.querySelectorAll(`.quiz-option[data-q="${qi}"]`).forEach(e=>e.classList.remove('selected'));document.querySelector(`.quiz-option[data-q="${qi}"][data-o="${oi}"]`).classList.add('selected');document.getElementById(`qq-${qi}`).classList.remove('missing')}
+
+function verifyQuiz(){const u=[];quizData.forEach((q,i)=>{if(quizAnswers[i]===undefined)u.push(i)});if(u.length>0){u.forEach(i=>document.getElementById(`qq-${i}`).classList.add('missing'));document.getElementById(`qq-${u[0]}`).scrollIntoView({behavior:'smooth',block:'center'});return}quizVerified=true;quizData.forEach((q,i)=>{const ok=quizAnswers[i]===q.correct;document.getElementById(`qq-${i}`).classList.add(ok?'correct':'wrong');document.querySelectorAll(`.quiz-option[data-q="${i}"]`).forEach(e=>{e.classList.add('disabled');if(parseInt(e.dataset.o)===q.correct)e.classList.add('correct-answer');if(parseInt(e.dataset.o)===quizAnswers[i]&&!ok)e.classList.add('wrong-answer')});const fb=document.getElementById(`fb-${i}`);fb.className=`quiz-feedback show ${ok?'correct':'wrong'}`;fb.innerHTML=(ok?'✔ Corretto! ':'✘ Sbagliato. ')+q.explanation});const b=document.getElementById('btn-verify');b.textContent='Vai al Ripasso ➤';b.className='btn btn-primary';b.onclick=()=>goToPhase(5)}
+
+function buildReview(){const as={};quizData.forEach((q,i)=>{if(!as[q.area])as[q.area]={total:0,correct:0};as[q.area].total++;if(quizAnswers[i]===q.correct)as[q.area].correct++});const tc=Object.values(as).reduce((s,a)=>s+a.correct,0),tq=quizData.length,pct=Math.round(tc/tq*100);let ft,fc;if(pct>=80){ft='Hai capito bene! Ottimo lavoro.';fc='var(--success)'}else if(pct>=50){ft='Ci sei quasi! Rivedi le aree evidenziate.';fc='var(--orange)'}else{ft='Da rivedere. Rileggi lo schema con attenzione.';fc='var(--error)'}document.getElementById('review-score').innerHTML=`<div class="score-number" style="color:${fc}">${tc}/${tq}</div><div class="score-label">Risposte corrette (${pct}%)</div><div class="score-feedback" style="color:${fc}">${ft}</div>`;let ah='';for(const[a,s]of Object.entries(as)){const g=s.correct===s.total;const r=reviewContent[a];ah+=`<div class="review-area ${g?'good':'needs-review'}"><div class="area-label">${g?'✔ Hai capito bene':'⚠ Da rivedere'}</div><div class="area-title">${r.title}</div><div class="area-content">${g?r.short:r.full}</div></div>`}document.getElementById('review-areas').innerHTML=ah}
+
+function goToPhase(n){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(`phase${n}`).classList.add('active');currentPhase=n;document.querySelectorAll('.progress-step').forEach(s=>{const sn=parseInt(s.dataset.step);s.classList.remove('active','completed');if(sn===n)s.classList.add('active');else if(sn<n)s.classList.add('completed')});if(n===5)buildReview();window.scrollTo({top:0,behavior:'smooth'})}
+
+document.querySelectorAll('.click-box').forEach(box=>{box.addEventListener('click',()=>{box.classList.add('opened');const id=box.dataset.id;const pn=id.startsWith('p1')?1:2;phaseOpened[pn].add(id);checkComplete(pn)})});
+
+function toggleCard(h){const c=h.parentElement;const w=c.classList.contains('expanded');if(w){c.classList.remove('expanded')}else{c.classList.add('expanded');c.classList.add('opened');phaseOpened[3].add(c.dataset.id);checkComplete(3)}}
+
+function checkComplete(pn){const ids={1:'btn-to-phase2',2:'btn-to-phase3',3:'btn-to-phase4'};const b=document.getElementById(ids[pn]);if(phaseOpened[pn].size>=phaseTotal[pn])b.disabled=false}
+
+function restart(){quizAnswers={};quizVerified=false;[1,2,3].forEach(n=>phaseOpened[n].clear());document.querySelectorAll('.click-box').forEach(b=>b.classList.remove('opened'));document.querySelectorAll('.concept-card').forEach(c=>c.classList.remove('opened','expanded'));['btn-to-phase2','btn-to-phase3','btn-to-phase4'].forEach(id=>document.getElementById(id).disabled=true);buildQuiz();const b=document.getElementById('btn-verify');b.textContent='Verifica Risposte ✔';b.className='btn btn-success';b.onclick=verifyQuiz;goToPhase(1)}
+
+buildQuiz();
+document.addEventListener('DOMContentLoaded',()=>{renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}]})});
+</script>
+</body>
+</html>
